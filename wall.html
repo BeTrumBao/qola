@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tường nhà - Qola</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+:root{
+  --accent-1:#60a5fa; --accent-2:#2563eb;
+  --bg-dark:#0f172a; --bg-light:#111827; --bg-nav:#0b1220;
+  --glass-border:rgba(255,255,255,.08); --glass:rgba(255,255,255,.06);
+  --glass-3:rgba(17,24,39,.9);
+  --text-primary:#e5e7eb; --text-secondary:#9ca3af;
+  --post-bg:#0f172a; --input-bg:rgba(0,0,0,.28);
+  --toast-bg:rgba(17,24,39,.92);
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+/* === THÊM KHỐI NÀY VÀO SAU :root === */
+.light {
+  --accent-1: #007aff; --accent-2: #0056b3; /* Đổi màu nhấn */
+  --bg-dark: #f0f2f5; --bg-light: #ffffff; --bg-nav: #ffffff; /* Nền sáng */
+  --glass-border: rgba(0,0,0,.1); --glass: rgba(0,0,0,.04); /* Border/Glass sáng */
+  --glass-3: rgba(255,255,255,.9); /* Modal sáng */
+  --text-primary: #050505; --text-secondary: #65676b; /* Chữ đen/xám */
+  --post-bg: #ffffff; --input-bg: rgba(0,0,0,.05); /* Post/Input sáng */
+  --toast-bg: rgba(255,255,255,.95); /* Toast sáng */
+  --shadow: 0 6px 18px rgba(0,0,0,.1); /* Bóng mờ hơn */
+  --skeleton-bg: rgba(0, 0, 0, 0.08); /* Skeleton sáng */
+}
+
+/* Điều chỉnh nhỏ cho header sáng */
+.light .wall-header {
+    background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.8));
+    border-bottom-color: var(--glass-border);
+}
+.light .search-input {
+    background: var(--input-bg);
+    border-color: var(--glass-border);
+    color: var(--text-primary);
+}
+.light .add-post-btn {
+    /* Giữ nguyên màu xanh hoặc đổi nếu muốn */
+}
+
+/* Điều chỉnh post card sáng */
+.light .post-card {
+    background: var(--post-bg);
+    border-color: var(--glass-border);
+    box-shadow: 0 1px 2px rgba(0,0,0,.15); /* Bóng nhẹ hơn */
+}
+
+/* Điều chỉnh nút action sáng */
+.light .action-btn {
+    background: var(--input-bg);
+    border-color: var(--glass-border);
+    color: var(--text-secondary);
+}
+.light .action-btn.liked {
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    color: #fff;
+    border-color: transparent;
+}
+
+/* Điều chỉnh modal sáng */
+.light .modal-content {
+    background: var(--glass-3);
+    border-color: var(--glass-border);
+    box-shadow: var(--shadow);
+}
+.light .modal-content textarea, .light .modal-content input, .light .modal-content select {
+    background: var(--input-bg);
+    border-color: var(--glass-border);
+    color: var(--text-primary);
+}
+.light .btn-ghost {
+    background: rgba(0,0,0,.05);
+    border-color: var(--glass-border);
+    color: var(--text-secondary);
+}
+.light .chip {
+    background: var(--input-bg);
+    border-color: var(--glass-border);
+}
+.light .mention-suggest {
+     background: var(--glass-3);
+     border-color: var(--glass-border);
+}
+.light .mention-item:hover {
+     background: rgba(0,0,0,.05);
+}
+
+/* === CSS CHO SKELETON LOADING === */
+.skeleton {
+    background: var(--skeleton-bg, rgba(255, 255, 255, 0.05)); /* Dùng biến nếu có, fallback màu tối */
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+}
+.skeleton-circle {
+    border-radius: 50%;
+}
+.skeleton-line {
+    border-radius: 6px; /* Bo góc nhẹ cho line */
+}
+
+/* Animation lấp lánh */
+.skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+    animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Ghi đè lại CSS loading cũ để ẩn placeholder khi không load nữa */
+/* (CSS này có thể đã có ở bước trước) */
+body:not(.wall-loading) #post-list .post-card-placeholder {
+     display: none;
+}
+/* Đảm bảo placeholder hiện khi đang loading */
+body.wall-loading #post-list .post-card-placeholder {
+     display: block; /* Hoặc flex tùy vào cấu trúc skeleton cậu muốn */
+}
+/* Ẩn post thật khi đang load */
+body.wall-loading #post-list .post-card:not(.post-card-placeholder) {
+    display: none;
+}
+
+/* === CSS CHO HIỆU ỨNG LOADING WALL === */
+
+/* 1. Mặc định ẩn tất cả bài đăng THẬT bên trong #post-list */
+body.wall-loading #post-list .post-card:not(.post-card-placeholder) {
+    display: none;
+}
+
+/* 2. Style cho placeholder khi đang loading (Tùy chỉnh nếu muốn) */
+body.wall-loading #post-list .post-card-placeholder {
+    display: flex; /* Đảm bảo nó hiện ra */
+    min-height: 200px; /* Cho nó cao hơn chút */
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Poppins',sans-serif;background:var(--bg-dark);color:var(--text-primary);padding-top:72px}
+
+.wall-header{position:fixed;top:0;left:0;right:0;height:72px;display:flex;align-items:center;gap:14px;padding:14px 18px;background:linear-gradient(180deg,rgba(2,6,23,.8),rgba(2,6,23,.6));backdrop-filter:blur(10px);border-bottom:1px solid var(--glass-border);z-index:1000}
+.back-btn{display:none!important}
+.header-info{display:flex;align-items:center;gap:12px;overflow:hidden}
+.header-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid var(--glass-border)}
+.header-name{font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.search-wrap{margin-left:auto;display:flex;align-items:center;gap:10px}
+.search-input{width:230px;padding:10px 14px;border-radius:999px;border:1px solid var(--glass-border);background:var(--input-bg);outline:none;color:var(--text-primary)}
+.add-post-btn{width:40px;height:40px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+.wall-container{max-width:720px;margin:18px auto;padding:0 16px}
+#post-list{display:flex;flex-direction:column;gap:18px}
+.post-card{background:var(--post-bg);border:1px solid var(--glass-border);border-radius:16px;padding:16px 18px;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.post-card-placeholder{min-height:100px;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);font-style:italic}
+
+.post-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.author-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid var(--glass-border);cursor:pointer}
+.author-info{flex:1}
+.author-name{font-weight:600;cursor:pointer}
+.author-name:hover{text-decoration:underline}
+.post-timestamp{font-size:12px;color:var(--text-secondary)}
+.post-content{margin-top:4px}
+.post-text{white-space:pre-wrap;line-height:1.6;margin-bottom:8px}
+.mentions{color:#93c5fd;font-weight:600}
+.post-image{display:block;max-width:100%;border-radius:12px;margin-top:10px;border:1px solid var(--glass-border)}
+
+.post-actions{display:flex;align-items:center;gap:12px;border-top:1px solid var(--glass-border);margin-top:12px;padding-top:10px}
+.action-btn{padding:8px 12px;border-radius:999px;border:1px solid var(--glass-border);background:var(--glass);color:var(--text-secondary);cursor:pointer}
+.action-btn.liked{background:linear-gradient(135deg,var(--accent-1),var(--accent-2));border-color:transparent;color:#fff}
+.count{margin-left:auto;font-size:13px;color:var(--text-secondary)}
+
+#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--toast-bg);color:var(--text-primary);padding:14px 18px;border-radius:12px;border:1px solid var(--glass-border);box-shadow:var(--shadow);display:none;z-index:1100}
+#toast.success{border-left:4px solid #22c55e;color:#22c55e}
+#toast.error{border-left:4px solid #ef4444;color:#ef4444}
+#toast.info{border-left:4px solid var(--accent-1);color:var(--accent-1)}
+
+/* === THÊM CSS CHO SPINNER XOAY === */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Modal – fix layout */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:2000}
+.modal-content{width:min(92vw,640px);background:var(--glass-3);border:1px solid var(--glass-border);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.5);padding:20px 22px}
+.modal-content h2{font-size:20px;margin-bottom:12px;text-align:left}
+.modal-row{display:flex;gap:12px;align-items:flex-start}
+.modal-col{flex:1}
+.modal-content label{display:block;margin:10px 0 6px;color:var(--text-secondary);font-size:14px}
+.modal-content textarea,.modal-content input,.modal-content select{width:100%;padding:12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--input-bg);color:var(--text-primary);outline:none}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
+.btn{padding:10px 16px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));color:#fff;cursor:pointer}
+.btn-ghost{padding:10px 16px;border:1px solid var(--glass-border);border-radius:10px;background:transparent;color:var(--text-primary);cursor:pointer}
+
+/* Chips + mention popup */
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:var(--glass);border:1px solid var(--glass-border);font-size:13px}
+.remove-x{cursor:pointer;opacity:.85}
+.mention-suggest{position:absolute;z-index:3000;background:var(--glass-3);border:1px solid var(--glass-border);border-radius:12px;padding:6px;max-height:240px;overflow:auto;box-shadow:var(--shadow);display:none}
+.mention-item{padding:8px 10px;border-radius:8px;display:flex;align-items:center;gap:8px;cursor:pointer}
+.mention-item:hover{background:var(--glass)}
+.mention-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid var(--glass-border)}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<div class="wall-header">
+  <button id="back-to-profile-btn" class="back-btn" title="Quay lại">‹</button>
+  <div class="header-info">
+    <img id="header-avatar" class="header-avatar" src="https://placehold.co/40x40" alt="avatar">
+    <span id="header-name">Đang tải...</span>
+  </div>
+
+  <div class="search-wrap">
+    <input id="search-input" class="search-input" type="text" placeholder="Tìm bài đăng..." />
+    <button id="open-create-post-modal-btn" class="add-post-btn" title="Tạo bài đăng mới" style="display:none;">+</button>
+  </div>
+</div>
+
+<div class="wall-container">
+  <div id="post-list">
+    <div class="post-card post-card-placeholder" style="padding: 16px 18px; display: block; min-height: 0;"> <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <div class="skeleton skeleton-circle" style="width: 40px; height: 40px; flex-shrink: 0;"></div>
+            <div style="flex-grow: 1;">
+                <div class="skeleton skeleton-line" style="height: 16px; width: 40%; margin-bottom: 6px;"></div>
+                <div class="skeleton skeleton-line" style="height: 12px; width: 30%;"></div>
+            </div>
+        </div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 90%; margin-bottom: 8px;"></div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 95%; margin-bottom: 8px;"></div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 70%;"></div>
+    </div>
+    <div class="post-card post-card-placeholder" style="padding: 16px 18px; display: block; min-height: 0;"> <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <div class="skeleton skeleton-circle" style="width: 40px; height: 40px; flex-shrink: 0;"></div>
+            <div style="flex-grow: 1;">
+                <div class="skeleton skeleton-line" style="height: 16px; width: 40%; margin-bottom: 6px;"></div>
+                <div class="skeleton skeleton-line" style="height: 12px; width: 30%;"></div>
+            </div>
+        </div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 90%; margin-bottom: 8px;"></div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 95%; margin-bottom: 8px;"></div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 70%;"></div>
+    </div>
+    <div class="post-card post-card-placeholder" style="padding: 16px 18px; display: block; min-height: 0;"> <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <div class="skeleton skeleton-circle" style="width: 40px; height: 40px; flex-shrink: 0;"></div>
+            <div style="flex-grow: 1;">
+                <div class="skeleton skeleton-line" style="height: 16px; width: 40%; margin-bottom: 6px;"></div>
+                <div class="skeleton skeleton-line" style="height: 12px; width: 30%;"></div>
+            </div>
+        </div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 90%; margin-bottom: 8px;"></div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 95%; margin-bottom: 8px;"></div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 70%;"></div>
+    </div>
+    <div class="post-card post-card-placeholder" style="padding: 16px 18px; display: block; min-height: 0;"> <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <div class="skeleton skeleton-circle" style="width: 40px; height: 40px; flex-shrink: 0;"></div>
+            <div style="flex-grow: 1;">
+                <div class="skeleton skeleton-line" style="height: 16px; width: 40%; margin-bottom: 6px;"></div>
+                <div class="skeleton skeleton-line" style="height: 12px; width: 30%;"></div>
+            </div>
+        </div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 90%; margin-bottom: 8px;"></div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 95%; margin-bottom: 8px;"></div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 70%;"></div>
+    </div>
+    <div class="post-card post-card-placeholder" style="padding: 16px 18px; display: block; min-height: 0;"> <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <div class="skeleton skeleton-circle" style="width: 40px; height: 40px; flex-shrink: 0;"></div>
+            <div style="flex-grow: 1;">
+                <div class="skeleton skeleton-line" style="height: 16px; width: 40%; margin-bottom: 6px;"></div>
+                <div class="skeleton skeleton-line" style="height: 12px; width: 30%;"></div>
+            </div>
+        </div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 90%; margin-bottom: 8px;"></div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 95%; margin-bottom: 8px;"></div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 70%;"></div>
+    </div>
+    <div class="post-card post-card-placeholder" style="padding: 16px 18px; display: block; min-height: 0;"> <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <div class="skeleton skeleton-circle" style="width: 40px; height: 40px; flex-shrink: 0;"></div>
+            <div style="flex-grow: 1;">
+                <div class="skeleton skeleton-line" style="height: 16px; width: 40%; margin-bottom: 6px;"></div>
+                <div class="skeleton skeleton-line" style="height: 12px; width: 30%;"></div>
+            </div>
+        </div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 90%; margin-bottom: 8px;"></div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 95%; margin-bottom: 8px;"></div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 70%;"></div>
+    </div>
+    <div class="post-card post-card-placeholder" style="padding: 16px 18px; display: block; min-height: 0;"> <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <div class="skeleton skeleton-circle" style="width: 40px; height: 40px; flex-shrink: 0;"></div>
+            <div style="flex-grow: 1;">
+                <div class="skeleton skeleton-line" style="height: 16px; width: 40%; margin-bottom: 6px;"></div>
+                <div class="skeleton skeleton-line" style="height: 12px; width: 30%;"></div>
+            </div>
+        </div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 90%; margin-bottom: 8px;"></div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 95%; margin-bottom: 8px;"></div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 70%;"></div>
+    </div><div class="post-card post-card-placeholder" style="padding: 16px 18px; display: block; min-height: 0;"> <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <div class="skeleton skeleton-circle" style="width: 40px; height: 40px; flex-shrink: 0;"></div>
+            <div style="flex-grow: 1;">
+                <div class="skeleton skeleton-line" style="height: 16px; width: 40%; margin-bottom: 6px;"></div>
+                <div class="skeleton skeleton-line" style="height: 12px; width: 30%;"></div>
+            </div>
+        </div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 90%; margin-bottom: 8px;"></div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 95%; margin-bottom: 8px;"></div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 70%;"></div>
+    </div>
+    <div class="post-card post-card-placeholder" style="padding: 16px 18px; display: block; min-height: 0;"> <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <div class="skeleton skeleton-circle" style="width: 40px; height: 40px; flex-shrink: 0;"></div>
+            <div style="flex-grow: 1;">
+                <div class="skeleton skeleton-line" style="height: 16px; width: 40%; margin-bottom: 6px;"></div>
+                <div class="skeleton skeleton-line" style="height: 12px; width: 30%;"></div>
+            </div>
+        </div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 90%; margin-bottom: 8px;"></div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 95%; margin-bottom: 8px;"></div>
+        <div class="skeleton skeleton-line" style="height: 14px; width: 70%;"></div>
+    </div>
+    </div>
+</div>
+
+<!-- Modal tạo bài -->
+<div id="create-post-modal" class="modal-overlay">
+  <div class="modal-content">
+    <h2>Tạo bài đăng mới</h2>
+    <div>
+      <label for="post-text-input">Nội dung</label>
+      <div style="position:relative">
+        <textarea id="post-text-input" rows="5" placeholder="Bạn đang nghĩ gì?"></textarea>
+        <div id="mention-list" class="mention-suggest"></div>
+      </div>
+
+      <div class="modal-row">
+        <div class="modal-col">
+          <label>Tag bạn bè</label>
+          <div id="tag-chips" class="chips"></div>
+        </div>
+        <div style="width:220px">
+          <label>Quyền xem</label>
+          <select id="visibility-select">
+            <option value="public">Công khai</option>
+            <option value="friends">Bạn bè</option>
+            <option value="only_me">Chỉ mình tôi</option>
+            <option value="friends_except">Bạn bè trừ…</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="except-wrap" style="display:none">
+        <label>Loại trừ (chọn bạn không muốn họ thấy)</label>
+        <div id="except-chips" class="chips"></div>
+      </div>
+
+      <label>Ảnh/Video</label>
+      <div class="modal-row" style="align-items:center">
+        <input type="file" id="post-image-input" accept="image/*,video/*" />
+        <div id="post-image-filename" style="color:var(--text-secondary);font-size:13px"></div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button id="cancel-create-post-btn" class="btn-ghost">Hủy</button>
+      <button id="submit-post-btn" class="btn">Đăng bài</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, collection, query, where, orderBy, getDocs, addDoc, serverTimestamp,
+  onSnapshot, setDoc, deleteDoc
+} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+const firebaseConfig = { apiKey:"AIzaSyBuGG9WKYZHb1qbmihpJFjCBsTB_VJ_LvU", authDomain:"qola-web.firebaseapp.com", databaseURL:"https://qola-web-default-rtdb.firebaseio.com", projectId:"qola-web", storageBucket:"qola-web.firebasestorage.app", messagingSenderId:"477682993077", appId:"1:477682993077:web:7dce15eb2c365729173bfc" };
+const IMGBB_API_KEY = "e6c2724ff8344c073410da4876c3d35f";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+(function initWallTheme() {
+    const savedTheme = localStorage.getItem('theme'); // Đọc theme từ localStorage
+    if (savedTheme === 'light') {
+        document.body.classList.add('light');
+    } else {
+        document.body.classList.remove('light'); // Đảm bảo theme mặc định là dark nếu không có setting
+    }
+})();
+// === KẾT THÚC ĐOẠN CODE THEME ===
+const toast = document.getElementById('toast');
+const headerAvatar = document.getElementById('header-avatar');
+const headerName = document.getElementById('header-name');
+const postList = document.getElementById('post-list');
+const openCreatePostModalBtn = document.getElementById('open-create-post-modal-btn');
+const createPostModal = document.getElementById('create-post-modal');
+const cancelCreatePostBtn = document.getElementById('cancel-create-post-btn');
+const submitPostBtn = document.getElementById('submit-post-btn');
+const postTextInput = document.getElementById('post-text-input');
+const mentionList = document.getElementById('mention-list');
+const postImageInput = document.getElementById('post-image-input');
+const postImageFilename = document.getElementById('post-image-filename');
+const tagChips = document.getElementById('tag-chips');
+const exceptWrap = document.getElementById('except-wrap');
+const exceptChips = document.getElementById('except-chips');
+const visibilitySelect = document.getElementById('visibility-select');
+const searchInput = document.getElementById('search-input');
+
+const params = new URLSearchParams(window.location.search);
+const wallUserId = params.get("id");
+
+let toastTimer, currentUser, wallUserData;
+let friends = []; // [{uid, displayName, avatarUrl}]
+let selectedTags = new Set();
+let selectedExcept = new Set();
+let loadedPosts = []; // cache để filter tìm kiếm
+
+function showToast(msg, type='info'){ clearTimeout(toastTimer); toast.textContent=msg; toast.className=''; toast.classList.add(type); toast.style.display='block'; toastTimer=setTimeout(()=>toast.style.display='none',3000); }
+function formatTimestamp(date){ const now=new Date(); const diff=(now-date)/1000|0; if(diff<60) return `${diff} giây trước`; const m=diff/60|0; if(m<60) return `${m} phút trước`; const h=m/60|0; if(h<24) return `${h} giờ trước`; const d=h/24|0; if(d<7) return `${d} ngày trước`; return date.toLocaleDateString('vi-VN'); }
+async function uploadImage(file){ if(!IMGBB_API_KEY) throw new Error('Thiếu API ImgBB'); const fd=new FormData(); fd.append('image', file); const res=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{method:'POST',body:fd}); const data=await res.json(); if(data.success) return data.data.url; throw new Error(data.error?.message||'Upload thất bại'); }
+function el(tag, attrs={}, ...children){ const e=document.createElement(tag); for(const [k,v] of Object.entries(attrs)){ if(k==='className') e.className=v; else if(k==='dataset') Object.assign(e.dataset,v); else if(k.startsWith('on')) e[k]=v; else e.setAttribute(k,v) } children.forEach(c=>e.append(c)); return e; }
+
+onAuthStateChanged(auth, async (u) => {
+    if (!u) {
+        // Nếu chưa đăng nhập, chuyển về trang login
+        window.location.href = 'login.html';
+        return;
+    }
+    currentUser = u; // Gán user hiện tại vào biến global
+
+    // THÊM DÒNG NÀY: Kích hoạt trạng thái loading ngay từ đầu
+    document.body.classList.add('wall-loading');
+
+    // Kiểm tra xem có wallUserId từ URL không
+    if (!wallUserId) {
+        headerName.textContent = "Lỗi: Không tìm thấy người dùng";
+        postList.innerHTML = '<div class="post-card post-card-placeholder" style="color: red;">Không thể tải trang này.</div>';
+        document.body.classList.remove('wall-loading'); // Xóa loading để hiện lỗi
+        return; // Dừng lại nếu không có ID
+    }
+
+    // Bắt đầu khối try để xử lý bất kỳ lỗi nào khi tải dữ liệu
+    try {
+        // Lấy thông tin người dùng của tường nhà này
+        const userSnap = await getDoc(doc(db, 'users', wallUserId));
+        if (!userSnap.exists() || userSnap.data().isDeactivated) {
+            headerName.textContent = "Người dùng không tồn tại";
+            postList.innerHTML = '<div class="post-card post-card-placeholder">Tài khoản này không tồn tại hoặc đã ngừng hoạt động.</div>';
+            document.body.classList.remove('wall-loading'); // Xóa loading để hiện lỗi
+            return; // Dừng lại nếu user không hợp lệ
+        }
+        wallUserData = userSnap.data(); // Lưu thông tin chủ tường
+
+        // Cập nhật thông tin trên header
+        const headerInitial = (wallUserData.displayName || wallUserData.email || '?')[0].toUpperCase();
+        headerAvatar.src = wallUserData.avatarUrl || `https://placehold.co/40x40?text=${headerInitial}`;
+        headerName.textContent = wallUserData.displayName || wallUserData.email || 'Người dùng Qola';
+        document.title = `Tường nhà ${wallUserData.displayName || ''} - Qola`; // Cập nhật tiêu đề trang
+
+        // Kiểm tra xem có phải tường nhà của chính mình không
+        const isOwnWall = (wallUserId === currentUser.uid);
+
+        // Xử lý nút đăng bài (+)
+        openCreatePostModalBtn.style.display = isOwnWall ? 'flex' : 'none';
+        if (isOwnWall) {
+            // Gán sự kiện cho modal tạo bài chỉ khi là tường của mình
+            openCreatePostModalBtn.onclick = () => { resetCreateForm(); createPostModal.style.display = 'flex'; };
+            cancelCreatePostBtn.onclick = () => createPostModal.style.display = 'none';
+            submitPostBtn.onclick = createPost;
+            postImageInput.onchange = () => postImageFilename.textContent = postImageInput.files[0]?.name || '';
+            visibilitySelect.onchange = () => exceptWrap.style.display = (visibilitySelect.value === 'friends_except') ? 'block' : 'none';
+
+            // Chỉ load danh sách bạn bè nếu là tường của mình (để tag/mention)
+            friends = await loadFriends(currentUser.uid);
+            renderChipLists(); // Render lại chip nếu cần
+            attachMentionSuggest(); // Gắn lại mention
+        } else {
+             // Nếu không phải tường của mình, đảm bảo gỡ bỏ các listener cũ
+             openCreatePostModalBtn.onclick = null;
+             cancelCreatePostBtn.onclick = null;
+             submitPostBtn.onclick = null;
+             postImageInput.onchange = null;
+             visibilitySelect.onchange = null;
+             // Không cần load friends hay gắn mention
+             friends = []; // Reset friends
+        }
+
+        // === TẢI BÀI ĐĂNG (QUAN TRỌNG) ===
+        if (isOwnWall) {
+            await loadUnifiedFeed(); // Tải feed tổng hợp (chờ xong)
+        } else {
+            await loadOnlyWallUser(); // Tải bài của chủ tường (chờ xong)
+        }
+        // === KẾT THÚC TẢI BÀI ĐĂNG ===
+
+
+    } catch (error) {
+        // Xử lý lỗi nếu có vấn đề trong quá trình lấy data user hoặc posts
+        console.error("Lỗi khi tải trang tường nhà:", error);
+        headerName.textContent = "Lỗi tải trang"; // Cập nhật header báo lỗi
+        postList.innerHTML = '<div class="post-card post-card-placeholder" style="color: red;">Đã xảy ra lỗi khi tải dữ liệu!</div>';
+
+    } finally {
+        // THÊM DÒNG NÀY: Luôn xóa trạng thái loading SAU KHI load xong (kể cả khi lỗi)
+        document.body.classList.remove('wall-loading');
+    }
+
+    // Gắn sự kiện cho ô tìm kiếm (luôn gắn, nhưng hàm filterAndRenderPosts sẽ chạy đúng vì loadedPosts đã có)
+    searchInput.addEventListener('input', filterAndRenderPosts);
+
+}); // Kết thúc onAuthStateChanged
+
+async function loadFriends(uid){
+  const out=new Map();
+  // subcollection
+  try{
+    const snap=await getDocs(collection(db,'users',uid,'friends'));
+    for(const d of snap.docs){
+      const fid=d.id;
+      const us=await getDoc(doc(db,'users',fid));
+      if(us.exists()) out.set(fid,{uid:fid,displayName:us.data().displayName||'Bạn bè',avatarUrl:us.data().avatarUrl||null});
+    }
+  }catch(_){}
+  // array fallback
+  try{
+    const me=await getDoc(doc(db,'users',uid));
+    if(me.exists()){
+      const arr=me.data().friends||[];
+      for(const fid of arr){
+        if(out.has(fid)) continue;
+        const us=await getDoc(doc(db,'users',fid));
+        if(us.exists()) out.set(fid,{uid:fid,displayName:us.data().displayName||'Bạn bè',avatarUrl:us.data().avatarUrl||null});
+      }
+    }
+  }catch(_){}
+  return Array.from(out.values());
+}
+
+function renderChipLists(){
+  tagChips.innerHTML=''; exceptChips.innerHTML='';
+  for(const f of friends){
+    if(selectedTags.has(f.uid)) tagChips.appendChild(chip(f,()=>{selectedTags.delete(f.uid);renderChipLists();}));
+    if(selectedExcept.has(f.uid)) exceptChips.appendChild(chip(f,()=>{selectedExcept.delete(f.uid);renderChipLists();}));
+  }
+}
+
+function chip(friend, onRemove){
+  return el('span',{className:'chip'},
+    el('img',{src:friend.avatarUrl||'https://placehold.co/20x20',style:'width:18px;height:18px;border-radius:50%;object-fit:cover;border:1px solid var(--glass-border)'}),
+    document.createTextNode(friend.displayName||'Bạn'),
+    el('span',{className:'remove-x',onclick:onRemove,title:'Bỏ'},'✕')
+  );
+}
+
+function resetCreateForm(){
+  postTextInput.value=''; postImageInput.value=''; postImageFilename.textContent='';
+  selectedTags=new Set(); selectedExcept=new Set(); visibilitySelect.value='public'; exceptWrap.style.display='none';
+  renderChipLists();
+}
+
+/* Mention popup @ */
+function attachMentionSuggest(){
+  let atMode=false, atStart=0;
+  const close=()=> mentionList.style.display='none';
+  const open=(items)=>{
+    mentionList.innerHTML='';
+    items.slice(0,20).forEach(f=>{
+      const row=el('div',{className:'mention-item',onclick:()=>select(f)},
+        el('img',{src:f.avatarUrl||'https://placehold.co/28x28',className:'mention-avatar'}),
+        el('span',{},f.displayName||'Bạn')
+      );
+      mentionList.appendChild(row);
+    });
+    const r=postTextInput.getBoundingClientRect();
+    mentionList.style.left=r.left+'px';
+    mentionList.style.top=(r.top+window.scrollY-mentionList.offsetHeight-6)+'px';
+    mentionList.style.display='block';
+  };
+  const select=(friend)=>{
+    const t=postTextInput.value;
+    const end=postTextInput.selectionStart;
+    const before=t.slice(0,atStart); const after=t.slice(end);
+    const insert='@'+(friend.displayName||'Ban')+' ';
+    postTextInput.value=before+insert+after;
+    const caret=(before+insert).length; postTextInput.setSelectionRange(caret,caret);
+    atMode=false; close(); selectedTags.add(friend.uid); renderChipLists();
+  };
+  postTextInput.addEventListener('keydown',e=>{ if(e.key==='Escape'){ atMode=false; close(); }});
+  postTextInput.addEventListener('input',()=>{
+    const pos=postTextInput.selectionStart; const text=postTextInput.value; const sub=text.slice(0,pos);
+    const i=sub.lastIndexOf('@');
+    if(i>=0){
+      const token=sub.slice(i+1,pos);
+      if(token.includes(' ')||token.includes('\n')){ atMode=false; close(); return; }
+      atMode=true; atStart=i;
+      const key=token.trim().toLowerCase();
+      const list=key? friends.filter(f=>(f.displayName||'').toLowerCase().includes(key)) : friends;
+      if(list.length) open(list); else close();
+    }else{ atMode=false; close(); }
+  });
+  document.addEventListener('click',e=>{ if(!mentionList.contains(e.target) && e.target!==postTextInput) close(); });
+}
+
+/* Hiển thị bài: hợp nhất cho tường của chính mình */
+async function loadUnifiedFeed(){
+  loadedPosts=[];
+  const ids=[currentUser.uid, ...friends.map(f=>f.uid)];
+  // chia lô 10 uid
+  const chunks=[]; for(let i=0;i<ids.length;i+=10) chunks.push(ids.slice(i,i+10));
+  const postsRef=collection(db,'posts');
+  for(const group of chunks){
+    const qy=query(postsRef, where('userId','in',group), orderBy('timestamp','desc'));
+    const snap=await getDocs(qy);
+    snap.forEach(d=> loadedPosts.push({id:d.id, ...d.data()}));
+  }
+  loadedPosts.sort((a,b)=> (b.timestamp?.toMillis?.()||0)-(a.timestamp?.toMillis?.()||0));
+  filterAndRenderPosts();
+}
+
+/* Chỉ bài của chủ tường (khi xem người khác) */
+async function loadOnlyWallUser(){
+  postList.innerHTML='<div class="post-card post-card-placeholder">Đang tải bài đăng…</div>';
+  loadedPosts=[];
+  const postsRef=collection(db,'posts');
+  const qy=query(postsRef, where('userId','==',wallUserId), orderBy('timestamp','desc'));
+  const snap=await getDocs(qy);
+  snap.forEach(d=> loadedPosts.push({id:d.id, ...d.data()}));
+  filterAndRenderPosts();
+}
+
+/* Quyền xem */
+function isFriend(viewerId){
+  return friends.some(f=>f.uid===viewerId);
+}
+function canViewPost(p, viewerId){
+  const v=p.visibility||'public';
+  if(p.userId===viewerId) return true;
+  if(v==='public') return true;
+  if(v==='only_me') return false;
+  if(v==='friends') return isFriend(viewerId);
+  if(v==='friends_except'){
+    if(!isFriend(viewerId)) return false;
+    return !(p.exceptList||[]).includes(viewerId);
+  }
+  return true;
+}
+
+/* Tìm kiếm cục bộ + render */
+function filterAndRenderPosts(){
+  const kw=(searchInput.value||'').trim().toLowerCase();
+  let list=loadedPosts.filter(p=>canViewPost(p,currentUser.uid));
+  if(kw){
+    list=list.filter(p=>{
+      const text=(p.text||'').toLowerCase();
+      const author=(p.displayName||'').toLowerCase();
+      const tags=(p.taggedFriends||[]).map(uid=>friends.find(x=>x.uid===uid)?.displayName?.toLowerCase()||'').join(' ');
+      return text.includes(kw)||author.includes(kw)||tags.includes(kw);
+    });
+  }
+  renderPostList(list);
+}
+
+function renderPostList(posts){
+  postList.innerHTML='';
+  if(!posts.length){ postList.innerHTML='<div class="post-card post-card-placeholder">Không có bài phù hợp.</div>'; return; }
+  posts.forEach(p=> postList.appendChild(createPostElement(p.id,p)));
+}
+
+/* Bài + Like realtime */
+function createPostElement(postId, postData){
+  const card=el('div',{className:'post-card',dataset:{postId}});
+  const header=el('div',{className:'post-header'});
+  const ava=el('img',{className:'author-avatar',src:postData.avatarUrl||`https://placehold.co/40x40?text=${(postData.displayName||'?')[0]}`,onclick:()=>window.location.href=`profile.html?id=${postData.userId}`});
+  const info=el('div',{className:'author-info'});
+  const name=el('div',{className:'author-name',onclick:()=>window.location.href=`profile.html?id=${postData.userId}`},postData.displayName||'Người dùng Qola');
+  const time=el('div',{className:'post-timestamp'}, postData.timestamp?formatTimestamp(postData.timestamp.toDate()):'');
+  info.append(name,time); header.append(ava,info);
+
+  const content=el('div',{className:'post-content'});
+  if(postData.text){
+    const txt=el('p',{className:'post-text'}, postData.text);
+    content.append(txt);
+    if((postData.taggedFriends||[]).length){
+      const mentions=el('div',{className:'mentions'},'Tag: '+(postData.taggedFriends||[]).map(uid=>friends.find(f=>f.uid===uid)?.displayName||'Bạn').join(', '));
+      content.append(mentions);
+    }
+  }
+  if(postData.imageUrl) content.append(el('img',{className:'post-image',src:postData.imageUrl}));
+
+  const actions=el('div',{className:'post-actions'});
+  const likeBtn=el('button',{className:'action-btn'},'❤️ Thích');
+  const likeCount=el('span',{className:'count'},'0 lượt thích');
+
+  const likesCol=collection(db,'posts',postId,'likes');
+  const likeDoc=doc(db,'posts',postId,'likes', currentUser.uid);
+
+  onSnapshot(likesCol,(snap)=>{ likeCount.textContent=`${snap.size} lượt thích`; });
+  onSnapshot(likeDoc,(s)=>{ likeBtn.classList.toggle('liked',s.exists()); likeBtn.textContent=s.exists()?'💙 Đã thích':'❤️ Thích'; });
+  likeBtn.onclick=async()=>{ const cur=await getDoc(likeDoc); if(cur.exists()) await deleteDoc(likeDoc); else await setDoc(likeDoc,{at:serverTimestamp()}); };
+
+  // nhãn quyền xem
+  const visIcon={public:'🌐',friends:'👥',only_me:'🔒',friends_except:'🚫'}[postData.visibility||'public']||'🌐';
+  name.appendChild(el('span',{style:'margin-left:6px;color:var(--text-secondary);font-size:13px'},visIcon));
+
+  actions.append(likeBtn,likeCount);
+  card.append(header,content,actions);
+  return card;
+}
+
+/* Tạo bài */
+async function createPost(){
+  if(!currentUser) return;
+  const text=postTextInput.value.trim();
+  const file=postImageInput.files[0];
+  if(!text && !file) return showToast('Vui lòng nhập nội dung hoặc chọn ảnh.', 'error');
+
+  submitPostBtn.disabled=true; submitPostBtn.textContent='Đang đăng…';
+  try{
+    let imageUrl=null;
+    if(file) imageUrl=await uploadImage(file);
+
+    const me=await getDoc(doc(db,'users',currentUser.uid));
+    const meData=me.exists()? me.data() : {};
+
+    const visibility=visibilitySelect.value;
+    const exceptList=(visibility==='friends_except')? Array.from(selectedExcept):[];
+
+    const postData={
+      userId:currentUser.uid,
+      displayName:meData.displayName || currentUser.email,
+      avatarUrl:meData.avatarUrl || null,
+      text:text || null,
+      imageUrl,
+      taggedFriends:Array.from(selectedTags),
+      visibility,
+      exceptList,
+      timestamp:serverTimestamp(),
+    };
+
+    await addDoc(collection(db,'posts'),postData);
+    showToast('Đăng bài thành công!','success');
+    createPostModal.style.display='none';
+    resetCreateForm();
+
+    if(wallUserId===currentUser.uid) await loadUnifiedFeed(); else await loadOnlyWallUser();
+
+  }catch(e){ console.error(e); showToast('Đăng bài thất bại: '+e.message,'error'); }
+  finally{ submitPostBtn.disabled=false; submitPostBtn.textContent='Đăng bài'; }
+}
+</script>
+</body>
+</html>

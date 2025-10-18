@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hoàn tất hồ sơ - Qola Messenger</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+    :root{--accent-1:#60a5fa;--accent-2:#2563eb;--bg-page:#0f172a;--glass:rgba(17,24,39,0.6);--border:rgba(255,255,255,0.15);--text:#f1f5f9;--text-2:#9ca3af;--shadow:0 12px 50px rgba(0,0,0,.4);--input-bg:rgba(255,255,255,0.1);}
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;font-family:'Poppins',sans-serif;background:var(--bg-page);color:var(--text);overflow:auto;}
+    .container{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(-45deg,#0f172a,#1e293b,#2563eb,#60a5fa);background-size:400% 400%;animation:gradientAnimation 15s ease infinite;padding:20px 0;}
+    .container::before{content:'';position:absolute;inset:0;background:rgba(15,23,42,0.7);backdrop-filter:blur(8px);}
+    @keyframes gradientAnimation{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    .card{width:min(90vw, 450px);padding:40px 36px;border-radius:24px;background:var(--glass);backdrop-filter:blur(24px);border:1px solid var(--border);box-shadow:var(--shadow);text-align:center;animation:fadein .8s ease;position:relative;z-index:1;}
+    @keyframes fadein{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+    
+    /* === BẮT ĐẦU CSS MỚI CHO AVATAR === */
+    .avatar-upload-section { margin-bottom: 25px; }
+    #setup-avatar-preview {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--border);
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    #setup-avatar-preview:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(96, 165, 250, 0.3);
+    }
+    #avatar-input { display: none; }
+    /* === KẾT THÚC CSS MỚI === */
+
+    #formTitle{font-size:22px;font-weight:500;margin-bottom:15px;color:var(--text-2);}
+    .form{display:flex;flex-direction:column;gap:14px;margin-top:10px;text-align:left;}
+    .form-label{font-size:14px;color:var(--text-2);margin-bottom:-8px;}
+    input[type="text"],input[type="number"]{padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s;}
+    input:focus{border-color:var(--accent-1);box-shadow:0 0 0 3px rgba(96,165,250,.3);}
+    .terms-row{display:flex;align-items:center;gap:10px;margin-top:10px;}
+    #termsCheckbox{width:18px;height:18px;}
+    button.submit{margin-top:20px;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));color:#fff;font-weight:600;cursor:pointer;transition:.2s;position:relative;box-shadow:0 4px 20px rgba(59,130,246,.4);}
+    button.submit:hover:not(:disabled){transform:scale(1.03);filter:brightness(1.1);}
+    button.submit:disabled{background:var(--text-2);cursor:not-allowed;transform:none;filter:none;box-shadow:none;}
+    .fadeout{animation:fadeout .8s forwards;}
+    @keyframes fadeout{to{opacity:0;transform:scale(1.03);}}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="card" id="setupCard" style="display:none;">
+    <h2 id="formTitle">Hoàn tất hồ sơ của bạn</h2>
+    
+    <div class="avatar-upload-section">
+        <label for="avatar-input">
+            <img id="setup-avatar-preview" src="https://placehold.co/100x100" alt="Avatar Preview" title="Nhấn để đổi ảnh đại diện">
+        </label>
+        <input type="file" id="avatar-input" accept="image/*">
+    </div>
+    <div class="form">
+        <label for="displayName" class="form-label">Tên hiển thị</label>
+        <input type="text" id="displayName" placeholder="Ví dụ: An Nguyễn">
+
+        <label for="age" class="form-label">Tuổi</label>
+        <input type="number" id="age" placeholder="Ví dụ: 18">
+
+        <div class="terms-row">
+            <input type="checkbox" id="termsCheckbox">
+            <label for="termsCheckbox" style="font-size: 13px; color: var(--text-2);">Tôi đồng ý với <a href="#" style="color: var(--accent-1);">Điều khoản sử dụng</a> của Qola.</label>
+        </div>
+        
+        <button class="submit" id="submitBtn" disabled><span class="btn-text">Hoàn tất & Bắt đầu</span></button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { getFirestore, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBuGG9WKYZHb1qbmihpJFjCBsTB_VJ_LvU",
+    authDomain: "qola-web.firebaseapp.com",
+    databaseURL: "https://qola-web-default-rtdb.firebaseio.com",
+    projectId: "qola-web",
+    storageBucket: "qola-web.firebasestorage.app",
+    messagingSenderId: "477682993077",
+    appId: "1:477682993077:web:7dce15eb2c365729173bfc"
+};
+const IMGBB_API_KEY = "e6c2724ff8344c073410da4876c3d35f";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// === BẮT ĐẦU JS MỚI ===
+const setupCard = document.getElementById('setupCard');
+const submitBtn = document.getElementById('submitBtn');
+const displayNameInput = document.getElementById('displayName');
+const ageInput = document.getElementById('age');
+const termsCheckbox = document.getElementById('termsCheckbox');
+const avatarPreview = document.getElementById('setup-avatar-preview');
+const avatarInput = document.getElementById('avatar-input');
+
+let currentUser = null;
+let selectedAvatarFile = null; // Biến để lưu file ảnh đã chọn
+// === KẾT THÚC JS MỚI ===
+
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        currentUser = user;
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists() && userDocSnap.data().needsSetup === true) {
+            setupCard.style.display = 'block';
+            const data = userDocSnap.data();
+            displayNameInput.value = data.displayName || '';
+            const initial = data.email ? data.email[0].toUpperCase() : 'Q';
+            avatarPreview.src = `https://placehold.co/100x100?text=${initial}`; // Set ảnh placeholder ban đầu
+        } else {
+            window.location.href = 'index.html';
+        }
+    } else {
+        window.location.href = 'login.html';
+    }
+});
+
+// === BẮT ĐẦU LOGIC MỚI CHO AVATAR ===
+avatarInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        selectedAvatarFile = file;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            avatarPreview.src = event.target.result; // Hiển thị ảnh xem trước
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+async function uploadImage(file) {
+    if(!IMGBB_API_KEY) throw new Error('Thiếu API Key của ImgBB');
+    const fd = new FormData();
+    fd.append('image', file);
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method:'POST', body:fd });
+    const data = await res.json();
+    if (data.success) return data.data.url;
+    throw new Error(data.error?.message || 'Upload ảnh thất bại');
+}
+// === KẾT THÚC LOGIC MỚI CHO AVATAR ===
+
+function validateForm() {
+    const isNameValid = displayNameInput.value.trim().length > 2;
+    const isAgeValid = parseInt(ageInput.value) > 0;
+    const isTermsChecked = termsCheckbox.checked;
+    submitBtn.disabled = !(isNameValid && isAgeValid && isTermsChecked);
+}
+
+displayNameInput.addEventListener('input', validateForm);
+ageInput.addEventListener('input', validateForm);
+termsCheckbox.addEventListener('change', validateForm);
+
+submitBtn.onclick = async () => {
+    if (submitBtn.disabled || !currentUser) return;
+    
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Đang lưu...';
+    
+    try {
+        let newAvatarUrl = null;
+        if (selectedAvatarFile) {
+            newAvatarUrl = await uploadImage(selectedAvatarFile);
+        }
+        
+        const updates = {
+            displayName: displayNameInput.value.trim(),
+            age: parseInt(ageInput.value),
+            needsSetup: false,
+            agreedToTermsAt: new Date()
+        };
+
+        if (newAvatarUrl) {
+            updates.avatarUrl = newAvatarUrl; // Chỉ thêm URL nếu upload thành công
+        }
+
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        await updateDoc(userDocRef, updates);
+        
+        setupCard.classList.add('fadeout');
+        setTimeout(() => { window.location.href = 'index.html'; }, 800);
+
+    } catch (error) {
+        console.error("Lỗi khi cập nhật hồ sơ: ", error);
+        alert(`Có lỗi xảy ra: ${error.message}`);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Hoàn tất & Bắt đầu';
+    }
+};
+
+</script>
+</body>
+</html>

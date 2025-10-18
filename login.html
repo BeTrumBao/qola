@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đăng nhập - Qola Messenger</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+:root {
+  --accent-1:#60a5fa;
+  --accent-2:#2563eb;
+  --bg-page: #0f172a;
+  --glass:rgba(17, 24, 39, 0.6);
+  --border:rgba(255,255,255,0.15);
+  --text:#f1f5f9;
+  --text-2:#9ca3af;
+  --shadow: 0 12px 50px rgba(0,0,0,.4);
+  --input-bg: rgba(255, 255, 255, 0.1);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Poppins',sans-serif;background:var(--bg-page);color:var(--text);overflow:hidden;}
+
+.container{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background: linear-gradient(-45deg, #0f172a, #1e293b, #2563eb, #60a5fa);
+  background-size: 400% 400%;
+  animation: gradientAnimation 15s ease infinite;
+}
+.container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(8px);
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.card{
+  width:380px;max-width:90%;padding:40px 36px;border-radius:24px;
+  background:var(--glass);backdrop-filter:blur(24px);border:1px solid var(--border);
+  box-shadow:var(--shadow);text-align:center;
+  animation:fadein 0.8s ease;
+  position: relative;
+  z-index: 1;
+}
+@keyframes fadein{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+.logo{font-size:28px;font-weight:700;margin-bottom:12px;display:flex;justify-content:center;align-items:center;gap:8px;}
+.logo span{background:linear-gradient(135deg,var(--accent-1),var(--accent-2));-webkit-background-clip:text;color:transparent;}
+
+#formTitle {
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 24px;
+    color: var(--text-2);
+}
+
+.form{display:flex;flex-direction:column;gap:14px;margin-top:10px;}
+input{
+  padding:12px 14px;border-radius:12px;border:1px solid var(--border);
+  background:var(--input-bg);
+  color:var(--text);font-size:15px;outline:none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+input:focus {
+    border-color: var(--accent-1);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
+}
+
+button.submit{
+  margin-top:8px;padding:12px;border:none;border-radius:14px;
+  background:linear-gradient(135deg,var(--accent-1),var(--accent-2));
+  color:#fff;font-weight:600;cursor:pointer;transition:.2s;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+}
+button.submit:hover{
+    transform:scale(1.03);
+    filter: brightness(1.1);
+}
+button.submit.loading .btn-text { visibility: hidden; }
+button.submit.loading::after {
+    content: '';
+    position: absolute;
+    width: 20px; height: 20px;
+    top: 0; left: 0; right: 0; bottom: 0;
+    margin: auto;
+    border: 3px solid transparent;
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: button-loading-spinner 1s ease infinite;
+}
+@keyframes button-loading-spinner { from { transform: rotate(0turn); } to { transform: rotate(1turn); } }
+
+.smalltext{font-size:13px;margin-top:12px;color:var(--text-2);}
+a{color:var(--accent-1);text-decoration:none;font-weight: 500; cursor: pointer;}
+.terms-text { font-size: 11px; color: var(--text-2); opacity: 0.7; margin-top: 25px; }
+
+.fadeout{animation:fadeout .8s forwards;}
+@keyframes fadeout{to{opacity:0;transform:scale(1.03);}}
+
+#toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 360px;
+    background: rgba(30, 41, 59, 0.85);
+    color: white;
+    border-radius: 12px;
+    z-index: 10000;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    gap: 15px;
+    transform: translateX(120%);
+    transition: transform 0.5s ease-in-out;
+}
+#toast.show {
+    transform: translateX(0);
+}
+#toast-icon { font-size: 24px; }
+#toast-content { text-align: left; }
+#toast-title { font-size: 16px; font-weight: 600; margin: 0 0 4px; }
+#toast-message { font-size: 14px; color: var(--text-2); line-height: 1.4; }
+#toast-errordetail {
+    font-size: 11px;
+    color: var(--text-2);
+    margin-top: 6px;
+    opacity: 0.6;
+    font-family: monospace;
+    word-break: break-all;
+}
+
+#toast.success #toast-icon::before { content: '✅'; }
+#toast.success { border-left: 4px solid #22c55e; }
+
+#toast.error #toast-icon::before { content: '❌'; }
+#toast.error { border-left: 4px solid #ef4444; }
+</style>
+</head>
+<body>
+
+<div id="toast">
+    <div id="toast-icon"></div>
+    <div id="toast-content">
+        <h3 id="toast-title">Thông báo</h3>
+        <p id="toast-message"></p>
+        <div id="toast-errordetail" style="display: none;"></div>
+    </div>
+</div>
+
+<div class="container">
+  <div class="card" id="authCard">
+    <div class="logo">💬 <span>Qola Messenger</span></div>
+    <h2 id="formTitle">Đăng nhập</h2>
+
+    <div class="form" id="loginForm">
+      <input type="email" id="loginEmail" placeholder="Email">
+      <input type="password" id="loginPassword" placeholder="Mật khẩu">
+      <button class="submit" id="loginBtn"><span class="btn-text">Đăng nhập</span></button>
+      <div class="smalltext">Chưa có tài khoản? <a id="gotoSignup">Đăng ký ngay</a></div>
+    </div>
+
+    <div class="form" id="signupForm" style="display:none;">
+      <input type="email" id="signupEmail" placeholder="Email">
+      <input type="password" id="signupPassword" placeholder="Mật khẩu">
+      <button class="submit" id="signupBtn"><span class="btn-text">Tạo tài khoản</span></button>
+      <div class="smalltext">Đã có tài khoản? <a id="gotoLogin">Đăng nhập</a></div>
+    </div>
+    <div class="terms-text">
+        Bằng cách ấn Đăng nhập/Đăng ký, bạn đã đồng ý với Điều khoản sử dụng của Qola.
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBuGG9WKYZHb1qbmihpJFjCBsTB_VJ_LvU",
+    authDomain: "qola-web.firebaseapp.com",
+    databaseURL: "https://qola-web-default-rtdb.firebaseio.com",
+    projectId: "qola-web",
+    storageBucket: "qola-web.firebasestorage.app",
+    messagingSenderId: "477682993077",
+    appId: "1:477682993077:web:7dce15eb2c365729173bfc"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* ===== Toast Notification (Giữ nguyên) ===== */
+const toast = document.getElementById('toast');
+const toastTitle = document.getElementById('toast-title');
+const toastMessage = document.getElementById('toast-message');
+const toastErrorDetail = document.getElementById('toast-errordetail');
+let toastTimeout;
+
+function showToast(message, type = 'info', error = null, duration = 4000) {
+    clearTimeout(toastTimeout);
+    toast.className = type;
+    if (type === 'error') { toastTitle.textContent = 'Lỗi!'; } 
+    else if (type === 'success') { toastTitle.textContent = 'Thành công!'; } 
+    else { toastTitle.textContent = 'Thông báo'; }
+    toastMessage.textContent = message;
+    if (type === 'error' && error) {
+        toastErrorDetail.textContent = `Chi tiết: ${error.code}`;
+        toastErrorDetail.style.display = 'block';
+    } else {
+        toastErrorDetail.style.display = 'none';
+    }
+    toast.classList.add('show');
+    toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+    }, duration);
+}
+
+function getFriendlyErrorMessage(error) {
+    switch (error.code) {
+        case 'auth/wrong-password':
+        case 'auth/user-not-found': return 'Email hoặc mật khẩu không đúng.';
+        case 'auth/invalid-email': return 'Địa chỉ email không hợp lệ.';
+        case 'auth/email-already-in-use': return 'Email này đã được sử dụng.';
+        case 'auth/weak-password': return 'Mật khẩu phải có ít nhất 6 ký tự.';
+        default: return 'Đã có lỗi xảy ra không xác định.';
+    }
+}
+
+/* ===== Form Switching (Giữ nguyên) ===== */
+const formTitle = document.getElementById('formTitle');
+const loginForm = document.getElementById('loginForm');
+const signupForm = document.getElementById('signupForm');
+const gotoSignup = document.getElementById('gotoSignup');
+const gotoLogin = document.getElementById('gotoLogin');
+gotoSignup.onclick = () => switchTab('signup');
+gotoLogin.onclick = () => switchTab('login');
+function switchTab(tab){
+    if (tab === 'login') {
+        formTitle.textContent = 'Đăng nhập';
+        loginForm.style.display = 'flex';
+        signupForm.style.display = 'none';
+    } else {
+        formTitle.textContent = 'Tạo tài khoản';
+        signupForm.style.display = 'flex';
+        loginForm.style.display = 'none';
+    }
+}
+
+/* ===== Auth Logic (CÓ THAY ĐỔI) ===== */
+const loginBtn = document.getElementById('loginBtn');
+const signupBtn = document.getElementById('signupBtn');
+const authCard = document.getElementById('authCard');
+
+loginBtn.onclick = async () => {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPassword').value.trim();
+    if (!email || !pass) return showToast('Vui lòng điền đầy đủ thông tin!', 'error');
+    
+    loginBtn.classList.add('loading');
+    loginBtn.disabled = true;
+    
+    try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        // onAuthStateChanged sẽ xử lý việc chuyển hướng
+    } catch (e) { 
+        showToast(getFriendlyErrorMessage(e), 'error', e);
+        loginBtn.classList.remove('loading');
+        loginBtn.disabled = false;
+    }
+};
+
+signupBtn.onclick = async () => {
+    const email = document.getElementById('signupEmail').value.trim();
+    const pass = document.getElementById('signupPassword').value.trim();
+    if (!email || !pass) return showToast('Vui lòng điền đầy đủ thông tin!', 'error');
+
+    signupBtn.classList.add('loading');
+    signupBtn.disabled = true;
+
+    try {
+        const { user } = await createUserWithEmailAndPassword(auth, email, pass);
+        await setDoc(doc(db, 'users', user.uid), {
+            uid: user.uid,
+            email: user.email,
+            displayName: email.split('@')[0],
+            bio: '',
+            avatarUrl: '',
+            friends: [],
+            blocked: [],
+            needsSetup: true // <-- THAY ĐỔI: Thêm cờ needsSetup
+        });
+        // Không cần showToast ở đây nữa, onAuthStateChanged sẽ tự động chuyển hướng
+    } catch (e) { 
+        showToast(getFriendlyErrorMessage(e), 'error', e);
+    }
+    
+    signupBtn.classList.remove('loading');
+    signupBtn.disabled = false;
+};
+
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        // THAY ĐỔI: Kiểm tra xem user có cần setup không
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        let needsSetup = false;
+        if (userDocSnap.exists()) {
+            needsSetup = userDocSnap.data().needsSetup === true;
+        }
+
+        authCard.classList.add('fadeout');
+        setTimeout(() => {
+            if (needsSetup) {
+                window.location.href = 'setup.html'; // Chuyển đến trang setup
+            } else {
+                window.location.href = 'index.html'; // Chuyển đến trang chính
+            }
+        }, 800);
+    }
+});
+</script>
+</body>
+</html>
+

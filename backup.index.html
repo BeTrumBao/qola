@@ -1,0 +1,2709 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Qola Messenger</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+:root{
+  --accent-1:#60a5fa;
+  --accent-2:#2563eb;
+  --bg-page:linear-gradient(135deg,#0f172a,#1e293b);
+  --glass:rgba(255,255,255,0.06);
+  --glass-2:rgba(255,255,255,0.08);
+  /* --- THAY ĐỔI Ở ĐÂY --- */
+  /* Tớ đã đổi màu nền sang màu tối và tăng độ đục lên 75% */
+  --glass-3:rgba(30, 41, 59, 0.75);
+  --text:#e5e7eb;
+  --text-2:#cbd5e1;
+  --border:rgba(255,255,255,0.12);
+  --bubble-me: linear-gradient(135deg,#3b82f6,#2563eb);
+  --bubble-you: rgba(255,255,255,0.15);
+  --input:#0b1220;
+  --shadow: 0 18px 60px rgba(0,0,0,.35);
+  --recalled-bg: rgba(255,255,255,0.1);
+  --skeleton-bg: rgba(255,255,255,0.08);
+}
+
+/* THÊM KHỐI CSS NÀY VÀO STYLE */
+
+/* Ẩn bảng chọn reaction khi tin nhắn bị thu hồi */
+.msg-wrapper .recalled-message + .reaction-picker,
+.msg-wrapper .recalled-message ~ .reaction-picker { /* Dùng ~ để bao quát hơn */
+    display: none !important;
+    pointer-events: none;
+}
+
+/* Ẩn bảng tổng kết reaction khi tin nhắn bị thu hồi */
+.msg-wrapper .recalled-message + .reactions-display,
+.msg-wrapper .recalled-message ~ .reactions-display { /* Dùng ~ */
+    display: none !important;
+    pointer-events: none;
+}
+
+/* THÊM KHỐI CSS NÀY VÀO NGAY DƯỚI :root */
+.light {
+  --bg-page: linear-gradient(135deg,#a1c4fd,#c2e9fb);
+  --glass: rgba(255,255,255,0.5);
+  --glass-2: rgba(255,255,255,0.6);
+  --glass-3: rgb(249, 250, 251);
+  --text:#0f172a;
+  --text-2:#334155;
+  --border: rgba(0,0,0,0.1);
+  --bubble-me: linear-gradient(135deg,#007aff,#0056b3);
+  --bubble-you: rgba(229,229,234,0.92);
+  --input: rgba(255,255,255,0.85);
+  --shadow: 0 18px 60px rgba(0,0,0,.2);
+  --recalled-bg: rgba(0,0,0,0.05);
+  --skeleton-bg: rgba(0,0,0,0.08);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  background:var(--bg-page); color:var(--text);
+  overflow:hidden; display:flex;
+}
+
+/* --- START: Giao diện toàn màn hình --- */
+.container{
+    width: 100%;
+    height: 100%;
+    margin-top: 0;
+    border-radius: 0;
+    overflow: hidden;
+    display: flex;
+    background: var(--glass-2);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(22px);
+    box-shadow: var(--shadow);
+    position: relative;
+}
+
+body.is-hiding-status .status.online {
+    /* ...buộc tất cả các chấm xanh online phải trở về màu xám offline */
+    background: #64748b; 
+}
+/* --- END: Giao diện toàn màn hình --- */
+
+#sidebar{width:36%; max-width:420px; padding:16px; border-right:1px solid var(--border); display:flex; flex-direction:column; gap:14px; position:relative}
+.sidebar-head{display:flex; align-items:center; gap:12px; padding-bottom: 10px;}
+.sidebar-title{font-size:22px; font-weight:700}
+
+/* THAY THẾ TOÀN BỘ CSS CŨ CHO 2 KHỐI NÀY BẰNG CÁI MỚI */
+.sidebar-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 10px;
+    position: relative; /* Thêm dòng này để định vị menu con */
+}
+
+#add-btn {
+    background: var(--glass-border);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-size: 24px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-left: auto;
+    transition: all 0.2s;
+    position: relative; 
+    z-index: 30;
+}
+#add-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+}
+
+/* --- START: CSS cho thanh tìm kiếm mới --- */
+#sidebar-search-container {
+    position: relative; /* Quan trọng để định vị dropdown */
+    padding-bottom: 10px;
+}
+#global-search{
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    outline: none;
+    border-radius: 12px;
+    background: var(--input);
+    color: var(--text);
+    font-size: 14px;
+}
+#search-dropdown{
+    position:absolute;
+    top: 50px;
+    left: 0;
+    right: 0;
+    width: auto;
+    margin: 0;
+    background:var(--glass-3);
+    border:1px solid var(--border);
+    border-radius:16px;
+    /* --- THAY ĐỔI Ở ĐÂY --- */
+    /* Tớ tăng độ mờ lên một chút để hiệu ứng đẹp hơn */
+    backdrop-filter:blur(18px);
+    box-shadow:var(--shadow);
+    max-height:52vh;
+    overflow:auto;
+    display:none;
+    padding:6px 6px 10px;
+    z-index: 100;
+}
+/* --- END: CSS cho thanh tìm kiếm mới --- */
+
+.section-title{font-size:12px; opacity:.8; margin:8px 6px}
+.result-item{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:12px; cursor:pointer; }
+.result-item:hover{background:var(--glass)}
+.result-left{display:flex; align-items:center; gap:10px; min-width:0}
+.result-avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid var(--border)}
+.result-name{font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.result-sub{font-size:12px; color:var(--text-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.result-actions{display:flex; gap:8px}
+.result-action { display: flex; align-items: center; justify-content: flex-end; }
+.add-friend-btn { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; border: none; padding: 6px 10px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: 0.2s; }
+.add-friend-btn:hover { transform: scale(1.05); opacity: 0.9; }
+.add-friend-btn:disabled { background: rgba(255,255,255,0.3); cursor: default; }
+.friend-label { font-size: 13px; opacity: 0.7; }
+
+.list-title{font-size:13px; color:var(--text-2); margin:4px 0}
+ul{list-style:none}
+/* --- START: Sửa chiều cao danh sách cho phù hợp --- */
+#friend-list,#group-list{
+    overflow:auto;
+    max-height:calc(100vh - 250px); /* Tăng không gian hiển thị */
+    padding-right:6px
+}
+/* --- END: Sửa chiều cao danh sách --- */
+
+.item{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px; border-radius:12px; cursor:pointer; }
+.item:hover{background:var(--glass)}
+.item-left{min-width:0; display:flex; align-items:center; gap:10px}
+.item-name{ white-space: normal; word-break: break-word; }
+.item-last-msg { font-size: 13px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.beta-tag { font-size: 10px; background-color: #f59e0b; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 600; margin-left: 8px; }
+.status{width:10px; height:10px; border-radius:50%; background:#64748b}
+.status.online{background:#22c55e}
+
+.sidebar-loader .skeleton-item { display: flex; align-items: center; gap: 10px; padding: 12px; }
+.skeleton { background: var(--skeleton-bg); position: relative; overflow: hidden; }
+.skeleton-circle { width: 40px; height: 40px; border-radius: 50%; }
+.skeleton-line { height: 16px; border-radius: 6px; flex: 1; }
+.skeleton::after { content: ''; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent); animation: shimmer 1.5s infinite; }
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+#sidebar-lists { display: none; }
+#sidebar.loaded #sidebar-lists { display: block; }
+#sidebar.loaded #sidebar-loader { display: none; }
+
+.sidebar-footer{ position:absolute; left:12px; right:12px; bottom:12px; display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--glass); border:1px solid var(--border); border-radius:14px; padding:8px 10px; }
+#sidebar-avatar{ width:42px; height:42px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,.25); cursor:pointer; }
+.settings{ display:flex; align-items:center; gap:8px; }
+#open-settings{ border:1px solid var(--border); background:transparent; color:var(--text); border-radius:12px; padding:8px 12px; cursor:pointer; }
+.settings-menu{
+    position:absolute;
+    bottom:60px;
+    left:10px;
+    width:220px;
+    display:none;
+    background:var(--glass-3);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:10px;
+    box-shadow:var(--shadow);
+    z-index: 20;
+    /* --- THÊM VÀO ĐÂY --- */
+    /* Thêm hiệu ứng mờ cho đồng bộ với thanh tìm kiếm */
+    backdrop-filter: blur(18px);
+}
+.settings-row{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px; border-radius:10px}
+.settings-row:hover{background:var(--glass)}
+.switch{position:relative; width:44px; height:24px; background:var(--glass); border:1px solid var(--border); border-radius:999px}
+.switch::after{ content:''; position:absolute; width:18px; height:18px; border-radius:50%; background:linear-gradient(135deg,var(--accent-1),var(--accent-2)); top:2px; left:3px; transition:.2s; }
+.switch.on::after{left:23px}
+
+#chat-window{flex:1; display:flex; flex-direction:column; padding:20px; position:relative;}
+#chat-header{display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid var(--border); gap: 12px;}
+#current-chat-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); }
+#current-chat-friend-name{font-size:18px; font-weight:700}
+#messages-container{ flex:1; overflow:auto; display:flex; flex-direction:column; gap:2px; padding:14px 2px; scrollbar-width:thin; }
+#messages-container::-webkit-scrollbar{width:8px}
+#messages-container::-webkit-scrollbar-thumb{background:var(--glass-3); border-radius:10px}
+#messages-container::-webkit-scrollbar-track{background:transparent}
+.msg-wrapper { position: relative; margin: 6px 0; align-self: flex-start; max-width: 70%; display: flex; gap: 10px; align-items: flex-end; }
+.msg-wrapper:hover .reaction-picker { opacity: 1; transform: translateY(0) scale(1); }
+.msg-wrapper.sent { align-self: flex-end; }
+.msg-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-bottom: 6px; cursor: pointer; }
+.msg-wrapper.sent .msg-avatar { display: none; }
+.msg-sender-name { font-size: 13px; font-weight: 500; color: var(--text-2); margin-bottom: 4px; }
+.msg { background: var(--bubble-you); color: var(--text); padding: 10px 14px; border-radius: 18px; display: inline-block; word-break: break-word; line-height: 1.4em; box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: background 0.3s ease; position: relative; }
+.msg.sent { background: var(--bubble-me); color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,0.4); }
+.msg img { max-width: 100%; border-radius: 14px; margin-top: 5px; cursor: pointer; }
+.msg-meta, .msg-status { font-size: 11px; opacity: 0.7; text-align: right; margin-top: 4px; }
+.sent .msg-status { color: rgba(255,255,255,0.7); }
+.recalled-message { font-style: italic; color: var(--text-2); background-color: var(--recalled-bg); border: 1px dashed var(--border); padding: 8px 12px; border-radius: 12px; }
+.reply-quote { background: var(--glass); padding: 6px 10px; border-left: 3px solid var(--accent-1); margin-bottom: 8px; border-radius: 4px; }
+.reply-quote .sender { font-weight: 600; font-size: 13px; }
+.reply-quote .text { font-size: 13px; opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.edited-label { margin-left: 6px; font-style: italic; opacity: 0.8; font-size: 10px; }
+
+#typing-indicator{height:22px; font-size:13px; font-style:italic; color:var(--text-2)}
+#image-preview-container, #reply-preview-container, #edit-preview-container { display:none; background:var(--glass); border:1px solid var(--border); border-radius:12px; padding: 8px 12px; margin-bottom:8px; position:relative; }
+#image-preview{max-height:130px; border-radius:8px}
+#cancel-preview-btn{position:absolute; right:-6px; top:-6px; width:22px; height:22px; border-radius:50%; border:none; background:#111; color:#fff; cursor:pointer}
+#reply-preview-container { border-left: 3px solid var(--accent-1); }
+#edit-preview-container { border-left: 3px solid #f59e0b; }
+#reply-preview-sender, #edit-preview-title { font-weight: 600; font-size: 13px; }
+#edit-preview-title { color: #f59e0b; }
+#reply-preview-text, #edit-preview-text { font-size: 13px; opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#edit-preview-text { font-style: italic; }
+#cancel-reply-btn, #cancel-edit-btn { position:absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-2); cursor: pointer; font-size: 16px; padding: 5px; }
+
+.chat-input { display: flex; gap: 10px; align-items: center; padding-top: 15px; margin-top: auto; border-top: 1px solid var(--border); }
+#message-input{ flex:1; border:1px solid var(--border); border-radius:16px; padding:12px 14px; background:var(--input); color:var(--text) }
+#send-btn,.image-upload-label{ border:none; border-radius:12px; padding:12px 16px; color:#fff; background:linear-gradient(135deg,var(--accent-1),var(--accent-2)); cursor:pointer; flex-shrink: 0; }
+#send-btn[disabled]{opacity:.6; cursor:not-allowed}
+.image-upload-label{background:transparent; color:var(--accent-1); border:1px solid var(--border)}
+#inactive-chat-indicator { text-align: center; padding: 12px; margin-top: 15px; border-radius: 12px; background: rgba(0,0,0,0.15); color: var(--text-2); font-style: italic; font-size: 14px; border: 1px solid var(--border); }
+.message-date-separator { text-align: center; margin: 18px 0; font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 500; width: 100%; }
+.message-date-separator::before, .message-date-separator::after { content: ""; position: relative; display: inline-block; width: 30%; height: 1px; background: rgba(255,255,255,0.1); top: -3px; margin: 0 8px; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px); display: flex; justify-content: center; align-items: center; z-index: 5000; }
+.modal-content {
+    background: rgba(22, 25, 35, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    /* Tăng padding cho thoáng hơn */
+    padding: 30px 35px; 
+    /* Tăng chiều rộng tối đa */
+    width: min(90vw, 520px); 
+    color: #fff;
+    text-align: left;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    animation: fadeIn .3s ease;
+}cho tiêu đề modal nổi bật hơn */
+.modal-content h2 {
+    text-align: center;
+    margin-bottom: 25px; /* Tăng khoảng cách */
+    font-size: 22px; /* Tăng kích thước chữ */
+    padding-bottom: 15px; /* Thêm khoảng đệm dưới */
+    border-bottom: 1px solid var(--glass-border); /* Thêm đường kẻ ngang */
+    background: -webkit-linear-gradient(45deg, var(--accent-1), #c084fc); /* Tạo dải màu gradient */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex; /* Căn chỉnh icon và chữ */
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Khoảng cách giữa icon và chữ */
+}
+
+/* Thêm icon cho tiêu đề lời mời kết bạn */
+#friend-request-modal .modal-content h2::before {
+    font-size: 24px;
+    display: inline-block;
+    filter: grayscale(100%) contrast(200%); /* Hiệu ứng cho icon */
+}
+@keyframes fadeIn { from { opacity:0; transform:scale(0.95);} to {opacity:1; transform:scale(1);} }
+.btn{ padding:8px 12px; border:none; border-radius:10px; background:linear-gradient(135deg,var(--accent-1),var(--accent-2)); color:#fff; cursor:pointer; }
+.btn-ghost, .cancel-btn { background: rgba(255,255,255,0.15); color: #fff; border: none; padding: 10px 14px; border-radius: 10px; cursor: pointer; }
+.danger-btn { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.form-label { font-size: 14px; color: var(--text-2); margin-bottom: 6px; display: block; }
+.modal-content input, .modal-content textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--input); color: var(--text); outline: none; font-size: 14px; margin-bottom: 15px; }
+.clickable{cursor:pointer}
+.hidden{display:none}
+
+/* Các CSS khác... (giữ nguyên không đổi) */
+/* TÌM VÀ THAY THẾ TOÀN BỘ RULE CSS CŨ BẰNG CÁI NÀY */
+.verified-tick {
+    display: inline-block;
+    width: 1.1em; /* Tăng nhẹ kích thước cho cân đối hơn */
+    height: 1.1em;
+    margin-left: 5px;
+    vertical-align: -0.2em; /* Tinh chỉnh lại để icon nằm giữa dòng chữ */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2360a5fa'%3E%3Cpath fill-rule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.06 0l4-5.5z' clip-rule='evenodd' /%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+#add-btn {
+    background: var(--glass-border);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-size: 24px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-left: auto; /* Đẩy nút sang phải */
+    transition: all 0.2s;
+    position: relative; /* Thêm dòng này */
+    z-index: 30;        /* Thêm dòng này */
+}
+#add-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+}
+
+/* --- CSS MỚI CHO POPUP GỢI Ý TAG (@) --- */
+.suggestion-popup {
+    position: absolute;
+    bottom: 75px; /* Nằm ngay trên thanh chat input */
+    left: 15px;
+    right: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+    background: var(--glass-3); /* Dùng màu glass-3 cho đồng bộ */
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    box-shadow: 0 -8px 20px rgba(0,0,0,0.2);
+    z-index: 100;
+    display: none; /* Mặc định ẩn */
+    padding: 6px;
+    scrollbar-width: thin;
+}
+.suggestion-popup::-webkit-scrollbar{ width: 6px; }
+.suggestion-popup::-webkit-scrollbar-thumb{ background: var(--glass); border-radius: 6px; }
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: background-color 0.2s;
+}
+.suggestion-item:hover {
+    background-color: var(--glass);
+}
+.suggestion-item img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.suggestion-item .name {
+    font-weight: 500;
+}
+.suggestion-item .all {
+    font-weight: 600;
+    color: var(--accent-1);
+}
+
+/* --- CSS MỚI CHO TIN NHẮN ĐƯỢC TAG --- */
+
+/* Làm nổi bật cả bong bóng chat nếu cậu được tag */
+.msg-wrapper.mentioned-me .msg {
+    background-color: rgba(96, 165, 250, 0.25); /* Nền xanh nhẹ */
+    border: 1px solid var(--accent-1);
+}
+/* Trong theme sáng thì dùng màu khác */
+.light .msg-wrapper.mentioned-me .msg {
+     background-color: rgba(0, 122, 255, 0.15);
+     border: 1px solid var(--accent-2);
+}
+
+/* Làm nổi bật phần @username bên trong tin nhắn */
+.mention {
+    font-weight: 600;
+    color: var(--accent-1);
+    background-color: rgba(96, 165, 250, 0.15);
+    padding: 1px 4px;
+    border-radius: 4px;
+}
+
+.lightbox-overlay { position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; animation: fadeIn 0.3s; }
+.lightbox-content { max-width: 90%; max-height: 90%; object-fit: contain; }
+.lightbox-close-btn { position: absolute; top: 20px; right: 35px; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+.lightbox-close-btn:hover { color: #bbb; }
+#friend-request-list {
+    max-height: 350px;
+    min-height: 200px; /* Thêm dòng này để đặt chiều cao tối thiểu */
+    overflow-y: auto;
+    margin: 15px 0;
+    /* Thêm 3 dòng này để căn giữa nội dung khi trống */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- BƯỚC 3: TÌM VÀ THAY THẾ RULE CSS NÀY --- */
+/* Tăng kích thước cho các nút Chấp nhận/Từ chối */
+.friend-req-btn {
+    padding: 8px 14px; /* Tăng padding */
+    border: none;
+    border-radius: 8px;
+    font-size: 14px; /* Tăng cỡ chữ */
+    cursor: pointer;
+    transition: .2s;
+}
+.friend-req-item { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; transition: background .2s; }
+.friend-req-item:hover { background: rgba(255,255,255,0.1); }
+.friend-req-name { font-weight: 500; text-align: left; }
+.friend-req-buttons { display: flex; gap: 6px; }
+.accept-btn { background: linear-gradient(135deg,#22c55e,#15803d); color: #fff; }
+.reject-btn { background: rgba(239,68,68,0.9); color: #fff; }
+.msg-content-wrapper {
+    position: relative;
+}
+
+/* --- CSS MỚI CHO HIỆU ỨNG LOADING NÚT GỬI --- */
+
+/* Hiệu ứng xoay tròn */
+@keyframes spin { 
+    100% { transform: rotate(360deg); } 
+}
+
+/* Mặc định ẩn icon spinner */
+#send-btn .spinner-icon {
+    display: none;
+}
+
+/* Khi nút có class 'loading'... */
+#send-btn.loading {
+    cursor: wait; /* Đổi con trỏ chuột thành dạng chờ */
+}
+#send-btn.loading .send-icon {
+    display: none; /* ...ẩn icon gửi đi */
+}
+#send-btn.loading .spinner-icon {
+    display: block; /* ...hiện icon spinner lên */
+    animation: spin 1.2s linear infinite; /* ...và cho nó xoay */
+}
+/* CSS mới cho nút mở lời mời kết bạn */
+#open-friend-req-btn {
+    position: absolute;
+    bottom: 75px; /* Tăng khoảng cách từ dưới lên */
+    left: 16px;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    color: #fff;
+    border: none;
+    border-radius: 16px; /* Bo góc vuông hơn */
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#open-friend-req-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 12px 25px rgba(37, 99, 235, 0.4);
+}
+
+/* Thêm hiệu ứng chấm đỏ thông báo (sẽ dùng JS để bật/tắt) */
+#open-friend-req-btn::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 10px;
+    height: 10px;
+    background-color: #ef4444; /* Màu đỏ */
+    border-radius: 50%;
+    border: 2px solid var(--bg-light);
+    transform: scale(0); /* Mặc định ẩn đi */
+    transition: transform 0.2s ease-in-out;
+}
+
+#open-friend-req-btn.has-new-request::after {
+    transform: scale(1); /* Hiện lên khi có lời mời mới */
+}
+#group-members-checklist { max-height: 200px; overflow-y: auto; text-align: left; border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin: 10px 0 20px; background: var(--input); }
+#group-members-checklist label { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 8px; cursor: pointer; }
+#group-members-checklist label:hover { background-color: var(--glass); }
+#group-members-checklist input[type="checkbox"] { width: 18px; height: 18px; }
+#open-info-btn, #group-info-btn { border:1px solid var(--border); background:transparent; color:var(--text); border-radius:12px; padding:8px 12px; cursor:pointer; }
+#chat-info-panel { position: absolute; right: -340px; top: 0; width: 320px; height: 100%; background: rgba(22, 25, 35, 0.85); backdrop-filter: blur(20px); border-left: 1px solid rgba(255,255,255,0.08); box-shadow: -8px 0 25px rgba(0,0,0,0.4); color: #f3f4f6; transition: right .3s ease; display: flex; flex-direction: column; z-index: 1000; }
+#chat-info-panel.open { right: 0; }
+#chat-info-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); }
+#chat-info-header h3 { font-size: 18px; font-weight: 600; color: #fff; }
+#close-info-btn { background: rgba(255,255,255,0.2); border: none; border-radius: 8px; width: 30px; height: 30px; color: #fff; cursor: pointer; transition: .2s; }
+#close-info-btn:hover { background: rgba(255,255,255,0.4); }
+.chat-info-body { flex: 1; overflow-y: auto; padding: 16px; }
+.chat-info-section { text-align: center; margin-bottom: 25px; }
+.chat-info-avatar { width: 95px; height: 95px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); box-shadow: 0 0 15px rgba(59,130,246,0.3); object-fit: cover; }
+.chat-info-name { font-size: 18px; font-weight: 600; margin: 10px 0; }
+.chat-info-body h5 { font-size: 14px; text-transform: uppercase; letter-spacing: .5px; color: rgba(255,255,255,0.75); margin-bottom: 10px; text-align: left; }
+.sent-images-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 25px; }
+.sent-images-grid img { width: 100%; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+.sent-images-grid img:hover { transform: scale(1.06); box-shadow: 0 4px 10px rgba(59,130,246,0.5); }
+.chat-actions button { width: 100%; padding: 11px; border: none; border-radius: 10px; font-size: 15px; color: #fff; cursor: pointer; margin-top: 10px; transition: 0.25s; }
+.primary-btn { background: linear-gradient(135deg, #3b82f6, #2563eb); border: none; border-radius: 10px; padding: 8px 14px; color: white; font-weight: 500; cursor: pointer; }
+.primary-btn:hover { filter: brightness(1.1); }
+/* --- THAY THẾ TOÀN BỘ CSS CŨ CHO KHU VỰC CHAT INPUT BẰNG KHỐI NÀY --- */
+
+.chat-input {
+    display: flex; /* Đảm bảo là flexbox */
+    gap: 0; /* Bỏ gap nếu có */
+    align-items: flex-end; /* Căn các item xuống dưới */
+    padding-top: 15px;
+    margin-top: auto;
+    border-top: 1px solid var(--border);
+}
+
+.image-upload-label { /* Giữ nguyên hoặc chỉnh sửa nếu cần */
+    background: transparent;
+    color: var(--accent-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-right: 10px; /* Thêm khoảng cách phải */
+}
+
+#message-input {
+    transition: width 0.3s ease; /* Hiệu ứng co giãn */
+    flex: 1; /* Luôn chiếm phần còn lại */
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px 14px;
+    background: var(--input);
+    color: var(--text);
+    margin: 0; /* Bỏ margin cũ */
+}
+
+#send-btn {
+    width: 0; /* Mặc định ẩn nút gửi */
+    padding: 12px 0;
+    margin: 0 0 0 10px; /* Chỉ cần margin trái */
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    color: #fff;
+    transform: scale(0.8);
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    flex-shrink: 0; /* Ngăn nút bị co lại */
+    /* Căn giữa icon bên trong */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Khi có chữ trong input */
+.chat-input.has-text #send-btn {
+    width: 48px;  /* Chiều rộng cố định */
+    padding: 12px; /* Padding đều */
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Ẩn nút khi disabled (trường hợp bị chặn chat) */
+#send-btn[disabled]{opacity:.6; cursor:not-allowed}
+
+/* --- CSS MỚI CHO HIỆU ỨNG LOADING NÚT GỬI --- */
+@keyframes spin { 
+    100% { transform: rotate(360deg); } 
+}
+#send-btn .spinner-icon {
+    display: none; /* Mặc định ẩn spinner */
+}
+#send-btn.loading {
+    cursor: wait; /* Đổi con trỏ */
+}
+#send-btn.loading .send-icon {
+    display: none; /* Ẩn icon gửi */
+}
+#send-btn.loading .spinner-icon {
+    display: block; /* Hiện spinner */
+    animation: spin 1.2s linear infinite; /* Xoay spinner */
+}
+#block-user-btn, #unblock-user-btn { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+#unblock-user-btn { background: linear-gradient(135deg, #22c55e, #16a34a); }
+#block-user-btn:hover, #unblock-user-btn:hover { filter: brightness(1.1); }
+#remove-friend-btn { background: linear-gradient(135deg, #6b7280, #4b5563); opacity: 0.9; }
+#remove-friend-btn:hover { opacity: 1; filter: brightness(1.1); }
+#leave-group-btn { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+#group-members-list {list-style: none; padding: 0; margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px;}
+.member-item { display: flex; justify-content: space-between; align-items: center; background: var(--glass); padding: 8px 12px; border-radius: 8px; }
+.member-info { display: flex; flex-direction: column; align-items: flex-start; }
+.member-name { font-weight: 500; }
+.member-role { font-size: 12px; opacity: 0.7; padding: 2px 6px; border-radius: 6px; }
+.role-admin { background-color: #a855f7; color: white; }
+.role-moderator { background-color: #2563eb; color: white; }
+.role-member { background-color: #4b5563; color: white; }
+.member-actions button { background: none; border: 1px solid var(--border); color: var(--text-2); padding: 4px 8px; font-size: 11px; border-radius: 6px; cursor: pointer; margin-left: 4px; }
+.member-actions button:hover { background: var(--glass-3); }
+#message-context-menu { position: fixed; display: none; background: var(--glass-3); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 12px; padding: 8px; box-shadow: var(--shadow); z-index: 9999; }
+.context-menu-btn { display: block; width: 100%; text-align: left; background: none; border: none; color: var(--text); padding: 10px 14px; border-radius: 8px; cursor: pointer; }
+.context-menu-btn:hover { background: var(--glass); }
+.context-menu-btn.danger { color: #f43f5e; }
+.reaction-picker { position: absolute; top: -45px; background: var(--glass-3); backdrop-filter: blur(10px); border-radius: 20px; padding: 6px; display: flex; gap: 8px; box-shadow: var(--shadow); opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none; z-index: 100; }
+.msg-wrapper.sent .reaction-picker { right: 10px; }
+.msg-wrapper.received .reaction-picker { left: 10px; }
+.msg-wrapper:hover .reaction-picker { opacity: 1; transform: scale(1); pointer-events: all; }
+.reaction-btn { font-size: 22px; cursor: pointer; transition: transform 0.15s; }
+.reaction-btn:hover { transform: scale(1.2); }
+.reactions-display { position: absolute; bottom: -10px; background: var(--glass-2); border-radius: 10px; padding: 2px 5px; display: flex; gap: 3px; font-size: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); cursor: pointer; }
+.msg-wrapper.sent .reactions-display { right: 10px; }
+.msg-wrapper.received .reactions-display { left: 0px; }
+
+/* --- CSS MỚI CHO THANH NHẬP TIN NHẮN ĐỘNG --- */
+.chat-input {
+    gap: 0; /* Bỏ gap cũ */
+    align-items: flex-end; /* Căn các item xuống dưới */
+}
+#message-input {
+    /* Cho phép co giãn và có hiệu ứng */
+    transition: width 0.3s ease;
+    flex: 1; /* Luôn chiếm phần còn lại */
+    margin: 0 10px; /* Tạo khoảng cách mới */
+}
+#send-btn {
+    width: 0; /* Mặc định ẩn nút gửi */
+    padding: 12px 0;
+    margin: 0;
+    transform: scale(0.8);
+    opacity: 0;
+    overflow: hidden; /* Ẩn icon khi co lại */
+    transition: all 0.3s ease;
+}
+/* Khi có chữ, thanh input sẽ co lại và nút gửi hiện ra */
+.chat-input.has-text #send-btn {
+    width: 48px;
+    padding: 12px 16px;
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* --- SỬA LỖI MENU DÀI BẤT THƯỜNG --- */
+#add-menu {
+    height: auto !important; /* Quan trọng: Để menu tự co giãn theo nội dung */
+}
+
+#reactions-modal .modal-content { text-align: center; width: 380px; }
+#reactions-list { max-height: 300px; overflow-y: auto; margin: 15px 0; }
+.reaction-user-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-radius: 8px; }
+.reaction-user-item:hover { background: var(--glass); }
+.reaction-user-info { display: flex; align-items: center; gap: 10px; }
+.reaction-user-avatar { width: 36px; height: 36px; border-radius: 50%; }
+.reaction-user-name { font-weight: 500; }
+.reaction-emoji { font-size: 20px; }
+#toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(22, 25, 35, 0.85); color: white; padding: 20px 30px; border-radius: 12px; z-index: 10000; backdrop-filter: blur(10px); border: 1px solid var(--border); box-shadow: var(--shadow); text-align: center; display: none; animation: fadeIn .3s ease; }
+#toast-message { margin-bottom: 15px; }
+#toast-close-btn { background: var(--accent-1); color: white; border: none; padding: 8px 20px; border-radius: 8px; cursor: pointer; }
+.report-form .form-label { text-align: left; margin-bottom: 10px; }
+.report-reason-row { display: flex; align-items: center; padding: 12px; border-radius: 10px; border: 1px solid transparent; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; }
+.report-reason-row:hover { background-color: var(--glass); }
+.report-reason-row input[type="radio"] { display: none; }
+.report-reason-row .custom-radio { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 50%; margin-right: 12px; display: inline-block; position: relative; transition: border-color 0.2s; }
+.report-reason-row input[type="radio"]:checked + .custom-radio { border-color: var(--accent-1); }
+.report-reason-row input[type="radio"]:checked + .custom-radio::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; border-radius: 50%; background-color: var(--accent-1); }
+.report-reason-row.selected { background-color: var(--glass); border-color: var(--accent-1); }
+#messages-container.selection-mode .msg-wrapper { cursor: pointer; padding: 4px; border-radius: 14px; border: 2px solid transparent; transition: border-color 0.2s, background-color 0.2s; }
+#messages-container.selection-mode .msg-wrapper:hover { background-color: var(--glass); }
+#messages-container.selection-mode .msg-wrapper.selected { border-color: var(--accent-1); background-color: rgba(96, 165, 250, 0.2); }
+</style>
+</head>
+<body>
+
+<div id="toast"><div id="toast-message"></div><button id="toast-close-btn">OK</button></div>
+<div id="message-context-menu"></div>
+<div id="image-lightbox" class="lightbox-overlay" style="display: none;"><span class="lightbox-close-btn">&times;</span><img class="lightbox-content" id="lightbox-img"></div>
+<div id="friend-request-modal" class="modal-overlay" style="display:none;"><div class="modal-content"><h2>📩 Lời Mời Kết Bạn</h2><div id="friend-request-list"></div><button id="close-friend-req-modal" class="cancel-btn">Đóng</button></div></div>
+<div id="create-group-modal" class="modal-overlay" style="display:none;"><div class="modal-content"><h2>Tạo nhóm mới</h2><input type="text" id="group-name-input" placeholder="Nhập tên nhóm..."><h4>Mời bạn bè</h4><div id="group-members-checklist"></div><div class="modal-actions"><button id="close-group-modal-btn" class="btn-ghost">Hủy</button><button id="confirm-create-group-btn" class="btn">Tạo Nhóm</button></div></div></div>
+<div id="reactions-modal" class="modal-overlay" style="display:none;"><div class="modal-content"><h2>👍 Lượt bày tỏ cảm xúc</h2><div id="reactions-list"></div><button id="close-reactions-modal" class="btn-ghost" style="margin-top: 15px;">Đóng</button></div></div>
+<div id="edit-profile-modal" class="modal-overlay" style="display:none;"><div class="modal-content"><h2>👤 Chỉnh sửa hồ sơ</h2><label class="form-label" for="profile-display-name">Tên hiển thị</label><input type="text" id="profile-display-name" placeholder="Tên của bạn..."><label class="form-label" for="profile-bio">Giới thiệu (Bio)</label><textarea id="profile-bio" rows="3" placeholder="Viết gì đó về bạn..."></textarea><label class="form-label" for="profile-avatar-url">URL Ảnh đại diện</label><input type="text" id="profile-avatar-url" placeholder="https://example.com/avatar.png"><div class="modal-actions"><button id="cancel-profile-edit-btn" class="btn-ghost">Hủy</button><button id="save-profile-edit-btn" class="btn">Lưu thay đổi</button></div></div></div>
+<div id="custom-confirm-modal" class="modal-overlay" style="display:none;"><div class="modal-content" style="width: 400px; text-align: center;"><h2 id="confirm-title">Xác nhận hành động</h2><p id="confirm-message" style="margin: 15px 0; color: var(--text-2); font-size: 15px;"></p><div class="modal-actions" style="justify-content: center;"><button id="confirm-cancel-btn" class="btn-ghost">Hủy</button><button id="confirm-ok-btn" class="btn danger-btn">OK</button></div></div></div>
+<div id="report-user-modal" class="modal-overlay" style="display:none;"><div class="modal-content"><h2>⚠️ Báo cáo người dùng</h2><p id="reporting-user-name" style="color: var(--text-2); margin-bottom: 20px;"></p><div id="report-form" class="form report-form"><label class="form-label">Lý do báo cáo:</label><label class="report-reason-row"><input type="radio" name="reportReason" value="spam" checked><span class="custom-radio"></span>Gửi tin nhắn rác (Spam)</label><label class="report-reason-row"><input type="radio" name="reportReason" value="harassment"><span class="custom-radio"></span>Quấy rối, bắt nạt</label><label class="report-reason-row"><input type="radio" name="reportReason" value="inappropriate"><span class="custom-radio"></span>Nội dung không phù hợp</label><label class="report-reason-row"><input type="radio" name="reportReason" value="impersonation"><span class="custom-radio"></span>Mạo danh</label><label for="report-details" class="form-label" style="margin-top: 15px;">Mô tả thêm (nếu có):</label><textarea id="report-details" rows="3" placeholder="Cung cấp thêm chi tiết về hành vi..."></textarea><button id="attach-evidence-btn" class="btn-ghost" style="margin-top: 15px;">➕ Đính kèm bằng chứng (tin nhắn)</button><div id="evidence-preview" style="font-size: 13px; color: var(--text-2); margin-top: 8px; display: none;"></div></div><div class="modal-actions"><button id="cancel-report-btn" class="btn-ghost">Hủy</button><button id="submit-report-btn" class="btn danger-btn">Gửi báo cáo</button></div></div></div>
+
+<div class="container" id="app" style="display:none;">
+    <div id="sidebar">
+        <div class="sidebar-head">
+            <div class="sidebar-title">Qola Chat</div>
+            <button id="add-btn" title="Tùy chọn mới">+</button> <div class="settings-menu" id="add-menu" style="left: auto; right: 16px; top: 60px; width: 180px;">
+                <div class="settings-row clickable" id="create-group-from-menu">Tạo nhóm mới ➕</div>
+                <div class="settings-row clickable" id="add-friend-from-menu">Thêm bạn bè 📧</div>
+            </div>
+        </div>
+        <div id="sidebar-search-container">
+            <input id="global-search" placeholder="Tìm mọi thứ: người dùng, bạn bè, nhóm..." />
+            <div id="search-dropdown"></div>
+        </div>
+
+        <div id="sidebar-loader">
+            <div class="list-title">Bạn bè</div>
+            <div class="skeleton-item"><div class="skeleton skeleton-circle"></div><div class="skeleton skeleton-line"></div></div>
+            <div class="skeleton-item"><div class="skeleton skeleton-circle"></div><div class="skeleton skeleton-line"></div></div>
+            <div class="list-title">Nhóm</div>
+            <div class="skeleton-item"><div class="skeleton skeleton-circle"></div><div class="skeleton skeleton-line"></div></div>
+        </div>
+        <div id="sidebar-lists">
+            <div class="list-title">Bạn bè</div><ul id="friend-list"></ul>
+            <div class="list-title">Nhóm</div><ul id="group-list"></ul>
+        </div>
+        <button id="open-friend-req-btn" title="Lời mời kết bạn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+        </button>
+        <div class="sidebar-footer">
+            <img id="sidebar-avatar" src="https://placehold.co/42x42/111/fff?text=Q" alt="avatar" title="Mở trang cá nhân" />
+            <div class="settings">
+                <button id="open-settings">⚙️ Cài đặt</button>
+                <div class="settings-menu" id="settings-menu">
+                    <div class="settings-row clickable" id="go-to-settings">Cài đặt nâng cao ⚙️</div>
+                    <div class="settings-row clickable" id="go-login">Đăng xuất</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="chat-window">
+        <div id="chat-header">
+            <img id="current-chat-avatar" src="https://placehold.co/40x40" alt="avatar" style="display: none;">
+            <div id="current-chat-friend-name">Chọn cuộc trò chuyện</div>
+            <div id="chat-header-buttons">
+                <button id="open-info-btn" title="Thông tin">☰</button>
+                <button id="group-info-btn" title="Thông tin nhóm">☰</button>
+            </div>
+        </div>
+        <div id="messages-container"></div>
+        <div id="typing-indicator"></div>
+
+        <div id="reply-preview-container" style="display: none;">
+            <div id="reply-preview-sender"></div>
+            <div id="reply-preview-text"></div>
+            <button id="cancel-reply-btn">✖</button>
+        </div>
+        <div id="edit-preview-container" style="display: none;">
+            <div id="edit-preview-title">✏️ Đang chỉnh sửa</div>
+            <div id="edit-preview-text"></div>
+            <button id="cancel-edit-btn">✖</button>
+        </div>
+        <div id="image-preview-container" style="display: none;">
+            <img id="image-preview" />
+            <button id="cancel-preview-btn">✖</button>
+        </div>
+        <div id="selection-bar" style="display: none; padding: 10px; background: var(--glass-3); border-top: 1px solid var(--border); text-align: right;">
+            <span id="selection-count" style="margin-right: 15px; color: var(--text-2);">Đã chọn: 0</span>
+            <button id="cancel-selection-btn" class="btn-ghost">Hủy</button>
+            <button id="confirm-selection-btn" class="btn">Xong</button>
+        </div>
+            <div id="mention-suggestions" class="suggestion-popup">
+        </div>
+    <div class="chat-input">
+        <label for="image-input" class="image-upload-label">🖼️</label>
+        <input id="image-input" type="file" accept="image/*" style="display:none" />
+        <input id="message-input" placeholder="Nhập tin nhắn..."/>
+
+        <button id="send-btn">
+            <svg class="send-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            <svg class="spinner-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
+        </button>
+    </div>
+        <div id="inactive-chat-indicator" style="display: none;">Không thể gửi tin nhắn cho người này.</div>
+    </div>
+
+    <div id="chat-info-panel">
+        <div id="chat-info-header">
+            <h3>Thông tin</h3>
+            <button id="close-info-btn">✖</button>
+        </div>
+        <div class="chat-info-body">
+            <div id="friend-info-content" style="display:none;">
+                <div class="chat-info-section">
+                    <img id="chat-friend-avatar" class="chat-info-avatar" src="https://placehold.co/80x80" alt="avatar">
+                    <h4 id="chat-friend-name" class="chat-info-name">Chưa chọn</h4>
+                </div>
+                <h5>Ảnh đã gửi</h5>
+                <div id="sent-images-grid" class="sent-images-grid"></div>
+                <div class="chat-actions">
+                    <button id="block-user-btn">🚫 Chặn người này</button>
+                    <button id="unblock-user-btn" style="display: none;">🔓 Bỏ chặn người này</button>
+                    <button id="remove-friend-btn">❌ Xóa bạn bè</button>
+                    <button id="report-user-btn" style="background: #a16207;">⚠️ Báo cáo người này</button>
+                </div>
+            </div>
+            <div id="group-info-content" style="display:none;">
+                <div class="chat-info-section">
+                    <img id="group-avatar" class="chat-info-avatar" src="https://placehold.co/80x80/EFEFEF/333333?text=G" alt="avatar nhóm">
+                    <h4 id="group-name-display" class="chat-info-name">Tên nhóm</h4>
+                </div>
+                <h5>Thành viên</h5>
+                <ul id="group-members-list"></ul>
+                <h5>Ảnh đã gửi</h5>
+                <div id="group-sent-images-grid" class="sent-images-grid"></div>
+                <div class="chat-actions">
+                    <button id="leave-group-btn">🚪 Rời nhóm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="join-group-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="text-align: center;">
+        <div class="chat-info-section" style="margin-bottom: 15px;">
+             <img id="join-group-avatar" class="chat-info-avatar" src="https://placehold.co/80x80" alt="avatar nhóm">
+             <h3 id="join-group-name" class="chat-info-name" style="margin-top: 10px; margin-bottom: 5px; font-size: 20px;">Tên nhóm</h3>
+             <p id="join-group-member-count" style="color: var(--text-2); font-size: 14px; margin: 0;">... thành viên</p>
+        </div>
+        
+        <p style="margin: 15px 0; color: var(--text-2);">Bạn có muốn tham gia nhóm này không?</p>
+        
+        <div class="modal-actions" style="justify-content: center;">
+            <button id="cancel-join-group-btn" class="btn-ghost">Hủy</button>
+            <button id="confirm-join-group-btn" class="btn">Tham gia ngay</button>
+        </div>
+    </div>
+</div>
+
+<div id="add-friend-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+        <h2>Thêm bạn bè</h2>
+        <label for="add-friend-email-input" class="form-label">Nhập email của người bạn muốn kết bạn:</label>
+        <input type="email" id="add-friend-email-input" placeholder="nhapemail@qola.com">
+        <div class="modal-actions">
+            <button id="cancel-add-friend-btn" class="btn-ghost">Hủy</button>
+            <button id="confirm-add-friend-btn" class="btn">Gửi lời mời</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+/***** Qola Messenger — index.app.js v9 (New Features) *****/
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, getDocs, setDoc, updateDoc, addDoc,
+  collection, query, where, onSnapshot, serverTimestamp, limit, arrayUnion, arrayRemove, deleteField
+} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+import {
+  getDatabase, ref, onValue, onChildAdded, onChildChanged, push, update as rtdbUpdate,
+  set, onDisconnect, serverTimestamp as dbServerTimestamp, off, remove,
+  query as rtdbQuery, orderByChild, limitToLast, get
+} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBuGG9WKYZHb1qbmihpJFjCBsTB_VJ_LvU",
+    authDomain: "qola-web.firebaseapp.com",
+    databaseURL: "https://qola-web-default-rtdb.firebaseio.com",
+    projectId: "qola-web",
+    storageBucket: "qola-web.firebasestorage.app",
+    messagingSenderId: "477682993077",
+    appId: "1:477682993077:web:7dce15eb2c365729173bfc"
+};
+const IMGBB_API_KEY = "e6c2724ff8344c073410da4876c3d35f";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const rtdb = getDatabase(app);
+
+function initTheme() {
+    const saved = localStorage.getItem('theme') || 'dark';
+    document.body.classList.toggle('light', saved === 'light');
+}
+initTheme(); // Gọi hàm để chạy ngay lập tức
+// Toàn bộ các DOM Elements và State Variables... (giữ nguyên không đổi)
+const toast = document.getElementById('toast');
+const toastMessage = document.getElementById('toast-message');
+const chatInputContainer = document.querySelector('.chat-input');
+const inactiveChatIndicator = document.getElementById('inactive-chat-indicator');
+const toastCloseBtn = document.getElementById('toast-close-btn');
+const messageContextMenu = document.getElementById('message-context-menu');
+const replyPreviewContainer = document.getElementById('reply-preview-container');
+const replyPreviewSender = document.getElementById('reply-preview-sender');
+const replyPreviewText = document.getElementById('reply-preview-text');
+const cancelReplyBtn = document.getElementById('cancel-reply-btn');
+const reportUserModal = document.getElementById('report-user-modal');
+const reportingUserName = document.getElementById('reporting-user-name');
+const submitReportBtn = document.getElementById('submit-report-btn');
+const cancelReportBtn = document.getElementById('cancel-report-btn');
+const reportDetails = document.getElementById('report-details');
+let reportingUser = null;
+const confirmModal = document.getElementById('custom-confirm-modal');
+const confirmMessage = document.getElementById('confirm-message');
+const confirmOkBtn = document.getElementById('confirm-ok-btn');
+const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+const appRoot = document.getElementById('app');
+const imageLightbox = document.getElementById('image-lightbox');
+const lightboxImg = document.getElementById('lightbox-img');
+const lightboxCloseBtn = document.querySelector('.lightbox-close-btn');
+const globalSearch = document.getElementById('global-search');
+const searchDropdown = document.getElementById('search-dropdown');
+const openFriendReqBtn = document.getElementById('open-friend-req-btn');
+const friendReqModal = document.getElementById('friend-request-modal');
+const friendReqList = document.getElementById('friend-request-list');
+const closeFriendReqModal = document.getElementById('close-friend-req-modal');
+const createGroupBtn = document.getElementById('create-group-btn');
+const createGroupModal = document.getElementById('create-group-modal');
+const closeGroupModalBtn = document.getElementById('close-group-modal-btn');
+const groupNameInput = document.getElementById('group-name-input');
+const groupMembersChecklist = document.getElementById('group-members-checklist');
+const confirmCreateGroupBtn = document.getElementById('confirm-create-group-btn');
+const friendList = document.getElementById('friend-list');
+const groupList = document.getElementById('group-list');
+const sidebarAvatar = document.getElementById('sidebar-avatar');
+const sidebar = document.getElementById('sidebar');
+const openSettings = document.getElementById('open-settings');
+const settingsMenu = document.getElementById('settings-menu');
+const themeSwitch  = document.getElementById('theme-switch');
+const goLogin = document.getElementById('go-login');
+const currentChatFriendName = document.getElementById('current-chat-friend-name');
+const messagesContainer = document.getElementById('messages-container');
+const typingIndicator = document.getElementById('typing-indicator');
+let messageInput = document.getElementById('message-input');
+const sendBtn = document.getElementById('send-btn');
+const imageInput = document.getElementById('image-input');
+const imagePreviewContainer = document.getElementById('image-preview-container');
+const imagePreview = document.getElementById('image-preview');
+const cancelPreviewBtn = document.getElementById('cancel-preview-btn');
+const chatInfoPanel = document.getElementById('chat-info-panel');
+const openInfoBtn = document.getElementById('open-info-btn');
+const groupInfoBtn = document.getElementById('group-info-btn');
+const closeInfoBtn = document.getElementById('close-info-btn');
+const friendInfoContent = document.getElementById('friend-info-content');
+const friendAvatar = document.getElementById('chat-friend-avatar');
+const friendName = document.getElementById('chat-friend-name');
+const sentImagesGrid = document.getElementById('sent-images-grid');
+const blockUserBtn = document.getElementById('block-user-btn');
+const unblockUserBtn = document.getElementById('unblock-user-btn');
+const removeFriendBtn = document.getElementById('remove-friend-btn');
+const groupInfoContent = document.getElementById('group-info-content');
+const groupAvatar = document.getElementById('group-avatar');
+const groupNameDisplay = document.getElementById('group-name-display');
+const groupMembersList = document.getElementById('group-members-list');
+const groupSentImagesGrid = document.getElementById('group-sent-images-grid');
+const leaveGroupBtn = document.getElementById('leave-group-btn');
+const reactionsModal = document.getElementById('reactions-modal');
+const reactionsList = document.getElementById('reactions-list');
+const closeReactionsModal = document.getElementById('close-reactions-modal');
+const editPreviewContainer = document.getElementById('edit-preview-container');
+const editPreviewText = document.getElementById('edit-preview-text');
+const cancelEditBtn = document.getElementById('cancel-edit-btn');
+let isEditing = false;
+const editProfileBtn = document.getElementById('edit-profile-btn');
+const editProfileModal = document.getElementById('edit-profile-modal');
+const profileDisplayName = document.getElementById('profile-display-name');
+const attachEvidenceBtn = document.getElementById('attach-evidence-btn');
+const evidencePreview = document.getElementById('evidence-preview');
+const selectionBar = document.getElementById('selection-bar');
+const selectionCount = document.getElementById('selection-count');
+const cancelSelectionBtn = document.getElementById('cancel-selection-btn');
+const confirmSelectionBtn = document.getElementById('confirm-selection-btn');
+let selectedEvidence = [];
+const profileBio = document.getElementById('profile-bio');
+const profileAvatarUrl = document.getElementById('profile-avatar-url');
+const saveProfileEditBtn = document.getElementById('save-profile-edit-btn');
+const cancelProfileEditBtn = document.getElementById('cancel-profile-edit-btn');
+let currentUser = null;
+let lastMessageDate = null;
+let currentUserData = {};
+let currentFriends = [];
+let currentChatId = null;
+let currentChatType = null;
+let currentFriendUid = null;
+let currentChatPeerData = null;
+let typingTimer;
+let typingUnsub = null;
+let msgsUnsub = null;
+let currentGroupMembers = [];
+let selectedImageFile = null;
+let replyingTo = null;
+let editingMessageKey = null;
+let unreadCount = 0;
+const originalTitle = document.title;
+
+// --- Core App Logic ---
+onAuthStateChanged(auth, async (user) => {
+    // 1. Kiểm tra xem người dùng đã đăng nhập chưa
+    if (!user) {
+        window.location.href = 'login.html';
+        return; // Dừng hàm lại ngay
+    }
+
+    // 2. Lấy dữ liệu người dùng từ Firestore để kiểm tra trạng thái
+    const userDocRef = doc(db, 'users', user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+
+    // Xử lý trường hợp không tìm thấy dữ liệu (hiếm gặp, nhưng nên có)
+    if (!userDocSnap.exists()) {
+        await signOut(auth);
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const userData = userDocSnap.data();
+
+    // 3. Kiểm tra xem tài khoản có bị "xóa mềm" (ngừng hoạt động) không
+    if (userData.isDeactivated === true) {
+        alert("Tài khoản của bạn đã ngừng hoạt động.");
+        await signOut(auth);
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // 4. Kiểm tra xem người dùng có cần hoàn tất hồ sơ không
+    if (userData.needsSetup === true) {
+        window.location.href = 'setup.html';
+        return;
+    }
+
+    // 5. Nếu tất cả kiểm tra đều qua, tiến hành khởi chạy ứng dụng
+    currentUser = user;
+    currentUserData = userData; // Gán dữ liệu người dùng vào biến toàn cục
+    appRoot.style.display = 'flex';
+
+    // Gọi các hàm khởi tạo cần thiết
+    setupPresence(user.uid, userData.hideOnlineStatus);
+    wireProfile();
+    loadFriendsAndGroups();
+    attachEventListeners();
+    
+    // START: SỬA LỖI TÌM KIẾM
+    // Gọi hàm tìm kiếm ở đây để đảm bảo currentUser đã tồn tại
+    attachGlobalSearch();
+    // END: SỬA LỖI TÌM KIẾM
+
+    handleUrlChat();
+    listenForNotifications_Optimized();
+});
+
+// Toàn bộ các hàm Javascript khác... (giữ nguyên không đổi)
+function listenForAllNotifications() {
+    const groupsQuery = query(collection(db, 'groups'), where('member_uids', 'array-contains', currentUser.uid));
+    onSnapshot(groupsQuery, (snapshot) => {
+        snapshot.forEach((groupDoc) => {
+            const groupId = groupDoc.id;
+            const lastMsgQuery = rtdbQuery(ref(rtdb, `/messages/${groupId}`), orderByChild('timestamp'), limitToLast(1));
+            onValue(lastMsgQuery, (msgSnap) => {
+                if (!msgSnap.exists()) return;
+                const [msg] = Object.values(msgSnap.val());
+                if (msg.senderId !== currentUser.uid && groupId !== currentChatId) {
+                    showSimpleNotification(msg.senderName, msg.text || "Đã gửi một ảnh", `https://placehold.co/96x96?text=${msg.senderName[0]}`);
+                }
+            });
+        });
+    });
+    currentUserData.friends?.forEach(friendId => {
+        const chatId = [currentUser.uid, friendId].sort().join('_');
+        const lastMsgQuery = rtdbQuery(ref(rtdb, `/messages/${chatId}`), orderByChild('timestamp'), limitToLast(1));
+        onValue(lastMsgQuery, (msgSnap) => {
+            if (!msgSnap.exists()) return;
+            const [msg] = Object.values(msgSnap.val());
+            if (msg.senderId !== currentUser.uid && chatId !== currentChatId) {
+                const senderAvatar = userCache[msg.senderId]?.avatarUrl;
+                showSimpleNotification(msg.senderName, msg.text || "Đã gửi một ảnh", senderAvatar);
+            }
+        });
+    });
+}
+function startEditMessage(key, message) {
+    if (replyingTo) cancelReply();
+    isEditing = true;
+    editingMessageKey = key;
+    editPreviewText.textContent = message.text;
+    editPreviewContainer.style.display = 'block';
+    messageInput.value = message.text;
+    messageInput.focus();
+    sendBtn.textContent = 'Lưu';
+}
+function cancelEdit() {
+    isEditing = false;
+    editingMessageKey = null;
+    editPreviewContainer.style.display = 'none';
+    messageInput.value = '';
+    sendBtn.textContent = 'Gửi';
+}
+function enterMessageSelectionMode() {
+    reportUserModal.style.display = 'none';
+    selectionBar.style.display = 'flex';
+    messagesContainer.classList.add('selection-mode');
+    selectedEvidence = [];
+    updateSelectionCount();
+}
+function exitMessageSelectionMode(saveChanges = false) {
+    selectionBar.style.display = 'none';
+    messagesContainer.classList.remove('selection-mode');
+    document.querySelectorAll('.msg-wrapper.selected').forEach(el => el.classList.remove('selected'));
+    reportUserModal.style.display = 'flex';
+    if (saveChanges && selectedEvidence.length > 0) {
+        evidencePreview.textContent = `Đã đính kèm ${selectedEvidence.length} tin nhắn.`;
+        evidencePreview.style.display = 'block';
+    } else {
+        selectedEvidence = [];
+        evidencePreview.style.display = 'none';
+    }
+}
+function updateSelectionCount() {
+    selectionCount.textContent = `Đã chọn: ${selectedEvidence.length}`;
+}
+function showConfirmation(message) {
+    return new Promise(resolve => {
+        confirmMessage.textContent = message;
+        confirmModal.style.display = 'flex';
+        confirmOkBtn.onclick = () => {
+            confirmModal.style.display = 'none';
+            resolve(true);
+        };
+        confirmCancelBtn.onclick = () => {
+            confirmModal.style.display = 'none';
+            resolve(false);
+        };
+    });
+}
+function requestSimpleNotificationPermission() {
+    if (!("Notification" in window)) {
+        alert("Trình duyệt này không hỗ trợ thông báo trên màn hình.");
+        return;
+    }
+    if (Notification.permission !== "granted") {
+        Notification.requestPermission().then((permission) => {
+            if (permission === "granted") {
+                showToast("Đã bật thông báo trình duyệt!", "success");
+            } else {
+                showToast("Bạn đã không cho phép nhận thông báo.", "error");
+            }
+        });
+    } else {
+        showToast("Thông báo trình duyệt đã được bật từ trước.", "info");
+    }
+}
+function showSimpleNotification(senderName, messageText, avatarUrl) {
+    if (Notification.permission !== "granted") return;
+    const options = {
+        body: messageText,
+        icon: avatarUrl || 'https://placehold.co/96x96?text=Q'
+    };
+    new Notification(senderName, options);
+}
+
+async function addFriendByEmail() {
+    const emailInput = document.getElementById('add-friend-email-input');
+    const addFriendModal = document.getElementById('add-friend-modal');
+    const email = emailInput.value.trim().toLowerCase();
+    const addBtn = document.getElementById('add-btn');
+    const addMenu = document.getElementById('add-menu');
+    addBtn.onclick = (e) => { e.stopPropagation(); addMenu.style.display = addMenu.style.display === 'block' ? 'none' : 'block'; };
+    document.getElementById('create-group-from-menu').onclick = () => { openCreateGroupModal(); addMenu.style.display = 'none'; };
+    document.getElementById('add-friend-from-menu').onclick = () => { document.getElementById('add-friend-modal').style.display = 'flex'; addMenu.style.display = 'none'; };
+    const settingsMenu = document.getElementById('settings-menu');
+    openSettings.onclick = (e)=> { e.stopPropagation(); settingsMenu.style.display = settingsMenu.style.display==='block' ? 'none' : 'block'; };
+    document.getElementById('go-to-settings').onclick = () => window.location.href = 'settings.html';
+    document.getElementById('go-login').onclick = async ()=>{ await signOut(auth); window.location.href='login.html'; };
+
+    if (!email) return showToast("Vui lòng nhập email.", "error");
+
+     document.addEventListener('click',(e)=>{
+        if(!settingsMenu.contains(e.target) && e.target!==openSettings) settingsMenu.style.display='none';
+        if(!addMenu.contains(e.target) && e.target!==addBtn) addMenu.style.display='none';
+        if (!messageContextMenu.contains(e.target)) messageContextMenu.style.display = 'none';
+    });
+
+    const confirmBtn = document.getElementById('confirm-add-friend-btn');
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = "Đang gửi...";
+
+    const q = query(collection(db, "users"), where("email", "==", email));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+        showToast("Không tìm thấy người dùng với email này.", "error");
+    } else {
+        const targetUser = querySnapshot.docs[0].data();
+        if (targetUser.uid === currentUser.uid) {
+            showToast("Bạn không thể tự kết bạn với chính mình.", "error");
+        } else {
+            try {
+                await addDoc(collection(db, "friend_requests"), { 
+                    from_uid: currentUser.uid, from_email: currentUser.email, to_uid: targetUser.uid, 
+                    status: 'pending', timestamp: serverTimestamp() 
+                });
+                showToast("Đã gửi lời mời kết bạn!", "success");
+                emailInput.value = '';
+                addFriendModal.style.display = 'none';
+            } catch (err) {
+                console.error(err);
+                showToast("Lỗi khi gửi lời mời.", "error");
+            }
+        }
+    }
+    
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = "Gửi lời mời";
+}
+
+// THAY THẾ TOÀN BỘ HÀM CŨ BẰNG HÀM NÀY
+// THAY THẾ TOÀN BỘ HÀM CŨ BẰNG PHIÊN BẢN HOÀN CHỈNH NÀY
+function attachEventListeners() {
+    handleMentionInput();
+    // --- Lấy các yếu tố Menu chính ---
+    const addBtn = document.getElementById('add-btn');
+    const addMenu = document.getElementById('add-menu');
+    const settingsBtn = document.getElementById('open-settings');
+    const settingsMenu = document.getElementById('settings-menu');
+
+    // --- Xử lý Menu ---
+    addBtn.onclick = (e) => {
+        e.stopPropagation();
+        settingsMenu.style.display = 'none';
+        addMenu.style.display = addMenu.style.display === 'block' ? 'none' : 'block';
+    };
+    settingsBtn.onclick = (e) => {
+        e.stopPropagation();
+        addMenu.style.display = 'none';
+        settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block';
+    };
+    
+    // --- Gán sự kiện cho các mục bên trong Menu ---
+    document.getElementById('create-group-from-menu').onclick = () => { openCreateGroupModal(); addMenu.style.display = 'none'; };
+    document.getElementById('add-friend-from-menu').onclick = () => { document.getElementById('add-friend-modal').style.display = 'flex'; addMenu.style.display = 'none'; };
+    document.getElementById('go-to-settings').onclick = () => window.location.href = 'settings.html';
+    document.getElementById('go-login').onclick = async () => { await signOut(auth); window.location.href='login.html'; };
+
+    // --- Gán sự kiện cho các Popup (Modal) ---
+    document.getElementById('cancel-add-friend-btn').onclick = () => document.getElementById('add-friend-modal').style.display = 'none';
+    document.getElementById('confirm-add-friend-btn').onclick = addFriendByEmail;
+    openFriendReqBtn.onclick = () => { friendReqModal.style.display = 'flex'; loadFriendRequests(); };
+    closeFriendReqModal.onclick = () => { friendReqModal.style.display = 'none'; };
+    closeGroupModalBtn.onclick = () => createGroupModal.style.display = 'none';
+    confirmCreateGroupBtn.onclick = confirmCreateGroup;
+    closeReactionsModal.onclick = () => reactionsModal.style.display = 'none';
+    cancelReportBtn.onclick = () => { reportUserModal.style.display = 'none'; reportDetails.value = ''; };
+    submitReportBtn.onclick = submitReport;
+    attachEvidenceBtn.onclick = enterMessageSelectionMode;
+    cancelSelectionBtn.onclick = () => exitMessageSelectionMode(false);
+    confirmSelectionBtn.onclick = () => exitMessageSelectionMode(true);
+    
+    // --- Gán sự kiện cho các nút trong khu vực Chat ---
+    sendBtn.onclick = sendMessage;
+    cancelReplyBtn.onclick = cancelReply;
+    cancelEditBtn.onclick = cancelEdit;
+    cancelPreviewBtn.onclick = cancelImagePreview;
+    closeInfoBtn.onclick = () => chatInfoPanel.classList.remove('open');
+    sidebarAvatar.onclick = () => { if(!currentUser) return; window.open(`profile.html?id=${encodeURIComponent(currentUser.uid)}`,'_blank'); };
+    toastCloseBtn.onclick = () => toast.style.display = 'none';
+    lightboxCloseBtn.onclick = () => imageLightbox.style.display = 'none';
+    imageLightbox.onclick = (e) => { if (e.target === imageLightbox) { imageLightbox.style.display = 'none'; } };
+
+    // --- LOGIC MỚI CHO Ô NHẬP TIN NHẮN VÀ CHỌN ẢNH ---
+    messageInput.addEventListener('input', () => {
+        const hasText = messageInput.value.trim().length > 0;
+        chatInputContainer.classList.toggle('has-text', hasText);
+        
+        if(!currentChatId) return;
+        const tRef = ref(rtdb, `/typing/${currentChatId}/${currentUser.uid}`);
+        set(tRef, true);
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(() => set(tRef, false), 2000);
+    });
+
+    messageInput.addEventListener('keypress', e => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    imageInput.onchange = (e) => {
+        const f = e.target.files?.[0];
+        if (!f) return;
+        selectedImageFile = f;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            imagePreview.src = ev.target.result;
+            imagePreviewContainer.style.display = 'block';
+            messageInput.placeholder = 'Thêm chú thích...';
+        };
+        reader.readAsDataURL(f);
+    };
+    // --- KẾT THÚC LOGIC MỚI ---
+
+    // --- CÁC LISTENER CŨ KHÁC ---
+    messagesContainer.addEventListener('contextmenu', showMessageContextMenu);
+    messagesContainer.addEventListener('mouseover', e => { 
+        const msgWrapper = e.target.closest('.msg-wrapper'); 
+        if (msgWrapper && msgWrapper.dataset.key) { 
+            let picker = msgWrapper.querySelector('.reaction-picker'); 
+            if (!picker) { 
+                picker = createReactionPicker(msgWrapper.dataset.key); 
+                msgWrapper.appendChild(picker); 
+            } 
+        } 
+    });
+    document.querySelectorAll('.report-reason-row').forEach(row => { 
+        row.addEventListener('click', () => { 
+            document.querySelectorAll('.report-reason-row').forEach(r => r.classList.remove('selected')); 
+            row.classList.add('selected'); 
+            row.querySelector('input[type="radio"]').checked = true; 
+        }); 
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!addMenu.contains(e.target) && e.target !== addBtn) addMenu.style.display = 'none';
+        if (!settingsMenu.contains(e.target) && e.target !== settingsBtn) settingsMenu.style.display = 'none';
+        if (!messageContextMenu.contains(e.target)) messageContextMenu.style.display = 'none';
+    });
+    document.addEventListener('visibilitychange', () => { 
+        if (!document.hidden) { 
+            unreadCount = 0; 
+            document.title = originalTitle; 
+        } 
+    });
+}
+function openLightbox(imageUrl) {
+    lightboxImg.src = imageUrl;
+    imageLightbox.style.display = 'flex';
+}
+function showToast(message, type = 'info') {
+    toastMessage.textContent = message;
+    toast.style.display = 'block';
+}
+// TÌM VÀ THAY THẾ TOÀN BỘ HÀM CŨ BẰNG HÀM NÀY
+function escapeHtml(s) {
+    // Nếu đầu vào không phải là chuỗi (bị null hoặc undefined), trả về chuỗi rỗng
+    if (typeof s !== 'string') {
+        return '';
+    }
+    // Nếu là chuỗi thì xử lý như bình thường
+    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+}
+function createVerifiedTickHTML(isVerified) {
+    return isVerified ? '<span class="verified-tick"></span>' : '';
+}
+function setupPresence(uid, isHidden = false){
+  const statusRef = ref(rtdb, `/status/${uid}`);
+  
+  // Nếu người dùng chọn ẨN, đặt trạng thái offline và dừng lại
+  if (isHidden) {
+      set(statusRef, { isOnline: false, last_seen: dbServerTimestamp() });
+      return;
+  }
+
+  // Nếu không ẩn, thì chạy logic online/offline như bình thường
+  const connectedRef = ref(rtdb, '.info/connected');
+  onValue(connectedRef,(snap)=>{
+    if(snap.val() === false) return;
+    onDisconnect(statusRef).set({ isOnline:false, last_seen: dbServerTimestamp() })
+      .then(()=> set(statusRef, { isOnline:true, last_seen: dbServerTimestamp() }));
+  });
+}
+// TÌM VÀ THAY THẾ TOÀN BỘ hàm wireProfile cũ bằng hàm này
+function wireProfile(){
+  // 'ds' là dữ liệu snapshot nhận về từ Firebase
+  onSnapshot(doc(db,'users',currentUser.uid),(ds)=>{
+    
+    // DÒNG NÀY LÀ QUAN TRỌNG NHẤT:
+    // Nó lấy dữ liệu từ snapshot (ds) và gán vào biến 'd'.
+    // Lỗi của cậu có thể là do thiếu hoặc sai dòng này.
+    const d = ds.data() || {}; 
+    
+    // Các dòng bên dưới đều sử dụng biến 'd' một cách an toàn
+    sidebarAvatar.src = d.avatarUrl || `https://placehold.co/42x42/111/fff?text=${(d.email||'?')[0].toUpperCase()}`;
+    currentUserData = d;
+    currentFriends = d.friends || [];
+
+    // Thêm hoặc xóa class trên thẻ <body> dựa vào cài đặt ẩn trạng thái
+    document.body.classList.toggle('is-hiding-status', d.hideOnlineStatus === true);
+  });
+}
+async function ensureUserDoc(){
+  const uref=doc(db,'users',currentUser.uid);
+  const got=await getDoc(uref);
+  if(!got.exists()){
+    await setDoc(uref,{uid:currentUser.uid,email:currentUser.email,displayName:currentUser.email.split('@')[0],bio:'',avatarUrl:'',friends:[], blocked: []});
+  }
+}
+function loadFriendsAndGroups(){
+    onSnapshot(doc(db,'users',currentUser.uid), async (meDoc)=>{
+      friendList.innerHTML='';
+      const fids = meDoc.data()?.friends || [];
+      currentFriends = fids;
+      for(const uid of fids){
+        const userDoc = await getDoc(doc(db,'users',uid));
+        if(!userDoc.exists()) continue;
+        const u = userDoc.data();
+        const verifiedTick = createVerifiedTickHTML(u.isVerified);
+        const chatId = [currentUser.uid, uid].sort().join('_');
+        const li = document.createElement('li');
+        li.className = 'item clickable';
+        li.innerHTML = `
+          <div class="item-left">
+            <img class="result-avatar" src="${u.avatarUrl || `https://placehold.co/40x40/111/fff?text=${u.displayName[0]}`}">
+            <div style="min-width: 0;">
+                <div class="item-name">${u.displayName || u.email}${verifiedTick}</div>
+                <div class="item-last-msg" id="last-msg-${chatId}"></div>
+            </div>
+          </div>
+          <div class="status" id="st-${uid}"></div>`;
+        li.onclick = () => startDirectChat(u);
+        friendList.appendChild(li);
+        onValue(ref(rtdb,`/status/${uid}`),(s)=>{
+          const el=document.getElementById(`st-${uid}`); if(!el) return;
+          el.classList.toggle('online', !!s.val()?.isOnline);
+        });
+        const lastMsgQuery = rtdbQuery(ref(rtdb, `/messages/${chatId}`), orderByChild('timestamp'), limitToLast(1));
+        onValue(lastMsgQuery, (snap) => {
+            const lastMsgEl = document.getElementById(`last-msg-${chatId}`);
+            if (!lastMsgEl) return;
+            if (snap.exists()) {
+                const [lastMsg] = Object.values(snap.val());
+                let preview = '';
+                if (lastMsg.recalled) {
+                    preview = 'Tin nhắn đã được thu hồi';
+                } else if (lastMsg.text) {
+                    preview = lastMsg.text;
+                } else if (lastMsg.imageUrl) {
+                    preview = 'Đã gửi một ảnh';
+                }
+                if (lastMsg.senderId === currentUser.uid) {
+                    preview = `Bạn: ${preview}`;
+                }
+                lastMsgEl.textContent = preview;
+            }
+        });
+      }
+      sidebar.classList.add('loaded');
+    });
+    const qg = query(collection(db,'groups'), where('member_uids','array-contains', currentUser.uid));
+    onSnapshot(qg,(qs)=>{
+      groupList.innerHTML='';
+      qs.forEach((d)=>{
+        const g=d.data();
+        const groupId = d.id;
+        const li=document.createElement('li');
+        li.className='item clickable';
+        li.innerHTML=`
+            <div class="item-left">
+                <img class="result-avatar" src="https://placehold.co/40x40/0af/fff?text=${g.groupName[0]}">
+                <div style="min-width: 0;">
+                    <div class="item-name">👥 ${g.groupName}</div>
+                    <div class="item-last-msg" id="last-msg-${groupId}"></div>
+                </div>
+            </div>`;
+        li.onclick=()=> startGroupChat(groupId, g.groupName);
+        groupList.appendChild(li);
+        const lastMsgQuery = rtdbQuery(ref(rtdb, `/messages/${groupId}`), orderByChild('timestamp'), limitToLast(1));
+        onValue(lastMsgQuery, (snap) => {
+            const lastMsgEl = document.getElementById(`last-msg-${groupId}`);
+            if (!lastMsgEl) return;
+            if (snap.exists()) {
+                const [lastMsg] = Object.values(snap.val());
+                let preview = '';
+                if (lastMsg.recalled) {
+                    preview = 'Tin nhắn đã được thu hồi';
+                } else if (lastMsg.text) {
+                    preview = lastMsg.text;
+                } else if (lastMsg.imageUrl) {
+                    preview = 'Đã gửi một ảnh';
+                }
+                const senderPrefix = lastMsg.senderId === currentUser.uid ? 'Bạn: ' : `${lastMsg.senderName.split(' ')[0]}: `;
+                lastMsgEl.textContent = senderPrefix + preview;
+            }
+        });
+      });
+    });
+}
+async function startDirectChat(friend) {
+    if (!friend || !friend.uid) return;
+
+    const friendDoc = await getDoc(doc(db, 'users', friend.uid));
+    if (!friendDoc.exists()) {
+        return showToast("Không tìm thấy người dùng này.", "error");
+    }
+
+    const friendData = friendDoc.data();
+    currentChatPeerData = friendData;
+
+    let isChatActive = true;
+    let inactiveReason = ""; // Biến lưu lý do
+
+    // --- LOGIC MỚI BẮT ĐẦU TỪ ĐÂY ---
+    if (currentUserData.blocked?.includes(friend.uid)) {
+        // Trường hợp 1: MÌNH chặn HỌ
+        inactiveReason = "Bạn đã chặn người này. Hãy bỏ chặn để tiếp tục nhắn tin.";
+        isChatActive = false;
+    } else if (friendData?.blocked?.includes(currentUser.uid)) {
+        // Trường hợp 2: HỌ chặn MÌNH
+        inactiveReason = "Bạn không thể gửi tin nhắn cho người này.";
+        isChatActive = false;
+    } else if (friendData.isDeactivated === true) {
+        // Trường hợp 3: Tài khoản của họ bị khóa
+        inactiveReason = "Không thể gửi tin nhắn cho người này.";
+        isChatActive = false;
+    } else {
+        // Mọi thứ bình thường
+        isChatActive = true;
+    }
+    // --- KẾT THÚC LOGIC MỚI ---
+
+    const uids = [currentUser.uid, friend.uid].sort();
+    const chatId = uids.join('_');
+    currentFriendUid = friend.uid;
+
+    // Cập nhật lại text cho ô thông báo
+    inactiveChatIndicator.textContent = inactiveReason;
+    openChat({ id: chatId, name: friendData.displayName || friendData.email, type: 'direct', isActive: isChatActive });
+
+    history.replaceState(null, '', `?chat=${friend.uid}`);
+}
+function startGroupChat(groupId, groupName){
+    if (!sessionStorage.getItem('groupBetaWarningShown')) {
+        showToast('Tính năng Nhóm đang trong giai đoạn thử nghiệm (Beta)...');
+        sessionStorage.setItem('groupBetaWarningShown', 'true');
+    }
+    currentFriendUid = null;
+    currentChatPeerData = null;
+    openChat({id:groupId, name:groupName, type:'group', isActive: true});
+    history.replaceState(null, '', `?chat_group=${groupId}`);
+}
+function openChat(chat) {
+    // 1. NGẮT KẾT NỐI CŨ NGAY LẬP TỨC (Sửa lỗi lặp tin nhắn)
+    if (msgsUnsub) {
+        msgsUnsub();
+        msgsUnsub = null; // Đặt lại thành null để chắc chắn
+    }
+    if (typingUnsub) {
+        typingUnsub();
+        typingUnsub = null; // Đặt lại thành null
+    }
+
+    // 2. Reset trạng thái và UI
+    lastMessageDate = null;
+    currentChatId = chat.id;
+    currentChatType = chat.type;
+    currentGroupMembers = []; // Reset danh sách thành viên
+    messagesContainer.innerHTML = ''; // Xóa tin nhắn cũ
+    typingIndicator.textContent = ''; // Xóa trạng thái gõ phím
+    chatInfoPanel.classList.remove('open'); // Đóng panel thông tin nếu đang mở
+    cancelReply(); // Hủy trạng thái trả lời (nếu có)
+    cancelEdit(); // Hủy trạng thái sửa (nếu có)
+    cancelImagePreview(); // Hủy xem trước ảnh (nếu có)
+
+    // 3. Cập nhật Header Chat
+    const verifiedTick = createVerifiedTickHTML(currentChatPeerData?.isVerified);
+    currentChatFriendName.innerHTML = `${escapeHtml(chat.name)} ${verifiedTick}`;
+    const chatHeaderAvatar = document.getElementById('current-chat-avatar');
+
+    if (chat.type === 'direct' && currentChatPeerData) {
+        chatHeaderAvatar.src = currentChatPeerData.avatarUrl || `https://placehold.co/40x40/EFEFEF/333?text=${chat.name[0]}`;
+        chatHeaderAvatar.style.display = 'block';
+        chatHeaderAvatar.onclick = () => { if (currentFriendUid) window.open(`profile.html?id=${currentFriendUid}`, '_blank'); };
+        groupInfoBtn.style.display = 'none';
+        openInfoBtn.style.display = 'block';
+        openInfoBtn.onclick = () => { if (currentFriendUid) { showFriendInfo(currentFriendUid); chatInfoPanel.classList.add('open'); } };
+        currentFriendUid = currentChatPeerData.uid; // Cập nhật lại friendUid
+    } else if (chat.type === 'group') {
+        chatHeaderAvatar.src = `https://placehold.co/40x40/1e293b/fff?text=${chat.name[0]}`; // Placeholder cho nhóm
+        chatHeaderAvatar.style.display = 'block';
+        chatHeaderAvatar.onclick = null; // Không cần click avatar nhóm
+        openInfoBtn.style.display = 'none';
+        groupInfoBtn.style.display = 'block';
+        groupInfoBtn.onclick = () => { showGroupInfo(chat.id); chatInfoPanel.classList.add('open'); };
+        currentFriendUid = null; // Reset friendUid
+
+        // Lấy danh sách thành viên nhóm
+        const groupRef = doc(db, "groups", chat.id);
+        getDoc(groupRef).then(async (groupDoc) => {
+            if (groupDoc.exists()) {
+                const groupData = groupDoc.data();
+                const memberUids = groupData.member_uids || [];
+                const memberPromises = memberUids.map(uid => getDoc(doc(db, "users", uid)));
+                const memberDocs = await Promise.all(memberPromises);
+                currentGroupMembers = memberDocs
+                    .filter(d => d.exists())
+                    .map(d => {
+                        const uData = d.data();
+                        return { uid: uData.uid, displayName: uData.displayName || uData.email, avatarUrl: uData.avatarUrl };
+                    });
+            }
+        });
+    } else {
+        // Trường hợp không xác định (ví dụ: màn hình chờ)
+        chatHeaderAvatar.style.display = 'none';
+        chatHeaderAvatar.onclick = null;
+        openInfoBtn.style.display = 'none';
+        groupInfoBtn.style.display = 'none';
+        currentFriendUid = null;
+    }
+
+    // 4. Kích hoạt/Vô hiệu hóa thanh nhập liệu
+    if (chat.isActive) {
+        chatInputContainer.style.display = 'flex';
+        inactiveChatIndicator.style.display = 'none';
+        messageInput.disabled = false;
+        messageInput.placeholder = "Nhập tin nhắn...";
+        messageInput.focus();
+    } else {
+        chatInputContainer.style.display = 'none';
+        inactiveChatIndicator.style.display = 'block';
+        // inactiveChatIndicator.textContent đã được cập nhật trong startDirectChat
+    }
+
+    // 5. Gắn listener mới cho trạng thái gõ phím
+    // 5. Gắn listener mới cho trạng thái gõ phím
+    const typingRef = ref(rtdb, `/typing/${chat.id}`);
+    typingUnsub = onValue(typingRef, (snap) => {
+        const obj = snap.val() || {};
+        const othersTyping = Object.keys(obj).filter(uid => obj[uid] && uid !== currentUser.uid);
+        
+        // --- SỬA LỖI HIỂN THỊ Ở ĐÂY ---
+        if (othersTyping.length > 0) {
+            if (chat.type === 'direct') {
+                // Nếu là chat 1-1, chỉ hiện "Đang nhập..."
+                typingIndicator.textContent = 'Đang nhập...';
+            } else {
+                // Nếu là chat nhóm, hiện số người đang nhập
+                typingIndicator.textContent = `${othersTyping.length} người đang nhập...`;
+                // Nâng cao: Có thể lấy tên người đang gõ nếu muốn
+                const typerNames = othersTyping.map(uid => currentGroupMembers.find(m => m.uid === uid)?.displayName || '...').join(', ');
+                typingIndicator.textContent = `${typerNames} đang nhập...`;
+            }
+        } else {
+            typingIndicator.textContent = ''; // Không ai gõ thì xóa
+        }
+        // --- KẾT THÚC SỬA LỖI ---
+    });
+    // 6. Gắn listener mới cho tin nhắn
+    const msgsRef = ref(rtdb, `/messages/${chat.id}`);
+    const unsubChildAdded = onChildAdded(msgsRef, (snap) => renderMessage(snap.key, snap.val(), chat));
+    const unsubChildChanged = onChildChanged(msgsRef, (snap) => renderMessage(snap.key, snap.val(), chat));
+    
+    // Gán lại hàm unsub mới
+    msgsUnsub = () => {
+        off(msgsRef, 'child_added', unsubChildAdded);
+        off(msgsRef, 'child_changed', unsubChildChanged);
+    };
+
+    // 7. Gán lại sự kiện cho nút chọn ảnh (đảm bảo nó luôn hoạt động)
+    imageInput.onchange = (e) => {
+        const f = e.target.files?.[0];
+        if (!f) return;
+        selectedImageFile = f;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            imagePreview.src = ev.target.result;
+            imagePreviewContainer.style.display = 'block';
+            messageInput.placeholder = 'Thêm chú thích...';
+        };
+        reader.readAsDataURL(f);
+    };
+}
+// THÊM HÀM MỚI NÀY VÀO SCRIPT
+function handleMentionInput() {
+    const mentionPopup = document.getElementById('mention-suggestions');
+    const input = messageInput; // Đảm bảo biến messageInput là global (dùng let)
+    let isMentioning = false;
+    let mentionQuery = '';
+
+    input.addEventListener('input', (e) => {
+        const text = input.value;
+        const cursorPos = input.selectionStart;
+        let lastAtPos = -1;
+
+        // Tìm vị trí dấu @ gần nhất trước con trỏ
+        for (let i = cursorPos - 1; i >= 0; i--) {
+            if (text[i] === '@') {
+                // Kiểm tra xem có phải là bắt đầu mention không (trước đó là khoảng trắng hoặc đầu dòng)
+                if (i === 0 || /\s/.test(text[i - 1])) {
+                    lastAtPos = i;
+                    break;
+                }
+            }
+            // Nếu gặp khoảng trắng trước khi gặp @ thì không phải đang mention
+            if (/\s/.test(text[i])) break; 
+        }
+
+        if (lastAtPos !== -1 && currentChatType === 'group') {
+            isMentioning = true;
+            mentionQuery = text.substring(lastAtPos + 1, cursorPos).toLowerCase();
+            showSuggestions(mentionQuery);
+        } else {
+            isMentioning = false;
+            mentionPopup.style.display = 'none';
+        }
+    });
+
+    input.addEventListener('keydown', (e) => {
+        // Có thể thêm logic xử lý phím mũi tên/Enter để chọn gợi ý ở đây (nâng cao)
+    });
+
+    function showSuggestions(query) {
+        mentionPopup.innerHTML = ''; // Xóa gợi ý cũ
+        let suggestions = [];
+
+        // Thêm @all nếu query rỗng hoặc khớp
+        if ('all'.includes(query)) {
+            suggestions.push({ type: 'all' });
+        }
+
+        // Lọc thành viên
+        if (currentGroupMembers.length > 0) {
+            const filteredMembers = currentGroupMembers.filter(member => 
+                member.uid !== currentUser.uid && // Không tag chính mình
+                member.displayName.toLowerCase().includes(query)
+            );
+            suggestions = suggestions.concat(filteredMembers.map(m => ({ ...m, type: 'user' })));
+        }
+
+        if (suggestions.length === 0) {
+            mentionPopup.style.display = 'none';
+            return;
+        }
+
+        suggestions.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'suggestion-item';
+            if (item.type === 'all') {
+                div.innerHTML = `<span class="all">@all</span>`;
+                div.onclick = () => insertMention('@all', 'all');
+            } else {
+                const avatar = item.avatarUrl || `https://placehold.co/28x28?text=${item.displayName[0]}`;
+                div.innerHTML = `<img src="${avatar}" alt=""><span class="name">${item.displayName}</span>`;
+                div.onclick = () => insertMention(item.displayName, item.uid);
+            }
+            mentionPopup.appendChild(div);
+        });
+
+        mentionPopup.style.display = 'block';
+    }
+
+    function insertMention(name, uidOrAll) {
+        const text = input.value;
+        const cursorPos = input.selectionStart;
+        let lastAtPos = -1;
+         // Tìm lại vị trí @ để thay thế chính xác
+        for (let i = cursorPos - 1; i >= 0; i--) {
+             if (text[i] === '@') {
+                if (i === 0 || /\s/.test(text[i - 1])) {
+                    lastAtPos = i;
+                    break;
+                }
+            }
+             if (/\s/.test(text[i])) break;
+        }
+
+        if (lastAtPos !== -1) {
+            const before = text.substring(0, lastAtPos);
+            const after = text.substring(cursorPos);
+            const mentionText = (uidOrAll === 'all') ? '@all' : `@${name}`;
+            input.value = before + mentionText + ' ' + after; // Thêm khoảng trắng sau mention
+            
+            // Di chuyển con trỏ ra sau khoảng trắng
+            input.focus();
+            const newCursorPos = before.length + mentionText.length + 1;
+            input.setSelectionRange(newCursorPos, newCursorPos);
+        }
+
+        mentionPopup.style.display = 'none';
+        isMentioning = false;
+         // Kích hoạt lại việc kiểm tra nút gửi sau khi chèn text
+         input.dispatchEvent(new Event('input')); 
+    }
+}
+
+function listenForNotifications_Optimized() {
+    const notifsRef = ref(rtdb, `/notifications/${currentUser.uid}`);
+    onChildAdded(notifsRef, (snapshot) => {
+        const notification = snapshot.val();
+        if (notification.chatId !== currentChatId) {
+            showSimpleNotification(notification.from, notification.preview, notification.avatar);
+        }
+        remove(snapshot.ref);
+    });
+}
+async function sendMessage() {
+    const text = messageInput.value.trim();
+    if (!text && !selectedImageFile && !replyingTo) return;
+    if (!currentChatId) return;
+
+    // 1. Bắt đầu loading
+    sendBtn.classList.add('loading');
+    sendBtn.disabled = true;
+    messageInput.disabled = true;
+
+    try {
+        // 2. Khai báo imageUrl bên ngoài để đảm bảo scope
+        let imageUrl = null; 
+
+        // 3. Upload ảnh nếu có
+        if (selectedImageFile) {
+            imageUrl = await uploadImage(selectedImageFile);
+        }
+
+        // 4. Parse mentions (nếu là chat nhóm)
+        let mentions = [];
+        if (currentChatType === 'group' && text) {
+            const mentionRegex = /@(\S+)/g;
+            let match;
+            while ((match = mentionRegex.exec(text)) !== null) {
+                const username = match[1];
+                if (username === 'all') {
+                    if (!mentions.includes('all')) mentions.push('all');
+                } else {
+                    const mentionedMember = currentGroupMembers.find(m => m.displayName === username);
+                    if (mentionedMember && !mentions.includes(mentionedMember.uid)) {
+                        mentions.push(mentionedMember.uid);
+                    }
+                }
+            }
+        }
+
+        // 5. Chuẩn bị dữ liệu tin nhắn
+        const newMsgRef = push(ref(rtdb, `/messages/${currentChatId}`));
+        const newMsgKey = newMsgRef.key;
+        
+        const msg = {
+            senderId: currentUser.uid,
+            senderName: currentUserData.displayName || currentUser.email.split('@')[0],
+            text: text || null,
+            imageUrl: imageUrl, // Luôn tồn tại (là URL hoặc null)
+            timestamp: Date.now(),
+            readBy: { [currentUser.uid]: true },
+            replyTo: replyingTo ? replyingTo.key : null,
+            mentions: mentions.length > 0 ? mentions : null
+        };
+
+        // 6. Chuẩn bị dữ liệu gửi (tin nhắn + notification)
+        const updates = {};
+        updates[`/messages/${currentChatId}/${newMsgKey}`] = msg;
+        
+        const notificationPayload = {
+            from: msg.senderName, avatar: currentUserData.avatarUrl,
+            preview: msg.text || "Đã gửi một ảnh", chatId: currentChatId,
+            chatType: currentChatType, senderId: currentUser.uid,
+        };
+
+        if (currentChatType === 'direct') {
+            const uids = currentChatId.split('_');
+            const recipientId = uids[0] === currentUser.uid ? uids[1] : uids[0];
+            // TODO: Kiểm tra xem người nhận có mute chat này không trước khi gửi notif
+            updates[`/notifications/${recipientId}/${newMsgKey}`] = notificationPayload;
+        } 
+        // TODO: Logic gửi notification cho nhóm (chỉ gửi cho người được tag hoặc all?)
+
+        // 7. Gửi dữ liệu lên Firebase
+        await rtdbUpdate(ref(rtdb), updates);
+
+        // 8. Dọn dẹp UI nếu gửi thành công
+        messageInput.value = '';
+        chatInputContainer.classList.remove('has-text');
+        cancelImagePreview();
+        cancelReply();
+        clearTimeout(typingTimer);
+        set(ref(rtdb, `/typing/${currentChatId}/${currentUser.uid}`), false);
+
+    } catch (e) {
+        console.error("Lỗi khi gửi tin nhắn:", e);
+        showToast('Gửi tin nhắn thất bại, vui lòng thử lại.', 'error');
+    } finally {
+        // 9. Luôn kết thúc loading và mở lại input
+        sendBtn.classList.remove('loading');
+        sendBtn.disabled = false; // Nút tự ẩn nhờ CSS
+        messageInput.disabled = false;
+        if (currentChatId) { // Chỉ focus nếu vẫn đang trong chat
+             messageInput.focus();
+        }
+    }
+}
+function renderMessage(key, m, chatCtx) {
+    // 1. KIỂM TRA ĐIỀU KIỆN THOÁT SỚM
+    if (currentUserData.blocked?.includes(m.senderId)) return; // Bị chặn -> không render
+    if (!m) { // Tin nhắn bị xóa hoàn toàn khỏi DB
+        const elToRemove = document.querySelector(`.msg-wrapper[data-key="${key}"]`);
+        if (elToRemove) elToRemove.remove();
+        return;
+    }
+
+    // 2. KHAI BÁO BIẾN CỐT LÕI
+    const isSent = m.senderId === currentUser.uid;
+
+    // 3. XỬ LÝ CÁC TÁC VỤ PHỤ (Cập nhật tiêu đề tab)
+    if (!isSent && document.hidden) {
+        unreadCount++;
+        document.title = `(${unreadCount}) ${originalTitle}`;
+    }
+
+    // 4. QUẢN LÝ DOM ELEMENT (Lấy hoặc tạo element chính)
+    let existingEl = document.querySelector(`.msg-wrapper[data-key="${key}"]`);
+    const isNewMessage = !existingEl;
+    if (isNewMessage) {
+        existingEl = document.createElement('div');
+        existingEl.className = 'msg-wrapper';
+        existingEl.dataset.key = key;
+    }
+
+    // 5. KIỂM TRA MENTION VÀ THÊM CLASS HIGHLIGHT
+    let isMentioned = false;
+    if (m.mentions && m.mentions.length > 0) {
+        if (m.mentions.includes(currentUser.uid) || m.mentions.includes('all')) {
+            isMentioned = true;
+        }
+    }
+    existingEl.classList.toggle('mentioned-me', isMentioned);
+
+    // 6. RENDER DẢI PHÂN CÁCH NGÀY (CHỈ KHI LÀ TIN NHẮN MỚI)
+    if (isNewMessage && m.timestamp) {
+        const messageDate = new Date(m.timestamp).toLocaleDateString('vi-VN');
+        if (messageDate !== lastMessageDate) {
+            const separator = document.createElement('div');
+            separator.className = 'message-date-separator';
+            separator.textContent = (messageDate === new Date().toLocaleDateString('vi-VN')) ? 'Hôm nay' : messageDate;
+            // Chèn vào trước existingEl nếu existingEl đã có trong DOM, nếu không thì append vào cuối
+            if (existingEl.parentNode === messagesContainer) {
+                 messagesContainer.insertBefore(separator, existingEl);
+            } else {
+                 messagesContainer.appendChild(separator); // Lần đầu tiên thêm tin nhắn
+            }
+            lastMessageDate = messageDate;
+        }
+    }
+
+    // 7. GẮN ELEMENT VÀO GIAO DIỆN (NẾU LÀ TIN MỚI)
+    if (isNewMessage) {
+        messagesContainer.appendChild(existingEl);
+    }
+
+    // 8. TẠO HTML CHO NỘI DUNG TIN NHẮN
+    existingEl.classList.toggle('sent', isSent);
+    existingEl.classList.toggle('received', !isSent);
+
+    // -- Tạo HTML cho Avatar --
+    let avatarHtml = '';
+    if (!isSent) {
+        let avatarUrl = '';
+        let senderUidForProfile = '';
+        if (chatCtx.type === 'direct' && currentChatPeerData) {
+            avatarUrl = currentChatPeerData.avatarUrl || `https://placehold.co/32x32/EFEFEF/333?text=${currentChatPeerData.displayName[0]}`;
+            senderUidForProfile = currentChatPeerData.uid;
+        } else if (chatCtx.type === 'group') {
+            const memberInfo = currentGroupMembers.find(mem => mem.uid === m.senderId);
+            avatarUrl = memberInfo?.avatarUrl || `https://placehold.co/32x32/1e293b/fff?text=${m.senderName ? m.senderName[0].toUpperCase() : '?'}`;
+            senderUidForProfile = m.senderId;
+        }
+        if (avatarUrl) {
+            avatarHtml = `<img src="${avatarUrl}" class="msg-avatar" data-uid="${senderUidForProfile}">`;
+        }
+    }
+
+    // -- Tạo HTML cho Tên người gửi (chỉ trong group chat và tin nhắn nhận) --
+    let senderNameHtml = '';
+    if (!isSent && chatCtx.type === 'group') {
+        senderNameHtml = `<div class="msg-sender-name">${escapeHtml(m.senderName) || '...'}</div>`;
+    }
+
+    // -- Tạo HTML cho Bong bóng chat --
+    let msgBubbleHtml = '';
+    if (m.recalled) {
+        msgBubbleHtml = `<div class="msg recalled-message">Tin nhắn đã được thu hồi</div>`;
+    } else {
+        // Gán data-sender-name vào thẻ .msg để lấy khi reply
+        let content = `<div class="msg ${isSent ? 'sent' : ''}" data-sender-name="${escapeHtml(m.senderName || '')}">`;
+
+        // Render quote trả lời
+        if (m.replyTo) {
+            const repliedMsgWrapper = document.querySelector(`.msg-wrapper[data-key="${m.replyTo}"]`);
+            if (repliedMsgWrapper) {
+                const repliedMsgEl = repliedMsgWrapper.querySelector('.msg');
+                if (repliedMsgEl && !repliedMsgEl.classList.contains('recalled-message')) {
+                     const originalSenderName = repliedMsgEl.dataset.senderName || '...'; // Lấy tên gốc
+                     const originalText = repliedMsgEl.querySelector('.msg-text')?.textContent || (repliedMsgEl.querySelector('img') ? 'Ảnh' : '...');
+                     content += `<div class="reply-quote"><div class="sender">Trả lời ${escapeHtml(originalSenderName)}</div><div class="text">${escapeHtml(originalText)}</div></div>`;
+                } else {
+                     content += `<div class="reply-quote"><div class="sender">Trả lời tin nhắn đã thu hồi</div></div>`;
+                }
+            }
+        }
+
+        // Render text và highlight mention
+        let messageTextHtml = '';
+        if (m.text) {
+            let escapedText = escapeHtml(m.text); // Luôn escape trước
+            if (m.mentions && m.mentions.length > 0 && currentChatType === 'group') {
+                 const sortedMembers = [...currentGroupMembers].sort((a, b) => b.displayName.length - a.displayName.length);
+                 escapedText = escapedText.replace(/@all/g, '<span class="mention">@all</span>');
+                 sortedMembers.forEach(member => {
+                      const escapedName = escapeHtml(`@${member.displayName}`);
+                      const regex = new RegExp(`(?<![a-zA-Z0-9])${escapedName.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}(?![a-zA-Z0-9])`, 'g');
+                      if (m.mentions.includes(member.uid)) {
+                          escapedText = escapedText.replace(regex, `<span class="mention">@${member.displayName}</span>`);
+                      }
+                 });
+            }
+            messageTextHtml = `<div class="msg-text">${escapedText}</div>`;
+        }
+        content += messageTextHtml;
+
+        // Render ảnh
+        if (m.imageUrl) content += `<img src="${m.imageUrl}" alt="img"/>`;
+
+        // Render timestamp và trạng thái edited
+        if (m.timestamp) {
+            const d = new Date(m.timestamp);
+            const hm = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+            const editedLabel = m.edited ? `<span class="edited-label">(đã chỉnh sửa)</span>` : '';
+            content += `<div class="msg-meta">${hm}${editedLabel}</div>`;
+        }
+
+        // Render trạng thái Đã gửi/Đã xem (cho tin nhắn gửi đi)
+        if (isSent) {
+            let status = 'Đã gửi';
+            if (chatCtx.type === 'direct') {
+                const uids = chatCtx.id.split('_');
+                const peerUid = uids[0] === currentUser.uid ? uids[1] : uids[0];
+                if (m.readBy && m.readBy[peerUid]) { status = 'Đã xem'; }
+            } else {
+                if (m.readBy && Object.keys(m.readBy).length > 1) { status = 'Đã xem'; }
+            }
+            content += `<div class="msg-status">${status}</div>`;
+        }
+
+        content += `</div>`; // Đóng thẻ div.msg
+        msgBubbleHtml = content;
+    }
+
+    // 9. GHÉP HTML HOÀN CHỈNH
+    existingEl.innerHTML = `
+        ${avatarHtml}
+        <div class="msg-content-wrapper">
+            ${senderNameHtml}
+            ${msgBubbleHtml}
+            </div>
+    `;
+
+    // 10. RENDER BẢNG TỔNG KẾT REACTION (Chỉ khi chưa bị thu hồi)
+    const reactions = m.reactions || {};
+    let reactionsDisplay = existingEl.querySelector('.reactions-display'); // Tìm lại sau khi innerHTML
+    const msgContentWrapper = existingEl.querySelector('.msg-content-wrapper'); // Khối chứa bubble chat
+
+    if (Object.keys(reactions).length > 0 && !m.recalled && msgContentWrapper) { // Check thêm msgContentWrapper
+        if (!reactionsDisplay) {
+            reactionsDisplay = document.createElement('div');
+            reactionsDisplay.className = 'reactions-display';
+            msgContentWrapper.appendChild(reactionsDisplay); // Gắn vào msg-content-wrapper
+        }
+        let reactionsHTML = '';
+        for (const emoji in reactions) {
+            let count = 0;
+            if (emoji === '❤️') {
+                 count = Object.values(reactions[emoji]).reduce((sum, val) => sum + (typeof val === 'number' ? val : 1), 0);
+            } else {
+                 count = Object.keys(reactions[emoji]).length;
+            }
+            if (count > 0) {
+                reactionsHTML += `<span>${emoji} ${count}</span>`;
+            }
+        }
+        reactionsDisplay.innerHTML = reactionsHTML;
+        reactionsDisplay.onclick = (e) => { e.stopPropagation(); showReactionsDetails(key); };
+    } else {
+        if (reactionsDisplay) reactionsDisplay.remove();
+    }
+
+    // 11. GÁN LẠI CÁC SỰ KIỆN KHÁC
+    const imageInMessage = existingEl.querySelector('.msg img');
+    if (imageInMessage) { imageInMessage.onclick = () => openLightbox(imageInMessage.src); }
+
+    const avatarInMessage = existingEl.querySelector('.msg-avatar');
+    if (avatarInMessage && avatarInMessage.dataset.uid) {
+        avatarInMessage.onclick = () => window.open(`profile.html?id=${avatarInMessage.dataset.uid}`, '_blank');
+    }
+
+    existingEl.onclick = () => {
+        if (messagesContainer.classList.contains('selection-mode')) {
+            const messageData = { key, ...m };
+            const index = selectedEvidence.findIndex(e => e.key === key);
+            if (index > -1) {
+                selectedEvidence.splice(index, 1);
+                existingEl.classList.remove('selected');
+            } else {
+                selectedEvidence.push(messageData);
+                existingEl.classList.add('selected');
+            }
+            updateSelectionCount();
+        }
+    };
+    
+    // 12. CẬP NHẬT TRẠNG THÁI "ĐÃ ĐỌC"
+    if (!isSent && (!m.readBy || !m.readBy[currentUser.uid])) {
+        rtdbUpdate(ref(rtdb, `/messages/${chatCtx.id}/${key}/readBy`), { [currentUser.uid]: true });
+    }
+
+    // 13. TỰ ĐỘNG CUỘN XUỐNG DƯỚI
+    const shouldScroll = messagesContainer.scrollHeight - messagesContainer.scrollTop < messagesContainer.clientHeight + 150 || isSent || isNewMessage; // Cuộn nếu là tin mới
+    if (shouldScroll) {
+         // Dùng setTimeout nhỏ để đợi trình duyệt render xong rồi mới cuộn
+         setTimeout(() => { messagesContainer.scrollTop = messagesContainer.scrollHeight; }, 50); 
+    }
+}
+function showMessageContextMenu(e) {
+    const wrapper = e.target.closest('.msg-wrapper');
+    if (!wrapper) return;
+    e.preventDefault();
+    const msgKey = wrapper.dataset.key;
+    const msgRef = ref(rtdb, `/messages/${currentChatId}/${msgKey}`);
+    onValue(msgRef, (snap) => {
+        if (!snap.exists()) return;
+        const msg = snap.val();
+        messageContextMenu.innerHTML = '';
+        if (!msg.recalled) {
+            const btnReply = document.createElement('button');
+            btnReply.className = 'context-menu-btn';
+            btnReply.textContent = '↪️ Trả lời';
+            btnReply.onclick = () => {
+                replyToMessage(msgKey, msg);
+                messageContextMenu.style.display = 'none';
+            };
+            messageContextMenu.appendChild(btnReply);
+        }
+        if (msg.senderId === currentUser.uid) {
+            if (msg.text && !msg.recalled) {
+                const btnEdit = document.createElement('button');
+                btnEdit.className = 'context-menu-btn';
+                btnEdit.textContent = '✏️ Chỉnh sửa';
+                btnEdit.onclick = () => {
+                    startEditMessage(msgKey, msg);
+                    messageContextMenu.style.display = 'none';
+                };
+                messageContextMenu.appendChild(btnEdit);
+            }
+            const timeSinceSent = Date.now() - msg.timestamp;
+            if (timeSinceSent < 3 * 60 * 1000 && !msg.recalled) {
+                const btnRecall = document.createElement('button');
+                btnRecall.className = 'context-menu-btn danger';
+                btnRecall.textContent = '🗑️ Thu hồi';
+                btnRecall.onclick = () => {
+                    recallMessage(msgKey);
+                    messageContextMenu.style.display = 'none';
+                };
+                messageContextMenu.appendChild(btnRecall);
+            }
+        }
+        const btnDelete = document.createElement('button');
+        btnDelete.className = 'context-menu-btn danger';
+        btnDelete.textContent = '❌ Xóa ở phía bạn';
+        btnDelete.onclick = () => {
+            deleteMessageForSelf(msgKey);
+            messageContextMenu.style.display = 'none';
+        };
+        messageContextMenu.appendChild(btnDelete);
+        messageContextMenu.style.display = 'block';
+        messageContextMenu.style.left = `${e.pageX}px`;
+        messageContextMenu.style.top = `${e.pageY}px`;
+    }, { onlyOnce: true });
+}
+function recallMessage(key) {
+    const msgRef = ref(rtdb, `/messages/${currentChatId}/${key}`);
+    rtdbUpdate(msgRef, { text: null, imageUrl: null, recalled: true, replyTo: null, reactions: {} });
+}
+function deleteMessageForSelf(key) {
+    const el = document.querySelector(`.msg-wrapper[data-key="${key}"]`);
+    if (el) el.remove();
+}
+function replyToMessage(key, message) {
+    replyingTo = { key, message };
+    replyPreviewContainer.style.display = 'block';
+    replyPreviewSender.textContent = `Đang trả lời ${message.senderId === currentUser.uid ? 'chính mình' : message.senderName || '...'}`;
+    replyPreviewText.textContent = message.text || 'Một hình ảnh';
+    messageInput.focus();
+}
+function cancelReply() {
+    replyingTo = null;
+    replyPreviewContainer.style.display = 'none';
+}
+function cancelImagePreview(){
+  selectedImageFile=null; imageInput.value=''; imagePreviewContainer.style.display='none';
+  messageInput.placeholder='Nhập tin nhắn...';
+}
+async function uploadImage(file){
+  if(!IMGBB_API_KEY) throw new Error('Thiếu API ImgBB');
+  const fd=new FormData(); fd.append('image', file);
+  const res=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{method:'POST', body:fd});
+  const data=await res.json(); if(data.success) return data.data.url;
+  throw new Error(data.error?.message||'Upload fail');
+}
+async function handleAcceptFriend(reqId, fromUid){
+  const reqRef = doc(db, 'friend_requests', reqId);
+  await updateDoc(reqRef, { status: 'accepted' });
+  await updateDoc(doc(db, 'users', currentUser.uid), { friends: arrayUnion(fromUid) });
+  await updateDoc(doc(db, 'users', fromUid), { friends: arrayUnion(currentUser.uid) });
+  showToast('✅ Đã chấp nhận lời mời kết bạn!', 'success');
+}
+async function handleRejectFriend(reqId){
+  const reqRef = doc(db, 'friend_requests', reqId);
+  await updateDoc(reqRef, { status: 'declined' });
+  showToast('❌ Đã từ chối lời mời.');
+}
+async function showFriendInfo(friendUid) {
+  groupInfoContent.style.display = 'none';
+  friendInfoContent.style.display = 'block';
+  const isFriend = currentFriends.includes(friendUid);
+  removeFriendBtn.style.display = isFriend ? 'block' : 'none';
+  const isBlocked = currentUserData.blocked?.includes(friendUid);
+  blockUserBtn.style.display = !isBlocked ? 'block' : 'none';
+  unblockUserBtn.style.display = isBlocked ? 'block' : 'none';
+  const friendDoc = await getDoc(doc(db, "users", friendUid));
+  if (friendDoc.exists()) {
+    const d = friendDoc.data();
+    const verifiedTick = createVerifiedTickHTML(d.isVerified);
+    friendName.innerHTML = `${escapeHtml(d.displayName || d.email)} ${verifiedTick}`;
+    friendAvatar.src = d.avatarUrl || `https://placehold.co/80x80/EFEFEF/333?text=${d.displayName?.[0] || 'U'}`;
+    blockUserBtn.onclick = () => blockUser(friendUid, friendName.textContent);
+    unblockUserBtn.onclick = () => unblockUser(friendUid, friendName.textContent);
+    const reportUserBtn = document.getElementById('report-user-btn');
+    reportUserBtn.onclick = () => {
+        reportingUser = { uid: friendUid, name: d.displayName || d.email };
+        reportingUserName.textContent = `Bạn đang báo cáo ${reportingUser.name}.`;
+        reportUserModal.style.display = 'flex';
+    };
+  }
+  const chatId = [currentUser.uid, friendUid].sort().join("_");
+  const msgRef = ref(rtdb, `/messages/${chatId}`);
+  onValue(msgRef, (snap) => {
+    sentImagesGrid.innerHTML = '';
+    snap.forEach((child) => {
+      const msg = child.val();
+      if (msg.imageUrl) {
+        const img = document.createElement('img'); img.src = msg.imageUrl;
+        img.onclick = () => window.open(msg.imageUrl, "_blank");
+        sentImagesGrid.appendChild(img);
+      }
+    });
+  }, { onlyOnce: true });
+  removeFriendBtn.onclick = async () => {
+    const confirmed = await showConfirmation(`Bạn chắc chắn muốn xóa "${friendName.textContent}" khỏi danh sách bạn bè?`);
+    if (confirmed) {
+        const meRef = doc(db, 'users', currentUser.uid);
+        const friendRef = doc(db, 'users', friendUid);
+        try {
+            await updateDoc(meRef, { friends: arrayRemove(friendUid) });
+            await updateDoc(friendRef, { friends: arrayRemove(currentUser.uid) });
+            showToast("Đã xóa bạn.", 'success');
+            chatInfoPanel.classList.remove('open');
+            currentChatFriendName.textContent = "Chọn cuộc trò chuyện";
+            messagesContainer.innerHTML = '';
+            messageInput.disabled = true; sendBtn.disabled = true;
+        } catch(error) { console.error("Lỗi khi xóa bạn:", error); showToast("Có lỗi xảy ra khi xóa bạn."); }
+    }
+  };
+}
+async function submitReport() {
+    if (!reportingUser) return;
+    const reason = document.querySelector('input[name="reportReason"]:checked').value;
+    const details = reportDetails.value.trim();
+    try {
+        await addDoc(collection(db, "reports"), {
+            reporterUid: currentUser.uid,
+            reportedUid: reportingUser.uid,
+            reason: reason,
+            details: details,
+            evidence: selectedEvidence,
+            timestamp: serverTimestamp()
+        });
+        showToast("Đã gửi báo cáo thành công. Cảm ơn bạn!", "success");
+    } catch (error) {
+        console.error("Lỗi khi gửi báo cáo:", error);
+        showToast("Có lỗi xảy ra, không thể gửi báo cáo.", "error");
+    } finally {
+        reportUserModal.style.display = 'none';
+        reportDetails.value = '';
+        reportingUser = null;
+        selectedEvidence = [];
+        evidencePreview.style.display = 'none';
+    }
+}
+function createReactionPicker(msgKey) {
+    const picker = document.createElement('div');
+    picker.className = 'reaction-picker';
+    ['❤️', '👍', '😂', '😮', '😢', '😡', '🚫'].forEach(emoji => {
+        const btn = document.createElement('span');
+        btn.className = 'reaction-btn';
+        btn.textContent = emoji;
+        btn.onclick = (e) => { e.stopPropagation(); reactToMessage(msgKey, emoji); };
+        picker.appendChild(btn);
+    });
+    return picker;
+}
+// THAY THẾ TOÀN BỘ HÀM CŨ BẰNG HÀM NÀY
+// THAY THẾ HÀM reactToMessage
+async function reactToMessage(msgKey, emoji) {
+    // --- THÊM ĐOẠN KIỂM TRA NÀY VÀO ĐẦU HÀM ---
+    const checkMsgRef = ref(rtdb, `/messages/${currentChatId}/${msgKey}`);
+    const msgSnapshot = await get(checkMsgRef); // Dùng get() để lấy dữ liệu 1 lần
+    if (!msgSnapshot.exists() || msgSnapshot.val().recalled) {
+        // Nếu tin nhắn không tồn tại hoặc đã bị thu hồi -> không làm gì cả
+        return; 
+    }
+    // --- KẾT THÚC ĐOẠN KIỂM TRA ---
+    // Logic nút Hủy reaction (giữ nguyên)
+    if (emoji === '🚫') {
+        const path = `/messages/${currentChatId}/${msgKey}/reactions`;
+        const reactionRef = ref(rtdb, path);
+        onValue(reactionRef, (snap) => {
+            if (snap.exists()) {
+                const reactions = snap.val();
+                for (const e in reactions) {
+                    remove(ref(rtdb, `${path}/${e}/${currentUser.uid}`));
+                }
+            }
+        }, { onlyOnce: true });
+        return;
+    }
+
+    const path = `/messages/${currentChatId}/${msgKey}/reactions/${emoji}/${currentUser.uid}`;
+    const reactionRef = ref(rtdb, path);
+
+    // --- LOGIC MỚI CHO PHÉP THẢ NHIỀU TIM ---
+    onValue(reactionRef, (snap) => {
+        if (emoji === '❤️') {
+            // Với trái tim, nó là bộ đếm
+            const currentCount = snap.val() || 0;
+            set(reactionRef, currentCount + 1);
+        } else {
+            // Với các icon khác, nó là công tắc bật/tắt
+            if (snap.exists()) {
+                remove(reactionRef);
+            } else {
+                set(reactionRef, true);
+            }
+        }
+    }, { onlyOnce: true });
+}
+
+// THAY THẾ HÀM showReactionsDetails ĐỂ ĐẾM TIM ĐÚNG
+async function showReactionsDetails(msgKey) {
+    const msgRef = ref(rtdb, `/messages/${currentChatId}/${msgKey}`);
+    onValue(msgRef, async (snap) => {
+        if (!snap.exists()) return;
+        const msg = snap.val();
+        const reactions = msg.reactions || {};
+        
+        reactionsList.innerHTML = 'Đang tải...';
+        reactionsModal.style.display = 'flex';
+        
+        let allReactors = [];
+        for (const [emoji, reactors] of Object.entries(reactions)) {
+            for (const [uid, value] of Object.entries(reactors)) {
+                // value có thể là 'true' hoặc một con số (nếu là tim)
+                const count = (emoji === '❤️' && typeof value === 'number') ? value : 1;
+                allReactors.push({ uid, emoji, count });
+            }
+        }
+
+        if (allReactors.length === 0) {
+            reactionsList.innerHTML = 'Chưa có ai bày tỏ cảm xúc.';
+            return;
+        }
+
+        let html = '';
+        for (const reactor of allReactors) {
+            const userDoc = await getDoc(doc(db, 'users', reactor.uid));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const countDisplay = reactor.count > 1 ? ` ${reactor.count}` : '';
+                html += `
+                    <div class="reaction-user-item">
+                        <div class="reaction-user-info">
+                            <img class="reaction-user-avatar" src="${userData.avatarUrl || `https://placehold.co/36x36?text=${(userData.displayName || '?')[0]}`}">
+                            <span class="reaction-user-name">${userData.displayName || userData.email}</span>
+                        </div>
+                        <span class="reaction-emoji">${reactor.emoji}${countDisplay}</span>
+                    </div>
+                `;
+            }
+        }
+        reactionsList.innerHTML = html;
+    }, { onlyOnce: true });
+}
+
+async function openCreateGroupModal() {
+    groupMembersChecklist.innerHTML = 'Đang tải bạn bè...';
+    createGroupModal.style.display = 'flex';
+    const meDoc = await getDoc(doc(db, 'users', currentUser.uid));
+    const friendUids = meDoc.data()?.friends || [];
+    groupMembersChecklist.innerHTML = '';
+    if (friendUids.length === 0) {
+        groupMembersChecklist.innerHTML = '<p>Bạn chưa có bạn bè để mời.</p>';
+        return;
+    }
+    for (const friendUid of friendUids) {
+        const friendDoc = await getDoc(doc(db, 'users', friendUid));
+        if (friendDoc.exists()) {
+            const friendData = friendDoc.data();
+            const displayName = friendData.displayName || friendData.email;
+            const div = document.createElement('div');
+            div.innerHTML = `<label><input type="checkbox" class="group-member-checkbox" value="${friendUid}"> ${displayName}</label>`;
+            groupMembersChecklist.appendChild(div);
+        }
+    }
+}
+async function confirmCreateGroup() {
+    const groupName = groupNameInput.value.trim();
+    if (!groupName) return showToast('Vui lòng nhập tên nhóm.');
+    const memberCheckboxes = document.querySelectorAll('.group-member-checkbox:checked');
+    const invitedUids = Array.from(memberCheckboxes).map(cb => cb.value);
+    const memberUids = [currentUser.uid, ...invitedUids];
+    const roles = { [currentUser.uid]: 'admin' };
+    invitedUids.forEach(uid => roles[uid] = 'member');
+    if (memberUids.length < 2) return showToast('Nhóm phải có ít nhất 2 người.');
+    try {
+        await addDoc(collection(db, 'groups'), {
+            groupName, member_uids: memberUids, roles,
+            createdBy: currentUser.uid, createdAt: serverTimestamp()
+        });
+        showToast(`Đã tạo nhóm "${groupName}"!`, 'success');
+        createGroupModal.style.display = 'none';
+        groupNameInput.value = '';
+    } catch (error) { console.error("Lỗi khi tạo nhóm:", error); showToast("Không thể tạo nhóm."); }
+}
+async function showGroupInfo(groupId) {
+    friendInfoContent.style.display = 'none';
+    groupInfoContent.style.display = 'block';
+    const groupRef = doc(db, "groups", groupId);
+    onSnapshot(groupRef, async (groupDoc) => {
+        if (!groupDoc.exists()) return;
+        const groupData = groupDoc.data();
+        const groupName = groupData.groupName;
+        const roles = groupData.roles || {};
+        const myRole = roles[currentUser.uid];
+        groupNameDisplay.textContent = groupName;
+        groupAvatar.src = `https://placehold.co/95x95/1e293b/fff?text=${groupName[0]}`;
+        const memberUids = groupData.member_uids || [];
+        groupMembersList.innerHTML = '';
+        for (const uid of memberUids) {
+            const userDoc = await getDoc(doc(db, "users", uid));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const memberRole = roles[uid] || 'member';
+                const roleLabels = { admin: 'Trưởng nhóm', moderator: 'Phó nhóm', member: 'Thành viên' };
+                const roleClass = { admin: 'role-admin', moderator: 'role-moderator', member: 'role-member' };
+                let actionButtons = '';
+                if (myRole === 'admin' && uid !== currentUser.uid) {
+                    actionButtons += `<button data-action="kick" data-uid="${uid}">Kick</button>`;
+                    switch (memberRole) {
+                        case 'member':
+                            actionButtons += `<button data-action="promote-mod" data-uid="${uid}">Phong Phó nhóm</button>`;
+                            break;
+                        case 'moderator':
+                            actionButtons += `<button data-action="demote-member" data-uid="${uid}">Giáng làm Thành viên</button>`;
+                            break;
+                    }
+                } else if (myRole === 'moderator' && memberRole === 'member') {
+                    actionButtons += `<button data-action="kick" data-uid="${uid}">Kick</button>`;
+                }
+                const li = document.createElement('li');
+                li.className = 'member-item';
+                li.innerHTML = `<div class="member-info"><span class="member-name">${userData.displayName || userData.email}</span><span class="member-role ${roleClass[memberRole]}">${roleLabels[memberRole]}</span></div><div class="member-actions">${actionButtons}</div>`;
+                groupMembersList.appendChild(li);
+            }
+        }
+    });
+    groupMembersList.onclick = (e) => {
+        if (e.target.dataset.action) {
+            const action = e.target.dataset.action;
+            const targetUid = e.target.dataset.uid;
+            if (action === 'kick') { if (confirm('Kick thành viên này?')) kickMember(groupId, targetUid); }
+            else if (action === 'promote-mod') { changeRole(groupId, targetUid, 'moderator'); }
+            else if (action === 'demote-member') { changeRole(groupId, targetUid, 'member'); }
+        }
+    };
+    groupSentImagesGrid.innerHTML = '';
+    const groupMsgsRef = ref(rtdb, `/messages/${groupId}`);
+    onValue(groupMsgsRef, (snap) => {
+        groupSentImagesGrid.innerHTML = '';
+        if (!snap.exists()) return;
+        snap.forEach(childSnap => {
+            const msg = childSnap.val();
+            if (msg.imageUrl) {
+                const img = document.createElement('img'); img.src = msg.imageUrl;
+                img.onclick = () => window.open(msg.imageUrl, "_blank");
+                groupSentImagesGrid.appendChild(img);
+            }
+        });
+    }, { onlyOnce: true });
+    leaveGroupBtn.onclick = async () => {
+        const groupDoc = await getDoc(doc(db, "groups", groupId));
+        if (confirm(`Bạn có chắc muốn rời khỏi nhóm "${groupDoc.data().groupName}"?`)) {
+            const groupRef = doc(db, 'groups', groupId);
+            await updateDoc(groupRef, {
+                member_uids: arrayRemove(currentUser.uid),
+                [`roles.${currentUser.uid}`]: deleteField()
+            });
+            showToast('Đã rời nhóm.', 'success');
+            chatInfoPanel.classList.remove('open');
+            currentChatFriendName.textContent = "Chọn cuộc trò chuyện";
+            messagesContainer.innerHTML = '';
+            messageInput.disabled = true; sendBtn.disabled = true;
+        }
+    };
+}
+async function kickMember(groupId, targetUid) {
+    const groupRef = doc(db, 'groups', groupId);
+    try {
+        await updateDoc(groupRef, {
+            member_uids: arrayRemove(targetUid),
+            [`roles.${targetUid}`]: deleteField()
+        });
+        showToast('Đã kick thành viên.', 'success');
+    } catch (error) { console.error("Lỗi khi kick:", error); showToast("Có lỗi xảy ra."); }
+}
+async function changeRole(groupId, targetUid, newRole) {
+    const groupRef = doc(db, 'groups', groupId);
+    try {
+        await updateDoc(groupRef, { [`roles.${targetUid}`]: newRole });
+        showToast(`Đã cập nhật vai trò thành ${newRole}.`, 'success');
+    } catch (error) { console.error("Lỗi khi đổi vai trò:", error); showToast("Có lỗi xảy ra."); }
+}
+function attachGlobalSearch(){
+    globalSearch.addEventListener('input', async (e)=>{
+        const searchTerm = e.target.value.trim().toLowerCase();
+        if(!searchTerm){ searchDropdown.style.display='none'; searchDropdown.innerHTML=''; return; }
+        
+        // Lấy danh sách bạn bè và nhóm từ dữ liệu đã tải
+        const friendUIDs = currentUserData.friends || [];
+        const friendDocs = await Promise.all(friendUIDs.map(uid => getDoc(doc(db, 'users', uid))));
+        const friends = friendDocs.map(d => d.data()).filter(Boolean);
+        
+        const qg = query(collection(db, 'groups'), where('member_uids', 'array-contains', currentUser.uid));
+        const gs = await getDocs(qg);
+        const groups = [];
+        gs.forEach(d => groups.push({id: d.id, ...d.data()}));
+
+        // Lọc dựa trên từ khóa tìm kiếm
+        const friendsFiltered = friends.filter(u => (u.displayName || u.email || '').toLowerCase().includes(searchTerm));
+        const groupsFiltered = groups.filter(g => (g.groupName || '').toLowerCase().includes(searchTerm));
+        
+        searchDropdown.innerHTML='';
+        const addSection=(title,items,render)=>{
+            const st=document.createElement('div'); st.className='section-title'; st.textContent=title; searchDropdown.appendChild(st);
+            if(!items.length){ const em=document.createElement('div'); em.className='result-item'; em.innerHTML=`<div class="result-sub">Không có kết quả</div>`; searchDropdown.appendChild(em); return; }
+            items.forEach(x=> searchDropdown.appendChild(render(x)));
+        };
+
+        addSection('Bạn bè', friendsFiltered, (u)=>{
+            const el=document.createElement('div'); el.className='result-item';
+            const verifiedTick = createVerifiedTickHTML(u.isVerified);
+            el.innerHTML=`<div class="result-left"><img class="result-avatar" src="${u.avatarUrl||`https://placehold.co/32x32/111/fff?text=${u.displayName[0]}`}"/><div><div class="result-name">${escapeHtml(u.displayName||u.email)}${verifiedTick}</div></div></div>`;
+            el.onclick=()=>{ startDirectChat(u); hideDropdown(); };
+            return el;
+        });
+
+        addSection('Nhóm', groupsFiltered, (g)=>{
+            const el=document.createElement('div'); el.className='result-item';
+            el.innerHTML=`<div class="result-left"><img class="result-avatar" src="https://placehold.co/32x32/0af/fff?text=G"/><div><div class="result-name">👥 ${g.groupName}</div></div></div>`;
+            el.onclick=()=>{ startGroupChat(g.id, g.groupName); hideDropdown(); };
+            return el;
+        });
+
+        searchDropdown.style.display='block';
+    });
+    
+    const hideDropdown=()=> searchDropdown.style.display='none';
+    document.addEventListener('click',(e)=>{
+        if(e.target===globalSearch || searchDropdown.contains(e.target)) return;
+        hideDropdown();
+    });
+}
+
+function loadFriendRequests(){
+  const q = query(collection(db, 'friend_requests'), where('to_uid', '==', currentUser.uid), where('status', '==', 'pending'));
+  onSnapshot(q, (snap)=>{
+    // --- BẮT ĐẦU CODE MỚI ---
+    // Tự động bật/tắt chấm đỏ thông báo
+    const openFriendReqBtn = document.getElementById('open-friend-req-btn');
+    openFriendReqBtn.classList.toggle('has-new-request', !snap.empty);
+    // --- KẾT THÚC CODE MỚI ---
+
+    friendReqList.innerHTML = '';
+    if(snap.empty){
+      friendReqList.innerHTML = `<p style="opacity:0.7;">Không có lời mời nào.</p>`;
+      return;
+    }
+    snap.forEach(docSnap=>{
+      const req = docSnap.data();
+      const item = document.createElement('div');
+      item.className = 'friend-req-item';
+      item.innerHTML = `<div class="friend-req-name">${req.from_email}</div><div class="friend-req-buttons"><button class="friend-req-btn accept-btn">Chấp nhận</button><button class="friend-req-btn reject-btn">Từ chối</button></div>`;
+      const [acceptBtn, rejectBtn] = item.querySelectorAll('button');
+      acceptBtn.onclick = ()=> handleAcceptFriend(docSnap.id, req.from_uid);
+      rejectBtn.onclick = ()=> handleRejectFriend(docSnap.id);
+      friendReqList.appendChild(item);
+    });
+  });
+}
+async function saveProfileChanges() {
+    const newDisplayName = profileDisplayName.value.trim();
+    const newBio = profileBio.value.trim();
+    const newAvatarUrl = profileAvatarUrl.value.trim();
+    if (!newDisplayName) {
+        return showToast('Tên hiển thị không được để trống.');
+    }
+    const userRef = doc(db, 'users', currentUser.uid);
+    try {
+        await updateDoc(userRef, {
+            displayName: newDisplayName,
+            bio: newBio,
+            avatarUrl: newAvatarUrl
+        });
+        showToast('Cập nhật hồ sơ thành công!', 'success');
+        editProfileModal.style.display = 'none';
+    } catch (error) {
+        console.error("Lỗi khi cập nhật hồ sơ:", error);
+        showToast('Có lỗi xảy ra, không thể cập nhật.');
+    }
+}
+async function blockUser(friendUid, name) {
+    const confirmed = await showConfirmation(`Chặn ${name}? Bạn sẽ không nhận được tin nhắn từ họ nữa và họ sẽ bị xóa khỏi danh sách bạn bè (nếu có).`);
+    if (confirmed) {
+      try {
+        await updateDoc(doc(db, 'users', currentUser.uid), {
+            blocked: arrayUnion(friendUid),
+            friends: arrayRemove(friendUid)
+        });
+        await updateDoc(doc(db, 'users', friendUid), {
+            friends: arrayRemove(currentUser.uid)
+        });
+        showToast("✅ Đã chặn thành công!", 'success');
+        chatInfoPanel.classList.remove('open');
+      } catch (err) { console.error(err); showToast("❌ Lỗi khi chặn!"); }
+    }
+}
+async function unblockUser(friendUid, name) {
+    const confirmed = await showConfirmation(`Bỏ chặn ${name}?`);
+    if (confirmed) {
+        try {
+            await updateDoc(doc(db, 'users', currentUser.uid), { blocked: arrayRemove(friendUid) });
+            showToast("✅ Đã bỏ chặn!", 'success');
+            chatInfoPanel.classList.remove('open');
+        } catch (err) { console.error(err); showToast("❌ Lỗi khi bỏ chặn!"); }
+    }
+}
+async function handleUrlChat() {
+    const params = new URLSearchParams(window.location.search);
+    const friendUid = params.get('chat');
+    const groupId = params.get('chat_group');
+    if (friendUid) {
+        const userDoc = await getDoc(doc(db, 'users', friendUid));
+        if (userDoc.exists()) {
+            startDirectChat(userDoc.data());
+        }
+    } else if (groupId) {
+        const groupDoc = await getDoc(doc(db, 'groups', groupId));
+        if (groupDoc.exists()) {
+            startGroupChat(groupId, groupDoc.data().groupName);
+        }
+    }
+}
+
+</script>
+</body>
+</html>

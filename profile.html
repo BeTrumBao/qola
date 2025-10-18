@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Trang cá nhân - Qola</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+:root {
+    --accent-1: #60a5fa; --accent-2: #2563eb;
+    --bg-dark: #0f172a; --bg-light: #1e293b;
+    --bg-card: linear-gradient(145deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.8));
+    --glass-border: rgba(255, 255, 255, 0.1); --glass: rgba(255, 255, 255, 0.06);
+    --text-primary: #f1f5f9; --text-secondary: #94a3b8;
+    --input-bg: rgba(0, 0, 0, 0.2);
+    --skeleton-bg: rgba(255, 255, 255, 0.05);
+    --toast-bg: rgba(22, 25, 35, 0.85);
+    --shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+.light {
+    --accent-1: #007aff; --accent-2: #0056b3; /* Giữ nguyên màu nhấn */
+    --bg-dark: #E0F2FE; --bg-light: #F9FAFB; /* Nền sáng (dùng màu trắng hơi ngả xanh) */
+    /* Card nền trắng tinh nhưng hơi trong */
+    --bg-card: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.85));
+    --glass-border: rgba(0, 0, 0, 0.08); /* Border đậm hơn chút */
+    --glass: rgba(0, 0, 0, 0.03);
+    --text-primary: #111827; --text-secondary: #374151; /* Chữ đậm hơn (Gần đen/xám đậm) */
+    --input-bg: rgba(255, 255, 255, 0.6); /* Input trắng đục hơn */
+    --skeleton-bg: rgba(0, 0, 0, 0.07); /* Skeleton tối hơn */
+    --toast-bg: rgba(255, 255, 255, 0.95); /* Toast trắng đục */
+    --shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+/* Đảm bảo body.light dùng gradient xanh */
+body.light {
+    background: linear-gradient(135deg, #E0F2FE, #bae6fd); /* Gradient xanh mây trời */
+}
+
+/* Điều chỉnh thêm cho các nút/input theme sáng */
+.light input, .light textarea {
+    background: var(--input-bg);
+    border-color: var(--glass-border);
+    color: var(--text-primary);
+}
+.light .btn-ghost {
+    background: rgba(0, 0, 0, 0.06); /* Nút ghost tối hơn */
+    color: var(--text-secondary);
+    border-color: rgba(0,0,0,0.1);
+}
+.light .btn-ghost:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+.light #sendMessageBtn { /* Nút nhắn tin màu nhạt hơn */
+     background: rgba(0,0,0,0.04);
+     border: 1px solid rgba(0,0,0,0.08);
+     color: var(--text-secondary);
+}
+.light #sendMessageBtn:hover {
+     background: rgba(0,0,0,0.08);
+}
+.light .friends-btn { /* Nút Bạn bè */
+     background: rgba(0, 122, 255, 0.1) !important; /* Xanh nhạt hơn */
+     color: var(--accent-2) !important;
+     border: 1px solid rgba(0, 122, 255, 0.2);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100vh; }
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, var(--bg-dark, #0f172a), var(--bg-light, #1e293b));
+    color: var(--text-primary);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px 0;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+body.light {
+    background: linear-gradient(135deg, #E0F2FE, #bae6fd);
+}
+.card {
+    width: min(90vw, 450px);
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg-card);
+    backdrop-filter: blur(25px);
+    border: 1px solid var(--glass-border);
+    border-radius: 26px;
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+.card::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%; border-radius: 26px; padding: 1px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    z-index: 1; pointer-events: none;
+}
+.cover-photo-container { height: 180px; overflow: hidden; position: relative; }
+.cover-photo { width: 100%; height: 100%; object-fit: cover; display: block; filter: blur(1px) brightness(0.8); }
+.cover-photo.editable:hover { filter: blur(1px) brightness(0.6); cursor: pointer; }
+.skeleton-container { padding-top: 80px; padding-bottom: 30px; text-align: center; display: block; }
+.skeleton { background: var(--skeleton-bg); border-radius: 8px; position: relative; overflow: hidden; }
+.skeleton.avatar-skel { width: 120px; height: 120px; border-radius: 50%; margin: -60px auto 0; position: relative; z-index: 2; border: 4px solid var(--bg-light); background-color: var(--bg-light); }
+.skeleton.text-skel { height: 32px; width: 60%; margin: 18px auto 8px; }
+.skeleton.small-text-skel { height: 18px; width: 45%; margin: 0 auto 20px; }
+.skeleton::after { content: ''; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent); animation: shimmer 1.5s infinite; }
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+.profile-content, #editSection, #profile-actions { display: none; }
+.card.loaded .skeleton-container { display: none; }
+.card.loaded .profile-content { display: block; }
+.card.loaded #profile-actions.active { display: flex; }
+.card.loaded #editSection.active { display: block; }
+.profile-content { position: relative; padding: 0 35px 30px; margin-top: -60px; text-align: center; }
+.avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 5px solid var(--bg-light); box-shadow: 0 5px 20px rgba(0,0,0,0.3); margin: 0 auto; display: block; position: relative; z-index: 2; transition: transform 0.3s ease; }
+.avatar:hover { transform: scale(1.05); }
+.avatar.editable:hover { box-shadow: 0 5px 20px rgba(96, 165, 250, 0.5); cursor: pointer; }
+.light .avatar { border-color: var(--bg-light); }
+#displayName { font-size: 26px; font-weight: 700; margin: 15px 0 5px; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text-primary); }
+#email { font-size: 14px; color: var(--text-secondary); margin: 0 0 10px; font-weight: 400; }
+#bio { margin-top: 0; opacity: 0.9; line-height: 1.6; color: var(--text-primary); }
+#profile-actions { padding: 0 35px 35px; margin-top: 0; display: none; gap: 10px; }
+#profile-actions button { width: 100%; margin-top: 0; padding: 12px 10px; font-size: 14px; }
+button { width: 100%; margin-top: 25px; padding: 14px 18px; border: none; border-radius: 10px; background: linear-gradient(135deg, var(--accent-1), var(--accent-2)); color: #fff; font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.3s; }
+button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3); filter: brightness(1.1); }
+button:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-ghost { background: var(--glass-border); color: var(--text-primary); font-weight: 500;}
+.btn-ghost:hover { background: rgba(255, 255, 255, 0.2); transform: none; box-shadow: none; }
+.light .btn-ghost { background: rgba(0, 0, 0, 0.08); color: var(--text-secondary); border: 1px solid rgba(0,0,0,0.1);}
+.light .btn-ghost:hover { background: rgba(0, 0, 0, 0.12); }
+#sendMessageBtn { background: var(--glass-border); }
+#sendMessageBtn:hover { background: rgba(255, 255, 255, 0.2); transform: none; box-shadow: none; }
+.light #sendMessageBtn { background: rgba(0,0,0,0.05); }
+.light #sendMessageBtn:hover { background: rgba(0,0,0,0.1); }
+#addFriendBtn { background: linear-gradient(135deg, var(--accent-1), var(--accent-2)); }
+.friends-btn { background: rgba(148, 163, 184, 0.2) !important; cursor: default !important; color: var(--text-secondary) !important; }
+.friends-btn:hover { transform: none !important; box-shadow: none !important; filter: none !important; }
+#editSection { padding: 0 35px 35px; text-align: left; display: none; }
+#editSection hr { border: none; height: 1px; background: var(--glass-border); margin: 25px 0; }
+label { display: block; text-align: left; margin: 18px 0 8px; font-size: 14px; font-weight: 500; color: var(--text-secondary); }
+input, textarea { box-sizing: border-box; width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--glass-border); background: var(--input-bg); color: var(--text-primary); outline: none; font-size: 15px; font-family: 'Poppins', sans-serif; transition: border-color 0.3s, box-shadow 0.3s; }
+.light input, .light textarea { background: var(--input-bg); border-color: var(--glass-border); }
+input:focus, textarea:focus { border-color: var(--accent-1); box-shadow: 0 0 15px rgba(96, 165, 250, 0.2); }
+textarea { resize: vertical; min-height: 80px; }
+#avatarInput, #coverInput { display: none; }
+.verified-tick { display: inline-block; width: 1.1em; height: 1.1em; margin-left: 5px; vertical-align: -0.2em; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2360a5fa'%3E%3Cpath fill-rule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.06 0l4-5.5z' clip-rule='evenodd' /%3E%3C/svg%3E"); background-size: contain; background-repeat: no-repeat; background-position: center; }
+#toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--toast-bg); color: var(--text-primary); padding: 16px 25px; border-radius: 12px; z-index: 10000; backdrop-filter: blur(10px); border: 1px solid var(--glass-border); box-shadow: var(--shadow); display: none; font-weight: 500; animation: slideIn .3s ease, slideOut .3s ease 2.7s forwards; }
+#toast.success { border-left: 4px solid #22c55e; color: #22c55e; } #toast.error { border-left: 4px solid #ef4444; color: #ef4444; } #toast.info { border-left: 4px solid var(--accent-1); color: var(--accent-1); }
+@keyframes slideIn { from { top: -100px; opacity: 0; } to { top: 20px; opacity: 1; } } @keyframes slideOut { from { top: 20px; opacity: 1; } to { top: -100px; opacity: 0; } }
+</style>
+</head>
+<body class="">
+
+<div id="toast"></div>
+
+<div id="profile-card" class="card">
+    <div class="cover-photo-container">
+        <img id="cover-photo" class="cover-photo" src="https://placehold.co/450x200/1e293b/94a3b8?text=Cover" alt="Ảnh bìa" />
+    </div>
+    <div class="skeleton-container">
+        <div class="skeleton avatar-skel"></div>
+        <div class="skeleton text-skel"></div>
+        <div class="skeleton small-text-skel"></div>
+    </div>
+    <div class="profile-content">
+        <img id="avatar" class="avatar" src="https://placehold.co/120x120" alt="avatar" />
+        <h2 id="displayName"></h2>
+        <p id="email"></p>
+        <p id="bio"></p>
+    </div>
+    <div id="profile-actions">
+        <button id="addFriendBtn">➕ Thêm bạn</button>
+        <button id="sendMessageBtn">💬 Nhắn tin</button>
+    </div>
+    <div id="editSection">
+        <hr/>
+         <input type="file" id="coverInput" accept="image/*" style="display: none;" />
+         <input type="file" id="avatarInput" accept="image/*" style="display:none;" />
+        <label for="nameInput">Tên hiển thị</label>
+        <input type="text" id="nameInput" placeholder="Tên của bạn" />
+        <label for="bioInput">Giới thiệu bản thân</label>
+        <textarea id="bioInput" placeholder="Viết gì đó về bạn..." rows="3"></textarea>
+        <button id="saveBtn">Lưu thay đổi</button>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, arrayUnion, addDoc, collection, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+const firebaseConfig = { apiKey: "AIzaSyBuGG9WKYZHb1qbmihpJFjCBsTB_VJ_LvU", authDomain: "qola-web.firebaseapp.com", databaseURL: "https://qola-web-default-rtdb.firebaseio.com", projectId: "qola-web", storageBucket: "qola-web.firebasestorage.app", messagingSenderId: "477682993077", appId: "1:477682993077:web:7dce15eb2c365729173bfc" };
+const IMGBB_API_KEY = "e6c2724ff8344c073410da4876c3d35f";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+(function initTheme() {
+    const saved = localStorage.getItem('theme') || 'dark';
+    document.body.classList.toggle('light', saved === 'light');
+})();
+
+const toast = document.getElementById('toast');
+const params = new URLSearchParams(window.location.search);
+const targetId = params.get("id");
+const profileCard = document.getElementById("profile-card");
+const coverPhoto = document.getElementById('cover-photo');
+const avatar = document.getElementById("avatar");
+const displayName = document.getElementById("displayName");
+const email = document.getElementById("email");
+const bio = document.getElementById("bio");
+const editSection = document.getElementById("editSection");
+const coverInput = document.getElementById('coverInput');
+const avatarInput = document.getElementById("avatarInput");
+const nameInput = document.getElementById("nameInput");
+const bioInput = document.getElementById("bioInput");
+const saveBtn = document.getElementById("saveBtn");
+const profileActions = document.getElementById("profile-actions");
+const addFriendBtn = document.getElementById("addFriendBtn");
+const sendMessageBtn = document.getElementById("sendMessageBtn");
+
+let toastTimer; let currentUserData = {};
+
+function showToast(message, type = 'info') { clearTimeout(toastTimer); toast.textContent = message; toast.className = ''; toast.classList.add(type); toast.style.display = 'block'; toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 3000); }
+function createVerifiedTickHTML(isVerified) { return isVerified ? '<span class="verified-tick"></span>' : ''; }
+function escapeHtml(s) { return s ? s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])) : ''; }
+async function uploadImage(file){ if(!IMGBB_API_KEY) throw new Error('Thiếu API ImgBB'); const fd=new FormData(); fd.append('image', file); const res=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{method:'POST', body:fd}); const data=await res.json(); if(data.success) return data.data.url; throw new Error(data.error?.message||'Upload fail'); }
+async function checkFriendRequest(fromUid, toUid) { const q = query(collection(db, "friend_requests"), where("from_uid", "==", fromUid), where("to_uid", "==", toUid), where("status", "==", "pending")); const querySnapshot = await getDocs(q); return !querySnapshot.empty; }
+
+onAuthStateChanged(auth, async (currentUser)=>{
+    if(!currentUser) return (window.location.href="login.html");
+
+    const uid = targetId || currentUser.uid;
+    const isViewingOwnProfile = uid === currentUser.uid;
+
+    try {
+        const targetDocRef = doc(db, "users", uid);
+        const targetSnap = await getDoc(targetDocRef);
+
+        if(!targetSnap.exists()) throw new Error("User not found");
+        const targetData = targetSnap.data();
+        if (targetData.isDeactivated === true) throw new Error("Account deactivated");
+
+        currentUserData = isViewingOwnProfile ? targetData : (await getDoc(doc(db, "users", currentUser.uid))).data();
+
+        coverPhoto.src = targetData.coverUrl || 'https://placehold.co/450x200/1e293b/94a3b8?text=Cover';
+        const initial = targetData.displayName ? targetData.displayName[0].toUpperCase() : (targetData.email ? targetData.email[0].toUpperCase() : 'Q');
+        avatar.src = targetData.avatarUrl || `https://placehold.co/120x120?text=${initial}`;
+        const verifiedTick = createVerifiedTickHTML(targetData.isVerified);
+        displayName.innerHTML = `${escapeHtml(targetData.displayName || "Người dùng Qola")} ${verifiedTick}`;
+        email.textContent = targetData.email || '...';
+        bio.textContent = targetData.bio || "Chưa có giới thiệu.";
+
+        if(isViewingOwnProfile){
+            profileActions.style.display = "none";
+            editSection.classList.add("active");
+
+            nameInput.value = targetData.displayName || "";
+            bioInput.value = targetData.bio || "";
+
+            coverPhoto.classList.add("editable");
+            avatar.classList.add("editable");
+            coverPhoto.title = "Nhấn để đổi ảnh bìa";
+            avatar.title = "Nhấn để đổi ảnh đại diện";
+
+            coverPhoto.onclick = () => coverInput.click();
+            avatar.onclick = () => avatarInput.click();
+
+            coverInput.onchange = () => {
+                if(coverInput.files[0]) showToast(`Đã chọn ảnh bìa: ${coverInput.files[0].name.substring(0, 20)}...`, 'info');
+            };
+            avatarInput.onchange = () => {
+                if(avatarInput.files[0]) showToast(`Đã chọn avatar: ${avatarInput.files[0].name.substring(0, 20)}...`, 'info');
+            };
+
+            saveBtn.onclick = saveProfileChanges;
+        } else {
+            editSection.style.display = "none";
+            profileActions.classList.add("active");
+
+            coverPhoto.classList.remove("editable");
+            avatar.classList.remove("editable");
+            coverPhoto.onclick = null;
+            avatar.onclick = null;
+
+            const isFriend = currentUserData.friends?.includes(uid);
+            const hasSentRequest = await checkFriendRequest(currentUser.uid, uid);
+            if (isFriend) {
+                addFriendBtn.textContent = "✔️ Bạn bè"; addFriendBtn.classList.add("friends-btn"); addFriendBtn.disabled = true;
+            } else if (hasSentRequest) {
+                addFriendBtn.textContent = "⏳ Đã gửi lời mời"; addFriendBtn.disabled = true;
+            } else {
+                addFriendBtn.textContent = "➕ Thêm bạn bè"; addFriendBtn.disabled = false; addFriendBtn.classList.remove("friends-btn");
+                addFriendBtn.onclick = async () => {
+                    addFriendBtn.disabled = true; addFriendBtn.textContent = "Đang gửi...";
+                    try { await addDoc(collection(db, "friend_requests"), { from_uid: currentUser.uid, from_email: currentUser.email, to_uid: uid, status: 'pending', timestamp: serverTimestamp() }); addFriendBtn.textContent = "⏳ Đã gửi lời mời"; }
+                    catch (err) { showToast("Lỗi khi gửi lời mời.", "error"); addFriendBtn.disabled = false; addFriendBtn.textContent = "➕ Thêm bạn bè"; }
+                };
+            }
+            sendMessageBtn.onclick = () => { window.location.href = `index.html?chat=${uid}`; };
+        }
+    } catch (error) {
+        console.error("Error loading profile:", error);
+        displayName.textContent = "Lỗi";
+        bio.textContent = error.message === "User not found" ? "Không tìm thấy người dùng." : (error.message === "Account deactivated" ? "Tài khoản này đã ngừng hoạt động." : "Có lỗi xảy ra khi tải hồ sơ.");
+        profileActions.style.display = "none";
+        editSection.style.display = "none";
+        coverPhoto.style.display = 'none';
+        avatar.style.display = 'none';
+    } finally {
+        profileCard.classList.add("loaded");
+    }
+});
+
+async function saveProfileChanges() {
+    const user = auth.currentUser; if(!user) return;
+    saveBtn.disabled = true; saveBtn.textContent = "Đang lưu...";
+    let newAvatarUrl = null; let newCoverUrl = null;
+    const avatarFile = avatarInput.files[0]; const coverFile = coverInput.files[0];
+    try {
+        if (avatarFile) newAvatarUrl = await uploadImage(avatarFile);
+        if (coverFile) newCoverUrl = await uploadImage(coverFile);
+        const updates = { displayName: nameInput.value.trim(), bio: bioInput.value.trim() };
+        if (newAvatarUrl) updates.avatarUrl = newAvatarUrl;
+        if (newCoverUrl) updates.coverUrl = newCoverUrl;
+        const userRef = doc(db, "users", user.uid);
+        await updateDoc(userRef, updates);
+        showToast("Đã lưu thay đổi!", "success");
+        if (newAvatarUrl) avatar.src = newAvatarUrl;
+        if (newCoverUrl) coverPhoto.src = newCoverUrl;
+        displayName.innerHTML = `${escapeHtml(updates.displayName || "Người dùng Qola")} ${createVerifiedTickHTML(currentUserData.isVerified)}`;
+        bio.textContent = updates.bio || "Chưa có giới thiệu.";
+        // Cập nhật lại currentUserData cục bộ nếu cần
+        if (newAvatarUrl) currentUserData.avatarUrl = newAvatarUrl;
+        if (newCoverUrl) currentUserData.coverUrl = newCoverUrl;
+        currentUserData.displayName = updates.displayName;
+        currentUserData.bio = updates.bio;
+    } catch (error) { showToast(`Lỗi khi lưu: ${error.message}`, "error"); }
+    finally {
+        saveBtn.disabled = false; saveBtn.textContent = "Lưu thay đổi";
+        avatarInput.value = '';
+        coverInput.value = '';
+    }
+}
+</script>
+</body>
+</html>

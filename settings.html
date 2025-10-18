@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cài đặt - Qola</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* --- Variables --- */
+:root {
+    --accent-1: #60a5fa;
+    --accent-2: #2563eb;
+    --bg-dark: #0f172a;
+    --bg-light: #1e293b;
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --input-bg: rgba(0, 0, 0, 0.2);
+    --modal-bg: rgba(22, 25, 35, 0.85);
+    --toast-bg: rgba(22, 25, 35, 0.85);
+}
+.light {
+    --bg-dark: #eef2f9;
+    --bg-light: #f9fafb;
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --input-bg: rgba(255, 255, 255, 0.85);
+    --modal-bg: rgba(249, 250, 251, 0.9);
+    --toast-bg: rgba(249, 250, 251, 0.9);
+}
+
+/* --- Base Styles --- */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px 0;
+    transition: background-color 0.3s ease;
+}
+.card {
+    width: min(90vw, 550px);
+    background: var(--bg-light);
+    border: 1px solid var(--glass-border);
+    padding: 30px 35px;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+}
+
+/* --- Header --- */
+.settings-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+.settings-header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+.back-btn {
+    background: none;
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    transition: all 0.2s;
+    display: flex; /* Center icon */
+    align-items: center;
+    justify-content: center;
+}
+.back-btn:hover {
+    background: var(--glass-border);
+    color: var(--text-primary);
+}
+
+/* --- Sections & Rows --- */
+.settings-section h2 {
+    font-size: 18px;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 10px;
+    font-weight: 600; /* Bolder section titles */
+}
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0; /* Increased padding */
+    min-height: 40px; /* Ensure consistent height */
+}
+.settings-row-label {
+    font-weight: 500;
+}
+
+/* --- Controls: Switch & Buttons --- */
+.switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: var(--glass-border);
+    border-radius: 999px;
+    cursor: pointer;
+    flex-shrink: 0; /* Prevent switch from shrinking */
+}
+.switch::after {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff; /* White knob */
+    /* Use theme color for dark mode background of knob */
+    .light & { background: var(--bg-light); }
+    top: 3px;
+    left: 4px;
+    transition: .2s ease-in-out; /* Smoother transition */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* Subtle shadow */
+}
+.switch.on {
+    background: var(--accent-2);
+}
+.switch.on::after {
+    left: 22px;
+}
+
+button {
+    padding: 10px 18px; /* Slightly adjusted padding */
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px; /* Slightly smaller font */
+    cursor: pointer;
+    transition: 0.3s ease; /* Smoother transition */
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    flex-shrink: 0;
+}
+button:hover:not(:disabled) {
+    box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+    transform: translateY(-1px);
+    filter: brightness(1.1); /* Brighter on hover */
+}
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+.danger-btn {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+}
+.danger-btn:hover:not(:disabled) {
+    box-shadow: 0 5px 15px rgba(220, 38, 38, 0.3);
+}
+
+/* --- Modals --- */
+.modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); /* Darker overlay */
+    backdrop-filter: blur(8px); /* Less blur */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 5000;
+    animation: fadeInModal .3s ease;
+}
+@keyframes fadeInModal { from { opacity:0; } to {opacity:1;} }
+.modal-content {
+    background: var(--modal-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 25px 30px;
+    color: var(--text-primary);
+    text-align: left;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3); /* Softer shadow */
+}
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px; /* Increased margin */
+}
+.modal-actions button { /* Style for buttons inside modals */
+    width: auto;
+    padding: 10px 20px;
+    font-size: 15px;
+    margin-top: 0;
+}
+.btn-ghost {
+    background: var(--glass-border);
+    color: var(--text-primary); /* Ensure text is visible */
+}
+.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: none;
+    box-shadow: none;
+}
+/* Style for light theme ghost button */
+.light .btn-ghost {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-secondary);
+}
+.light .btn-ghost:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* Inputs & Textarea inside Modals */
+.modal-content label {
+    display: block; text-align: left;
+    margin: 15px 0 8px; /* Adjusted margin */
+    font-size: 14px; font-weight: 500;
+    color: var(--text-secondary);
+}
+.modal-content input[type="password"],
+.modal-content input[type="text"],
+.modal-content textarea {
+    box-sizing: border-box; width: 100%; padding: 12px;
+    border-radius: 10px; border: 1px solid var(--glass-border);
+    background: var(--input-bg); color: var(--text-primary);
+    outline: none; font-size: 15px; font-family: 'Poppins', sans-serif;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+.modal-content input[type="password"]:focus,
+.modal-content input[type="text"]:focus,
+.modal-content textarea:focus {
+    border-color: var(--accent-1);
+    box-shadow: 0 0 15px rgba(96, 165, 250, 0.2);
+}
+.modal-content textarea {
+    resize: vertical; /* Allow vertical resize only */
+    min-height: 80px;
+}
+
+/* --- Reason Form --- */
+.reason-form { text-align: left; margin: 20px 0; }
+.reason-row { display: flex; align-items: center; padding: 10px; border-radius: 10px; cursor: pointer; transition: background-color 0.2s; }
+.reason-row:hover { background-color: rgba(255,255,255,0.05); }
+.light .reason-row:hover { background-color: rgba(0,0,0,0.03); }
+.reason-row input[type="radio"] { margin-right: 12px; width: 18px; height: 18px; accent-color: var(--accent-2); } /* Use accent color */
+
+/* --- Toast --- */
+#toast {
+    position: fixed; top: 20px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--toast-bg);
+    color: var(--text-primary); /* Use primary text color */
+    padding: 16px 25px; border-radius: 12px;
+    z-index: 10000;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    display: none;
+    font-weight: 500; /* Make toast text slightly bolder */
+    animation: slideIn .3s ease, slideOut .3s ease 2.7s forwards;
+}
+#toast.success { border-left: 4px solid #22c55e; color: #22c55e; }
+#toast.error { border-left: 4px solid #ef4444; color: #ef4444; }
+#toast.info { border-left: 4px solid var(--accent-1); color: var(--accent-1); }
+@keyframes slideIn { from { top: -100px; opacity: 0; } to { top: 20px; opacity: 1; } }
+@keyframes slideOut { from { top: 20px; opacity: 1; } to { top: -100px; opacity: 0; } }
+
+</style>
+</head>
+<body class=""> <div id="toast"></div>
+
+<div class="card">
+    <div class="settings-header">
+        <button id="back-to-chat-btn" class="back-btn" title="Quay lại">‹</button>
+        <h1>Cài đặt</h1>
+    </div>
+
+    <div class="settings-section">
+        <h2>Giao diện</h2>
+        <div class="settings-row">
+            <span class="settings-row-label">Chế độ Sáng/Tối</span>
+            <div id="theme-switch" class="switch"></div>
+        </div>
+    </div>
+
+    <div class="settings-section">
+        <h2>Thông báo</h2>
+        <div class="settings-row">
+            <span class="settings-row-label">Bật thông báo trên trình duyệt</span>
+            <button id="enable-browser-notifs-btn">Cho phép</button>
+        </div>
+    </div>
+
+    <div class="settings-section">
+        <h2>Quyền riêng tư</h2>
+        <div class="settings-row">
+            <span class="settings-row-label">Ẩn trạng thái hoạt động</span>
+            <div id="hide-status-switch" class="switch"></div>
+        </div>
+        <div class="settings-row">
+            <span class="settings-row-label">Ngừng hoạt động tài khoản</span>
+            <button id="delete-account-btn" class="danger-btn">Yêu cầu xóa</button>
+        </div>
+    </div>
+
+    <div class="settings-section" id="verification-section">
+        <h2>Xác minh tài khoản (Tick Xanh)</h2>
+        <div class="settings-row">
+            <span id="verification-status" style="color: var(--text-secondary); font-size: 14px; flex: 1; margin-right: 15px;">Chưa xác minh</span>
+            <button id="request-verification-btn">Yêu cầu xác minh</button>
+        </div>
+    </div>
+</div>
+
+<div id="delete-confirm-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="width: 420px;">
+        <div id="password-step">
+            <h2 style="color: #f59e0b; text-align: center;">Xác thực tài khoản</h2>
+            <p style="margin: 15px 0 20px; color: var(--text-secondary); font-size: 15px; text-align: center;">Vui lòng nhập lại mật khẩu của bạn để tiếp tục.</p>
+            <label for="password-confirm-input">Mật khẩu</label>
+            <input type="password" id="password-confirm-input" placeholder="••••••••" autocomplete="current-password">
+            <div class="modal-actions">
+                <button id="delete-cancel-btn" class="btn-ghost">Hủy</button>
+                <button id="delete-continue-btn" class="btn">Tiếp tục</button>
+            </div>
+        </div>
+        <div id="reason-step" style="display:none;">
+             <h2 style="color: #ef4444; text-align: center;">⚠️ Lý do ngừng hoạt động</h2>
+             <p style="margin: 15px 0; color: var(--text-secondary); text-align: center;">Chúng tôi rất tiếc khi bạn rời đi. Vui lòng cho biết lý do.</p>
+             <div class="reason-form">
+                <label class="reason-row"><input type="radio" name="deleteReason" value="not_like" checked> Tôi không thích ứng dụng này nữa</label>
+                <label class="reason-row"><input type="radio" name="deleteReason" value="privacy_concern"> Lo ngại về quyền riêng tư</label>
+                <label class="reason-row"><input type="radio" name="deleteReason" value="new_account"> Tôi muốn tạo một tài khoản mới</label>
+                <label class="reason-row"><input type="radio" name="deleteReason" value="other"> Lý do khác</label>
+             </div>
+             <div class="modal-actions">
+                <button id="delete-back-btn" class="btn-ghost">Quay lại</button>
+                <button id="delete-ok-btn" class="btn danger-btn">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="verification-request-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="width: 480px;">
+        <h2 style="text-align: center;">Yêu cầu xác minh tài khoản</h2>
+        <p style="margin: 15px 0 20px; color: var(--text-secondary); font-size: 15px; text-align: center;">
+            Vui lòng cung cấp thông tin. Yêu cầu sẽ được xem xét thủ công.
+        </p>
+        <label for="verification-fullname">Họ và Tên:</label>
+        <input type="text" id="verification-fullname" placeholder="Nguyễn Văn A" style="margin-bottom: 15px;">
+        <label for="verification-reason">Lý do yêu cầu:</label>
+        <textarea id="verification-reason" rows="3" placeholder="Ví dụ: Người của công chúng, Đại diện thương hiệu,..." style="margin-bottom: 20px;"></textarea>
+        <div class="modal-actions">
+            <button id="cancel-verification-request-btn" class="btn-ghost">Hủy</button>
+            <button id="submit-verification-request-btn" class="btn">Gửi yêu cầu</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, reauthenticateWithCredential, EmailAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc,addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBuGG9WKYZHb1qbmihpJFjCBsTB_VJ_LvU", authDomain: "qola-web.firebaseapp.com", databaseURL: "https://qola-web-default-rtdb.firebaseio.com", projectId: "qola-web", storageBucket: "qola-web.firebasestorage.app", messagingSenderId: "477682993077", appId: "1:477682993077:web:7dce15eb2c365729173bfc"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// DOM Elements
+const toast = document.getElementById('toast');
+const backBtn = document.getElementById('back-to-chat-btn');
+const themeSwitch = document.getElementById('theme-switch');
+const notifBtn = document.getElementById('enable-browser-notifs-btn');
+const hideStatusSwitch = document.getElementById('hide-status-switch');
+const deleteAccountBtn = document.getElementById('delete-account-btn');
+// THÊM CÁC BIẾN NÀY VÀO ĐẦU SCRIPT
+const verificationStatus = document.getElementById('verification-status');
+const requestVerificationBtn = document.getElementById('request-verification-btn');
+const verificationRequestModal = document.getElementById('verification-request-modal');
+const verificationReasonInput = document.getElementById('verification-reason');
+const cancelVerificationRequestBtn = document.getElementById('cancel-verification-request-btn');
+const submitVerificationRequestBtn = document.getElementById('submit-verification-request-btn');
+// Delete Modal Elements
+const deleteConfirmModal = document.getElementById('delete-confirm-modal');
+const passwordStep = document.getElementById('password-step');
+const reasonStep = document.getElementById('reason-step');
+const passwordConfirmInput = document.getElementById('password-confirm-input');
+const deleteCancelBtn = document.getElementById('delete-cancel-btn');
+const deleteContinueBtn = document.getElementById('delete-continue-btn');
+const deleteBackBtn = document.getElementById('delete-back-btn');
+const deleteOkBtn = document.getElementById('delete-ok-btn');
+
+backBtn.onclick = () => window.location.href = 'index.html';
+
+// --- Toast ---
+let toastTimer;
+function showToast(message, type = 'info') {
+    clearTimeout(toastTimer);
+    toast.textContent = message;
+    toast.className = ''; toast.classList.add(type);
+    toast.style.display = 'block';
+    toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 3000);
+}
+
+// --- Theme ---
+(function initTheme() {
+    const saved = localStorage.getItem('theme') || 'dark';
+    document.body.classList.toggle('light', saved === 'light');
+    themeSwitch.classList.toggle('on', saved === 'light');
+})();
+themeSwitch.onclick = () => {
+    const isLight = document.body.classList.toggle('light');
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    themeSwitch.classList.toggle('on', isLight);
+};
+
+// --- Notifications ---
+
+notifBtn.onclick = () => {
+    if (!("Notification" in window)) {
+        return showToast("Trình duyệt này không hỗ trợ thông báo.", "error");
+    }
+
+    // Nếu đã từ chối trước đó, không cần xin lại
+    if (Notification.permission === 'denied') {
+         return showToast("Bạn đã từ chối quyền thông báo trước đó.", "info");
+    }
+
+    // Nếu chưa cấp hoặc chưa hỏi, thì mới xin quyền
+    if (Notification.permission !== 'granted') {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                showToast("Đã bật thông báo!", "success");
+                notifBtn.textContent = "Đã cho phép";
+                notifBtn.disabled = true;
+            } else { // denied or default (user dismissed)
+                showToast("Bạn đã không cấp quyền thông báo.", "info");
+                // Giữ nguyên nút để người dùng có thể bấm lại nếu chỉ dismiss
+                 if(permission === 'denied'){
+                      notifBtn.textContent = "Đã từ chối";
+                      notifBtn.disabled = true;
+                 }
+            }
+        });
+    }
+};
+
+// --- Account Deactivation ---
+function showDeleteConfirmation() {
+    passwordStep.style.display = 'block';
+    reasonStep.style.display = 'none';
+    passwordConfirmInput.value = '';
+    deleteContinueBtn.disabled = false; deleteContinueBtn.textContent = "Tiếp tục";
+    deleteOkBtn.disabled = false; deleteOkBtn.textContent = "Xác nhận xóa"; // Reset nút xóa
+    deleteConfirmModal.style.display = 'flex';
+}
+deleteAccountBtn.onclick = showDeleteConfirmation; // Gán sự kiện mở modal
+deleteCancelBtn.onclick = () => deleteConfirmModal.style.display = 'none';
+deleteBackBtn.onclick = () => { passwordStep.style.display = 'block'; reasonStep.style.display = 'none'; };
+deleteContinueBtn.onclick = async () => {
+    const password = passwordConfirmInput.value;
+    const user = auth.currentUser;
+    if (!password || !user) return showToast("Vui lòng nhập mật khẩu.", "error");
+    deleteContinueBtn.disabled = true; deleteContinueBtn.textContent = "Đang kiểm tra...";
+    const credential = EmailAuthProvider.credential(user.email, password);
+    try {
+        await reauthenticateWithCredential(user, credential);
+        passwordStep.style.display = 'none'; reasonStep.style.display = 'block';
+    } catch (error) { showToast("Mật khẩu không đúng.", "error"); }
+    finally { deleteContinueBtn.disabled = false; deleteContinueBtn.textContent = "Tiếp tục"; }
+};
+deleteOkBtn.onclick = async () => { // Hàm handleAccountDeactivation gộp vào đây
+    const user = auth.currentUser; if (!user) return;
+    const reason = document.querySelector('input[name="deleteReason"]:checked').value;
+    deleteOkBtn.disabled = true; deleteOkBtn.textContent = "Đang xử lý...";
+    try {
+        const userDocRef = doc(db, 'users', user.uid);
+        await updateDoc(userDocRef, {
+            isDeactivated: true, deactivationReason: reason, displayName: "Người dùng đã rời đi",
+            bio: "", avatarUrl: "https://placehold.co/120x120/64748b/fff?text=X", fcmToken: null, friends: []
+        });
+        await signOut(auth);
+        showToast("Tài khoản của bạn đã được ngừng hoạt động. Tạm biệt!", "success");
+        setTimeout(() => { window.location.href = "login.html"; }, 1500);
+    } catch (error) {
+        showToast(`Không thể xử lý yêu cầu. Lỗi: ${error.message}.`, "error");
+        deleteOkBtn.disabled = false; deleteOkBtn.textContent = "Xác nhận xóa";
+    }
+};
+
+// --- Main Auth Listener ---
+onAuthStateChanged(auth, async (user) => {
+    if (!user) return window.location.href = 'login.html';
+
+    const userDocRef = doc(db, 'users', user.uid);
+    const userSnap = await getDoc(userDocRef);
+    if (!userSnap.exists()) return; // Should not happen
+    const userData = userSnap.data();
+
+    // Init Hide Status switch
+    hideStatusSwitch.classList.toggle('on', userData.hideOnlineStatus === true);
+    hideStatusSwitch.onclick = async () => {
+        const wantsToHide = !hideStatusSwitch.classList.contains('on');
+        try {
+            await updateDoc(userDocRef, { hideOnlineStatus: wantsToHide });
+            hideStatusSwitch.classList.toggle('on', wantsToHide);
+            showToast(`Đã ${wantsToHide ? 'ẩn' : 'hiện'} trạng thái hoạt động.`, "success");
+        } catch (e) { showToast("Có lỗi xảy ra, vui lòng thử lại.", "error"); }
+    };
+    requestVerificationBtn.disabled = true; // Vô hiệu hóa nút ban đầu
+
+    // --- THAY THẾ TOÀN BỘ LOGIC TICK XANH CŨ BẰNG CÁI NÀY ---
+    if (userData.isVerified) {
+        verificationStatus.textContent = "✅ Tài khoản đã được xác minh.";
+        requestVerificationBtn.textContent = "Đã xác minh";
+        requestVerificationBtn.disabled = true;
+        document.getElementById('verification-section').style.display = 'none';
+    } else {
+        // Kiểm tra xem đã gửi yêu cầu chưa (ví dụ: lưu trạng thái 'pending' vào user data)
+        if (userData.verificationStatus === 'pending') {
+             verificationStatus.textContent = "ℹ️ Yêu cầu của bạn đang chờ xem xét.";
+             requestVerificationBtn.textContent = "Đã yêu cầu";
+             requestVerificationBtn.disabled = true;
+        } else {
+             verificationStatus.textContent = "Chưa xác minh.";
+             requestVerificationBtn.textContent = "Yêu cầu xác minh";
+             requestVerificationBtn.disabled = false;
+             requestVerificationBtn.onclick = () => {
+                 // Reset form trước khi mở
+                 document.getElementById('verification-fullname').value = ''; 
+                 verificationReasonInput.value = ''; 
+                 verificationRequestModal.style.display = 'flex';
+             };
+        }
+    }
+
+    // Cập nhật trạng thái nút Thông báo khi tải trang
+    if ("Notification" in window) {
+        if (Notification.permission === 'granted') {
+            notifBtn.textContent = "Đã cho phép";
+            notifBtn.disabled = true;
+        } else if (Notification.permission === 'denied') {
+            notifBtn.textContent = "Đã từ chối";
+            notifBtn.disabled = true;
+        } else {
+            notifBtn.textContent = "Cho phép";
+            notifBtn.disabled = false;
+        }
+    } else {
+        // Nếu trình duyệt không hỗ trợ
+        notifBtn.textContent = "Không hỗ trợ";
+        notifBtn.disabled = true;
+    }
+    // --- KẾT THÚC PHẦN THAY THẾ ---
+});
+
+// --- GÁN SỰ KIỆN CHO MODAL YÊU CẦU ---
+cancelVerificationRequestBtn.onclick = () => {
+    verificationRequestModal.style.display = 'none';
+};
+
+// THAY THẾ HÀM submitVerificationRequestBtn.onclick CŨ BẰNG HÀM NÀY
+submitVerificationRequestBtn.onclick = async () => {
+    const fullName = document.getElementById('verification-fullname').value.trim(); // Lấy họ tên
+    const reason = verificationReasonInput.value.trim();
+    
+    if (!fullName) { // Kiểm tra họ tên
+        return showToast("Vui lòng nhập Họ và Tên.", "error");
+    }
+    if (!reason) {
+        return showToast("Vui lòng nhập lý do yêu cầu.", "error");
+    }
+    if (!auth.currentUser) return;
+
+    submitVerificationRequestBtn.disabled = true;
+    submitVerificationRequestBtn.textContent = "Đang gửi...";
+
+    try {
+        await addDoc(collection(db, "verification_requests"), {
+            userId: auth.currentUser.uid,
+            userEmail: auth.currentUser.email,
+            fullName: fullName, // Lưu họ tên
+            reason: reason,
+            requestTimestamp: serverTimestamp(),
+            status: "pending"
+        });
+
+        // Cập nhật trạng thái user để tránh gửi lại (QUAN TRỌNG)
+        await updateDoc(doc(db, 'users', auth.currentUser.uid), {
+            verificationStatus: 'pending' // Đánh dấu là đã gửi yêu cầu
+        });
+
+        showToast("Đã gửi yêu cầu xác minh thành công!", "success");
+        verificationRequestModal.style.display = 'none';
+        requestVerificationBtn.disabled = true;
+        requestVerificationBtn.textContent = "Đã yêu cầu";
+        verificationStatus.textContent = "ℹ️ Yêu cầu của bạn đang chờ xem xét.";
+
+    } catch (error) {
+        console.error("Lỗi gửi yêu cầu xác minh:", error);
+        showToast("Không thể gửi yêu cầu. Vui lòng thử lại.", "error");
+    } finally {
+        submitVerificationRequestBtn.disabled = false;
+        submitVerificationRequestBtn.textContent = "Gửi yêu cầu";
+    }
+};
+</script>
+</body>
+</html>
