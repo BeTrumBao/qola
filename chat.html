@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Qola Messenger</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+:root{
+  --accent-1:#60a5fa;
+  --accent-2:#2563eb;
+  --bg-page:linear-gradient(135deg,#0f172a,#1e293b);
+  --glass:rgba(255,255,255,0.06);
+  --glass-2:rgba(255,255,255,0.08);
+  --glass-3:rgba(30, 41, 59, 0.75);
+  --text:#e5e7eb;
+  --text-2:#cbd5e1;
+  --border:rgba(255,255,255,0.12);
+  --bubble-me: linear-gradient(135deg,#3b82f6,#2563eb);
+  --bubble-you: rgba(255,255,255,0.15);
+  --input:#0b1220;
+  --shadow: 0 18px 60px rgba(0,0,0,.35);
+  --recalled-bg: rgba(255,255,255,0.1);
+  --skeleton-bg: rgba(255,255,255,0.08);
+}
+.msg-wrapper .recalled-message + .reaction-picker,
+.msg-wrapper .recalled-message ~ .reaction-picker {
+    display: none !important;
+    pointer-events: none;
+}
+.msg-wrapper .recalled-message + .reactions-display,
+.msg-wrapper .recalled-message ~ .reactions-display {
+    display: none !important;
+    pointer-events: none;
+}
+.light {
+  --bg-page: linear-gradient(135deg,#a1c4fd,#c2e9fb);
+  --glass: rgba(255,255,255,0.5);
+  --glass-2: rgba(255,255,255,0.6);
+  --glass-3: rgb(249, 250, 251);
+  --text:#0f172a;
+  --text-2:#334155;
+  --border: rgba(0,0,0,0.1);
+  --bubble-me: linear-gradient(135deg,#007aff,#0056b3);
+  --bubble-you: rgba(229,229,234,0.92);
+  --input: rgba(255,255,255,0.85);
+  --shadow: 0 18px 60px rgba(0,0,0,.2);
+  --recalled-bg: rgba(0,0,0,0.05);
+  --skeleton-bg: rgba(0,0,0,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  background:var(--bg-page); color:var(--text);
+  overflow:hidden;
+  display:flex; /* Phải có cái này */
+}
+
+/* === CSS CHỈ DÀNH CHO KHUNG CHAT === */
+#chat-window{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    position: relative;
+    box-sizing: border-box;
+}
+#chat-header{display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid var(--border); gap: 12px;}
+#mobile-back-btn {
+    display: flex;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+#mobile-back-btn:hover { background: var(--glass); }
+#current-chat-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); }
+#current-chat-friend-name{font-size:18px; font-weight:700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+#messages-container{ flex:1; overflow:auto; display:flex; flex-direction:column; gap:2px; padding:14px 2px; scrollbar-width:thin; }
+#messages-container::-webkit-scrollbar{width:8px}
+#messages-container::-webkit-scrollbar-thumb{background:var(--glass-3); border-radius:10px}
+#messages-container::-webkit-scrollbar-track{background:transparent}
+.msg-wrapper { position: relative; margin: 6px 0; align-self: flex-start; max-width: 70%; display: flex; gap: 10px; align-items: flex-end; }
+.msg-wrapper:hover .reaction-picker { opacity: 1; transform: translateY(0) scale(1); }
+.msg-wrapper.sent { align-self: flex-end; }
+.msg-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-bottom: 6px; cursor: pointer; }
+.msg-wrapper.sent .msg-avatar { display: none; }
+.msg-sender-name { font-size: 13px; font-weight: 500; color: var(--text-2); margin-bottom: 4px; }
+.msg { background: var(--bubble-you); color: var(--text); padding: 10px 14px; border-radius: 18px; display: inline-block; word-break: break-word; line-height: 1.4em; box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: background 0.3s ease; position: relative; }
+.msg.sent { background: var(--bubble-me); color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,0.4); }
+.msg img { max-width: 100%; border-radius: 14px; margin-top: 5px; cursor: pointer; }
+.msg-meta, .msg-status { font-size: 11px; opacity: 0.7; text-align: right; margin-top: 4px; }
+.sent .msg-status { color: rgba(255,255,255,0.7); }
+.recalled-message { font-style: italic; color: var(--text-2); background-color: var(--recalled-bg); border: 1px dashed var(--border); padding: 8px 12px; border-radius: 12px; }
+.reply-quote { background: var(--glass); padding: 6px 10px; border-left: 3px solid var(--accent-1); margin-bottom: 8px; border-radius: 4px; }
+.reply-quote .sender { font-weight: 600; font-size: 13px; }
+.reply-quote .text { font-size: 13px; opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.edited-label { margin-left: 6px; font-style: italic; opacity: 0.8; font-size: 10px; }
+#typing-indicator{height:22px; font-size:13px; font-style:italic; color:var(--text-2)}
+#image-preview-container, #reply-preview-container, #edit-preview-container { display:none; background:var(--glass); border:1px solid var(--border); border-radius:12px; padding: 8px 12px; margin-bottom:8px; position:relative; }
+#image-preview{max-height:130px; border-radius:8px}
+#cancel-preview-btn{position:absolute; right:-6px; top:-6px; width:22px; height:22px; border-radius:50%; border:none; background:#111; color:#fff; cursor:pointer}
+#reply-preview-container { border-left: 3px solid var(--accent-1); }
+#edit-preview-container { border-left: 3px solid #f59e0b; }
+#reply-preview-sender, #edit-preview-title { font-weight: 600; font-size: 13px; }
+#edit-preview-title { color: #f59e0b; }
+#reply-preview-text, #edit-preview-text { font-size: 13px; opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#edit-preview-text { font-style: italic; }
+#cancel-reply-btn, #cancel-edit-btn { position:absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-2); cursor: pointer; font-size: 16px; padding: 5px; }
+.chat-input { display: flex; gap: 10px; align-items: center; padding-top: 15px; margin-top: auto; border-top: 1px solid var(--border); }
+#message-input{ flex:1; border:1px solid var(--border); border-radius:16px; padding:12px 14px; background:var(--input); color:var(--text) }
+#send-btn,.image-upload-label{ border:none; border-radius:12px; padding:12px 16px; color:#fff; background:linear-gradient(135deg,var(--accent-1),var(--accent-2)); cursor:pointer; flex-shrink: 0; }
+#send-btn[disabled]{opacity:.6; cursor:not-allowed}
+.image-upload-label{background:transparent; color:var(--accent-1); border:1px solid var(--border)}
+#inactive-chat-indicator { text-align: center; padding: 12px; margin-top: 15px; border-radius: 12px; background: rgba(0,0,0,0.15); color: var(--text-2); font-style: italic; font-size: 14px; border: 1px solid var(--border); }
+.message-date-separator { text-align: center; margin: 18px 0; font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 500; width: 100%; }
+.message-date-separator::before, .message-date-separator::after { content: ""; position: relative; display: inline-block; width: 30%; height: 1px; background: rgba(255,255,255,0.1); top: -3px; margin: 0 8px; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px); display: flex; justify-content: center; align-items: center; z-index: 5000; }
+.modal-content { background: rgba(22, 25, 35, 0.85); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; padding: 30px 35px; width: min(90vw, 520px); color: #fff; text-align: left; box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: fadeIn .3s ease; }
+.modal-content h2 { text-align: center; margin-bottom: 25px; font-size: 22px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); background: -webkit-linear-gradient(45deg, var(--accent-1), #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; justify-content: center; gap: 10px; }
+@keyframes fadeIn { from { opacity:0; transform:scale(0.95);} to {opacity:1; transform:scale(1);} }
+.btn{ padding:8px 12px; border:none; border-radius:10px; background:linear-gradient(135deg,var(--accent-1),var(--accent-2)); color:#fff; cursor:pointer; }
+.btn-ghost, .cancel-btn { background: rgba(255,255,255,0.15); color: #fff; border: none; padding: 10px 14px; border-radius: 10px; cursor: pointer; }
+.danger-btn { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.form-label { font-size: 14px; color: var(--text-2); margin-bottom: 6px; display: block; }
+.modal-content input, .modal-content textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--input); color: var(--text); outline: none; font-size: 14px; margin-bottom: 15px; }
+.verified-tick { display: inline-block; width: 1.1em; height: 1.1em; margin-left: 5px; vertical-align: -0.2em; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2360a5fa'%3E%3Cpath fill-rule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.06 0l4-5.5z' clip-rule='evenodd' /%3E%3C/svg%3E"); background-size: contain; background-repeat: no-repeat; background-position: center; }
+.suggestion-popup { position: absolute; bottom: 75px; left: 15px; right: 15px; max-height: 200px; overflow-y: auto; background: var(--glass-3); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 14px; box-shadow: 0 -8px 20px rgba(0,0,0,0.2); z-index: 100; display: none; padding: 6px; scrollbar-width: thin; }
+.suggestion-popup::-webkit-scrollbar{ width: 6px; }
+.suggestion-popup::-webkit-scrollbar-thumb{ background: var(--glass); border-radius: 6px; }
+.suggestion-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; cursor: pointer; color: var(--text-primary); transition: background-color 0.2s; }
+.suggestion-item:hover { background-color: var(--glass); }
+.suggestion-item img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+.suggestion-item .name { font-weight: 500; }
+.suggestion-item .all { font-weight: 600; color: var(--accent-1); }
+.msg-wrapper.mentioned-me .msg { background-color: rgba(96, 165, 250, 0.25); border: 1px solid var(--accent-1); }
+.light .msg-wrapper.mentioned-me .msg { background-color: rgba(0, 122, 255, 0.15); border: 1px solid var(--accent-2); }
+.mention { font-weight: 600; color: var(--accent-1); background-color: rgba(96, 165, 250, 0.15); padding: 1px 4px; border-radius: 4px; }
+.lightbox-overlay { position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; animation: fadeIn 0.3s; }
+.lightbox-content { max-width: 90%; max-height: 90%; object-fit: contain; }
+.lightbox-close-btn { position: absolute; top: 20px; right: 35px; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+.lightbox-close-btn:hover { color: #bbb; }
+/* === FIX NÚT GỬI MẤT ICON - LẦN CUỐI (Trong @media) === */
+@media (max-width: 768px) {
+    /* ... CSS mobile cũ ... */
+
+    #send-btn {
+        display: none; /* Mặc định ẩn */
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        margin: 0;
+        border-radius: 50%;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        /* Bỏ hết mấy cái cũ */
+    }
+
+    /* Khi có text thì hiện nút */
+    .chat-input.has-text #send-btn {
+        display: flex !important; /* Hiện nút */
+    }
+
+    /* ÉP ICON GỬI HIỆN RA KHI NÚT HIỆN (TRỪ LÚC LOADING) */
+    .chat-input.has-text #send-btn:not(.loading) .send-icon {
+        display: block !important; /* Ép nó hiện dạng block */
+        margin: auto; /* Tự căn giữa nếu cần */
+    }
+     .chat-input.has-text #send-btn:not(.loading) .spinner-icon {
+        display: none !important; /* Ẩn spinner */
+    }
+
+
+    /* KHI LOADING */
+    #send-btn.loading .send-icon {
+        display: none !important; /* Ẩn icon gửi */
+    }
+    #send-btn.loading .spinner-icon {
+        display: block !important; /* Hiện spinner */
+        margin: auto; /* Tự căn giữa */
+        animation: spin 1.2s linear infinite;
+    }
+}
+.chat-input {
+        gap: 8px; /* Giảm khoảng cách chút */
+        align-items: flex-end; /* Đảm bảo căn đáy */
+    }
+    #message-input {
+        padding: 10px 12px; /* Input nhỏ hơn chút */
+        margin: 0; /* Bỏ margin nếu có */
+        flex: 1; /* Input chiếm phần còn lại */
+        transition: none; /* Bỏ transition width nếu có */
+    }
+    .image-upload-label {
+        padding: 10px 14px; /* Nút ảnh nhỏ hơn */
+    }
+
+    /* Nút gửi: Bỏ hiệu ứng co giãn, hiện/ẩn bằng display */
+    /* === FIX NÚT GỬI TRÒN VO (Trong @media) === */
+#send-btn {
+    display: none; /* Vẫn ẩn mặc định */
+    width: 44px;  /* Cho kích thước cố định */
+    height: 44px; /* Vuông vắn */
+    padding: 0; /* Bỏ padding cũ */
+    margin: 0;
+    border-radius: 50%; /* Cho nó tròn */
+    flex-shrink: 0;
+    /* Căn icon vào giữa */
+    align-items: center;
+    justify-content: center;
+    /* Bỏ mấy thuộc tính cũ không cần nữa */
+    /* opacity: 1; */
+    /* transform: none; */
+    /* transition: none; */
+}
+    /* Khi có chữ hoặc ảnh thì hiện nút gửi */
+    /* Khi .chat-input có class .has-text thì hiện nút gửi./* Khi .chat-input có class .has-text thì hiện nút gửi */
+.chat-input.has-text #send-btn {
+    display: flex !important; /* Dùng !important cho chắc */
+}
+/* Khi .chat-input có class .has-text thì hiện nút gửi */
+    .chat-input.has-text #send-btn {
+        display: flex !important;
+        align-items: center !important; /* Thêm dòng này */
+        justify-content: center !important; /* Thêm dòng này */
+    }
+
+    /* Đảm bảo icon gửi hiện ra (có thể không cần nếu HTML đúng) */
+    .chat-input.has-text #send-btn .send-icon {
+         display: block !important; /* Hoặc inline-block */
+    }
+    .chat-input.has-text #send-btn .spinner-icon {
+         display: none !important; /* Đảm bảo spinner ẩn đi */
+    }
+
+    /* CSS cho spinner khi loading (vẫn giữ) */
+    #send-btn.loading .send-icon { display: none !important; }
+    #send-btn.loading .spinner-icon { display: block !important; animation: spin 1.2s linear infinite; }
+    /* Đảm bảo icon quay và gửi vẫn đúng */
+    #send-btn .spinner-icon { display: none; }
+    #send-btn.loading .send-icon { display: none; }
+    #send-btn.loading .spinner-icon { display: block; animation: spin 1.2s linear infinite; }
+.msg-content-wrapper { position: relative; }
+#send-btn .spinner-icon { display: none; }
+#send-btn.loading { cursor: wait; }
+#send-btn.loading .send-icon { display: none; }
+#send-btn.loading .spinner-icon { display: block; animation: spin 1.2s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+#message-context-menu { position: fixed; display: none; background: var(--glass-3); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 12px; padding: 8px; box-shadow: var(--shadow); z-index: 9999; }
+.context-menu-btn { display: block; width: 100%; text-align: left; background: none; border: none; color: var(--text); padding: 10px 14px; border-radius: 8px; cursor: pointer; }
+.context-menu-btn:hover { background: var(--glass); }
+.context-menu-btn.danger { color: #f43f5e; }
+.reaction-picker { position: absolute; top: -45px; background: var(--glass-3); backdrop-filter: blur(10px); border-radius: 20px; padding: 6px; display: flex; gap: 8px; box-shadow: var(--shadow); opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none; z-index: 100; }
+.msg-wrapper.sent .reaction-picker { right: 10px; }
+.msg-wrapper.received .reaction-picker { left: 10px; }
+.msg-wrapper:hover .reaction-picker { opacity: 1; transform: scale(1); pointer-events: all; }
+.reaction-btn { font-size: 22px; cursor: pointer; transition: transform 0.15s; }
+.reaction-btn:hover { transform: scale(1.2); }
+.reactions-display { position: absolute; bottom: -10px; background: var(--glass-2); border-radius: 10px; padding: 2px 5px; display: flex; gap: 3px; font-size: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); cursor: pointer; }
+.msg-wrapper.sent .reactions-display { right: 10px; }
+.msg-wrapper.received .reactions-display { left: 0px; }
+#reactions-modal .modal-content { text-align: center; width: 380px; }
+#reactions-list { max-height: 300px; overflow-y: auto; margin: 15px 0; }
+.reaction-user-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-radius: 8px; }
+.reaction-user-item:hover { background: var(--glass); }
+.reaction-user-info { display: flex; align-items: center; gap: 10px; }
+.reaction-user-avatar { width: 36px; height: 36px; border-radius: 50%; }
+.reaction-user-name { font-weight: 500; }
+.reaction-emoji { font-size: 20px; }
+#toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(22, 25, 35, 0.85); color: white; padding: 20px 30px; border-radius: 12px; z-index: 10000; backdrop-filter: blur(10px); border: 1px solid var(--border); box-shadow: var(--shadow); text-align: center; display: none; animation: fadeIn .3s ease; }
+#toast-message { margin-bottom: 15px; }
+#toast-close-btn { background: var(--accent-1); color: white; border: none; padding: 8px 20px; border-radius: 8px; cursor: pointer; }
+
+</style>
+</head>
+<body>
+    <div id="chat-window">
+        <div id="chat-header">
+            <button id="mobile-back-btn" title="Quay lại">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <img id="current-chat-avatar" src="https://placehold.co/40x40" alt="avatar" style="display: none;">
+            <div id="current-chat-friend-name">Đang tải...</div>
+            <div id="chat-header-buttons">
+                <button id="open-info-btn" title="Thông tin" style="display:none;">☰</button>
+                <button id="group-info-btn" title="Thông tin nhóm" style="display:none;">☰</button>
+            </div>
+        </div>
+        <div id="messages-container"></div>
+        <div id="typing-indicator"></div>
+
+        <div id="reply-preview-container" style="display: none;">
+            <div id="reply-preview-sender"></div>
+            <div id="reply-preview-text"></div>
+            <button id="cancel-reply-btn">✖</button>
+        </div>
+        <div id="edit-preview-container" style="display: none;">
+            <div id="edit-preview-title">Đang chỉnh sửa</div>
+            <div id="edit-preview-text"></div>
+            <button id="cancel-edit-btn">✖</button>
+        </div>
+        <div id="image-preview-container" style="display: none;">
+            <img id="image-preview" />
+            <button id="cancel-preview-btn">✖</button>
+        </div>
+         <div id="mention-suggestions" class="suggestion-popup" style="display:none;"></div>
+
+        <div class="chat-input">
+            <label for="image-input" class="image-upload-label">🖼️</label>
+            <input id="image-input" type="file" accept="image/*" style="display:none" />
+            <input id="message-input" placeholder="Nhập tin nhắn..."/>
+            <<button id="send-btn">
+                <svg class="send-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                <svg class="spinner-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
+            </button>
+        </div>
+        <div id="inactive-chat-indicator" style="display: none;">Không thể gửi tin nhắn cho người này.</div>
+    </div>
+
+    <div id="toast" style="display:none;"><div id="toast-message"></div><button id="toast-close-btn">OK</button></div>
+    <div id="message-context-menu" style="display:none;"></div>
+    <div id="image-lightbox" class="lightbox-overlay" style="display: none;"><span class="lightbox-close-btn">&times;</span><img class="lightbox-content" id="lightbox-img"></div>
+    <div id="reactions-modal" class="modal-overlay" style="display:none;">
+      <div class="modal-content">
+        <h2>Lượt bày tỏ cảm xúc</h2>
+        <div id="reactions-list"></div>
+        <button id="close-reactions-modal" class="btn-ghost" style="margin-top: 15px;">Đóng</button>
+      </div>
+    </div>
+
+<<script type="module">
+// --- TOÀN BỘ JS HOÀN CHỈNH CHO chat.html ---
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, updateDoc, deleteField, arrayUnion, arrayRemove, serverTimestamp, collection, addDoc
+} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+import {
+  getDatabase, ref, onValue, onChildAdded, onChildChanged, push, update as rtdbUpdate,
+  set, onDisconnect, serverTimestamp as dbServerTimestamp, off, remove,
+  query as rtdbQuery, orderByChild, limitToLast, get
+} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBuGG9WKYZHb1qbmihpJFjCBsTB_VJ_LvU",
+    authDomain: "qola-web.firebaseapp.com",
+    databaseURL: "https://qola-web-default-rtdb.firebaseio.com",
+    projectId: "qola-web",
+    storageBucket: "qola-web.firebasestorage.app",
+    messagingSenderId: "477682993077",
+    appId: "1:477682993077:web:7dce15eb2c365729173bfc"
+};
+const IMGBB_API_KEY = "e6c2724ff8344c073410da4876c3d35f";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const rtdb = getDatabase(app);
+
+let currentUser = null;
+let currentUserData = {};
+let currentChatId = null;
+let currentChatType = null;
+let currentFriendUid = null;
+let currentChatPeerData = null;
+let currentGroupMembers = [];
+let msgsUnsub = null;
+let typingUnsub = null;
+let typingTimer;
+let lastMessageDate = null;
+let selectedImageFile = null;
+let replyingTo = null;
+let editingMessageKey = null;
+let isEditing = false;
+const originalTitle = document.title;
+let unreadCount = 0;
+
+const chatWindow = document.getElementById('chat-window');
+const chatHeader = document.getElementById('chat-header');
+const mobileBackBtn = document.getElementById('mobile-back-btn');
+const currentChatAvatar = document.getElementById('current-chat-avatar');
+const currentChatFriendName = document.getElementById('current-chat-friend-name');
+const messagesContainer = document.getElementById('messages-container');
+const typingIndicator = document.getElementById('typing-indicator');
+const messageInput = document.getElementById('message-input');
+const sendBtn = document.getElementById('send-btn');
+const imageInput = document.getElementById('image-input');
+const imagePreviewContainer = document.getElementById('image-preview-container');
+const imagePreview = document.getElementById('image-preview');
+const cancelPreviewBtn = document.getElementById('cancel-preview-btn');
+const replyPreviewContainer = document.getElementById('reply-preview-container');
+const replyPreviewSender = document.getElementById('reply-preview-sender');
+const replyPreviewText = document.getElementById('reply-preview-text');
+const cancelReplyBtn = document.getElementById('cancel-reply-btn');
+const editPreviewContainer = document.getElementById('edit-preview-container');
+const editPreviewText = document.getElementById('edit-preview-text');
+const cancelEditBtn = document.getElementById('cancel-edit-btn');
+const inactiveChatIndicator = document.getElementById('inactive-chat-indicator');
+const chatInputContainer = document.querySelector('.chat-input');
+const messageContextMenu = document.getElementById('message-context-menu');
+const imageLightbox = document.getElementById('image-lightbox');
+const lightboxImg = document.getElementById('lightbox-img');
+const lightboxCloseBtn = document.querySelector('.lightbox-close-btn');
+const toast = document.getElementById('toast');
+const toastMessage = document.getElementById('toast-message');
+const toastCloseBtn = document.getElementById('toast-close-btn');
+const mentionSuggestions = document.getElementById('mention-suggestions');
+const reactionsModal = document.getElementById('reactions-modal');
+const reactionsList = document.getElementById('reactions-list');
+const closeReactionsModal = document.getElementById('close-reactions-modal');
+let selectedEvidence = []; // Cần cho hàm showMessageContextMenu
+
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        window.location.href = 'login.html'; return;
+    }
+    const userDocRef = doc(db, 'users', user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    if (!userDocSnap.exists() || userDocSnap.data().isDeactivated === true || userDocSnap.data().needsSetup === true) {
+        await signOut(auth); window.location.href = 'login.html'; return;
+    }
+    currentUser = user;
+    currentUserData = userDocSnap.data();
+    const params = new URLSearchParams(window.location.search);
+    const friendUid = params.get('chat');
+    const groupId = params.get('chat_group');
+    attachEventListeners();
+    initTheme();
+    if (friendUid) {
+        const userDoc = await getDoc(doc(db, 'users', friendUid));
+        if (userDoc.exists()) await startDirectChat(userDoc.data());
+        else window.location.href = 'index.html';
+    } else if (groupId) {
+        const groupDoc = await getDoc(doc(db, 'groups', groupId));
+        if (groupDoc.exists()) await startGroupChat(groupId, groupDoc.data().groupName);
+        else window.location.href = 'index.html';
+    } else {
+        window.location.href = 'index.html';
+    }
+});
+
+function initTheme() {
+    const saved = localStorage.getItem('theme') || 'dark';
+    document.body.classList.toggle('light', saved === 'light');
+}
+
+function attachEventListeners() {
+    handleMentionInput();
+    // --- SỰ KIỆN CHO NÚT BACK TRÊN MOBILE ---
+const mobileBackBtn = document.getElementById('mobile-back-btn');
+if (mobileBackBtn) {
+    mobileBackBtn.onclick = () => {
+        window.location.href = 'index.html'; // LUÔN VỀ TRANG CHỦ GỐC
+    };
+}
+    sendBtn.onclick = sendMessage;
+    cancelReplyBtn.onclick = cancelReply;
+    cancelEditBtn.onclick = cancelEdit;
+    cancelPreviewBtn.onclick = cancelImagePreview;
+    toastCloseBtn.onclick = () => toast.style.display = 'none';
+    lightboxCloseBtn.onclick = () => imageLightbox.style.display = 'none';
+    imageLightbox.onclick = (e) => { if (e.target === imageLightbox) imageLightbox.style.display = 'none'; };
+    if (closeReactionsModal) closeReactionsModal.onclick = () => reactionsModal.style.display = 'none';
+    messageInput.addEventListener('paste', handlePasteImage);
+    messageInput.addEventListener('input', handleTextInput);
+    messageInput.addEventListener('keypress', handleEnterSend);
+    imageInput.onchange = handleImageSelection;
+    messagesContainer.addEventListener('contextmenu', showMessageContextMenu);
+    messagesContainer.addEventListener('mouseover', handleMouseOverMessage);
+    document.addEventListener('click', (e) => {
+      if (messageContextMenu && !messageContextMenu.contains(e.target)) messageContextMenu.style.display = 'none';
+    });
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+}
+
+function handlePasteImage(event) {
+    const items = (event.clipboardData || window.clipboardData).items; let imageFile = null;
+    for (let i = 0; i < items.length; i++) { if (items[i].kind === 'file' && items[i].type.startsWith('image/')) { imageFile = items[i].getAsFile(); break; }}
+    if (imageFile) {
+        event.preventDefault(); selectedImageFile = imageFile; const reader = new FileReader();
+        reader.onload = (ev) => { imagePreview.src = ev.target.result; imagePreviewContainer.style.display = 'block'; messageInput.placeholder = 'Thêm chú thích...'; chatInputContainer.classList.add('has-text'); };
+        reader.readAsDataURL(imageFile);
+    }
+    
+}
+
+function handleTextInput() {
+    const hasText = messageInput.value.trim().length > 0;
+    chatInputContainer.classList.toggle('has-text', hasText || selectedImageFile != null);
+    if(!currentChatId || !currentUser) return; const tRef = ref(rtdb, `/typing/${currentChatId}/${currentUser.uid}`);
+    set(tRef, true); clearTimeout(typingTimer); typingTimer = setTimeout(() => set(tRef, false), 2000);
+}
+function handleEnterSend(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function handleImageSelection(e) {
+    const f = e.target.files?.[0]; if (!f) return; selectedImageFile = f; const reader = new FileReader();
+    reader.onload = (ev) => { imagePreview.src = ev.target.result; imagePreviewContainer.style.display = 'block'; messageInput.placeholder = 'Thêm chú thích...'; chatInputContainer.classList.add('has-text'); };
+    reader.readAsDataURL(f);
+}
+function handleMouseOverMessage(e) {
+    const msgWrapper = e.target.closest('.msg-wrapper'); if (msgWrapper?.dataset.key) { let picker = msgWrapper.querySelector('.reaction-picker'); if (!picker) { picker = createReactionPicker(msgWrapper.dataset.key); const contentWrapper = msgWrapper.querySelector('.msg-content-wrapper'); if (contentWrapper) contentWrapper.appendChild(picker); else msgWrapper.appendChild(picker); }}
+}
+function handleVisibilityChange() { if (!document.hidden) { unreadCount = 0; document.title = originalTitle; } }
+
+async function startDirectChat(friend) {
+    if (!friend?.uid) return;
+    const friendDoc = await getDoc(doc(db, 'users', friend.uid));
+    if (!friendDoc.exists()) { showToast("Không tìm thấy người dùng.", "error"); window.location.href = 'index.html'; return; }
+    const friendData = friendDoc.data(); currentChatPeerData = friendData;
+    let isChatActive = true; let inactiveReason = "";
+    if (currentUserData.blocked?.includes(friend.uid)) { inactiveReason = "Bạn đã chặn người này."; isChatActive = false; }
+    else if (friendData?.blocked?.includes(currentUser.uid)) { inactiveReason = "Bạn không thể gửi tin nhắn."; isChatActive = false; }
+    else if (friendData.isDeactivated === true) { inactiveReason = "Tài khoản này đã bị khóa."; isChatActive = false; }
+    const uids = [currentUser.uid, friend.uid].sort(); const chatId = uids.join('_'); currentFriendUid = friend.uid;
+    openChat({ id: chatId, name: friendData.displayName || friendData.email, type: 'direct', isActive: isChatActive });
+    inactiveChatIndicator.textContent = inactiveReason;
+}
+async function startGroupChat(groupId, groupName){
+    currentFriendUid = null; currentChatPeerData = null;
+    const groupRef = doc(db, "groups", groupId); const groupDoc = await getDoc(groupRef);
+    if (groupDoc.exists()) {
+         const groupData = groupDoc.data(); const memberUids = groupData.member_uids || [];
+         if (!memberUids.includes(currentUser.uid)) { window.location.href = 'index.html'; return; }
+         const memberPromises = memberUids.map(uid => getDoc(doc(db, "users", uid))); const memberDocs = await Promise.all(memberPromises);
+         currentGroupMembers = memberDocs.filter(d => d.exists()).map(d => { const uData = d.data(); return { uid: uData.uid, displayName: uData.displayName || uData.email, avatarUrl: uData.avatarUrl }; });
+         openChat({id:groupId, name:groupName, type:'group', isActive: true});
+    } else { window.location.href = 'index.html'; }
+}
+
+function openChat(chat) {
+    if (msgsUnsub) { msgsUnsub(); msgsUnsub = null; } if (typingUnsub) { typingUnsub(); typingUnsub = null; }
+    lastMessageDate = null; currentChatId = chat.id; currentChatType = chat.type;
+    messagesContainer.innerHTML = ''; typingIndicator.textContent = '';
+    cancelReply(); cancelEdit(); cancelImagePreview();
+    const verifiedTick = createVerifiedTickHTML(currentChatPeerData?.isVerified);
+    const chatDisplayName = (chat.type === 'direct' && currentFriendUid && currentUserData.nicknames?.[currentFriendUid]) ? currentUserData.nicknames[currentFriendUid] : chat.name;
+    currentChatFriendName.innerHTML = `${escapeHtml(chatDisplayName)} ${verifiedTick}`;
+    if (chat.type === 'direct' && currentChatPeerData) {
+        currentChatAvatar.src = currentChatPeerData.avatarUrl || `https://placehold.co/40x40/EFEFEF/333?text=${chatDisplayName[0]}`;
+        currentChatAvatar.style.display = 'block'; currentFriendUid = currentChatPeerData.uid;
+    } else if (chat.type === 'group') {
+        getDoc(doc(db, "groups", chat.id)).then(groupDoc => { if (groupDoc.exists()) { const groupData = groupDoc.data(); const avatarSrc = groupData.avatarUrl || `https://placehold.co/40x40/1e293b/fff?text=${chat.name[0]}`; currentChatAvatar.src = avatarSrc; } else { currentChatAvatar.src = `https://placehold.co/40x40/1e293b/fff?text=${chat.name[0]}`; } });
+        currentChatAvatar.style.display = 'block'; currentFriendUid = null;
+    } else { currentChatAvatar.style.display = 'none'; currentFriendUid = null; }
+    if (chat.isActive) { chatInputContainer.style.display = 'flex'; inactiveChatIndicator.style.display = 'none'; messageInput.disabled = false; messageInput.placeholder = "Nhập tin nhắn..."; messageInput.focus(); }
+    else { chatInputContainer.style.display = 'none'; inactiveChatIndicator.style.display = 'block'; }
+    const typingRef = ref(rtdb, `/typing/${chat.id}`);
+    typingUnsub = onValue(typingRef, (snap) => {
+        const obj = snap.val() || {}; const othersTyping = Object.keys(obj).filter(uid => obj[uid] && uid !== currentUser.uid);
+        if (othersTyping.length > 0) { if (chat.type === 'direct') typingIndicator.textContent = 'Đang nhập...'; else { const typerNames = othersTyping.map(uid => currentGroupMembers.find(m => m.uid === uid)?.displayName?.split(' ')[0] || 'Ai đó').join(', '); const maxNamesToShow = 2; const displayNames = typerNames.split(', ').slice(0, maxNamesToShow).join(', '); const remainingCount = othersTyping.length - maxNamesToShow; typingIndicator.textContent = `${displayNames}${remainingCount > 0 ? ` và ${remainingCount} người khác` : ''} đang nhập...`; } }
+        else typingIndicator.textContent = '';
+        const shouldScrollTyping = messagesContainer.scrollHeight - messagesContainer.scrollTop < messagesContainer.clientHeight + 100; if (typingIndicator.textContent && shouldScrollTyping) setTimeout(() => { messagesContainer.scrollTop = messagesContainer.scrollHeight; }, 50);
+    });
+    const msgsRef = ref(rtdb, `/messages/${chat.id}`);
+    const initialLoadQuery = rtdbQuery(msgsRef, orderByChild('timestamp'), limitToLast(30));
+    get(initialLoadQuery).then(snap => {
+        if (snap.exists()) snap.forEach(childSnap => renderMessage(childSnap.key, childSnap.val(), chat));
+        const newMsgsQuery = rtdbQuery(msgsRef, orderByChild('timestamp'), limitToLast(1));
+        const unsubChildAdded = onChildAdded(newMsgsQuery, (snap) => { if (!document.querySelector(`.msg-wrapper[data-key="${snap.key}"]`)) renderMessage(snap.key, snap.val(), chat); });
+        const unsubChildChanged = onChildChanged(msgsRef, (snap) => renderMessage(snap.key, snap.val(), chat));
+        msgsUnsub = () => { off(newMsgsQuery,'child_added', unsubChildAdded); off(msgsRef, 'child_changed', unsubChildChanged); };
+        setTimeout(() => { messagesContainer.scrollTop = messagesContainer.scrollHeight; }, 100);
+    });
+    imageInput.onchange = handleImageSelection;
+}
+
+// === CÁC HÀM KHÁC (renderMessage, sendMessage, etc.) ===
+function renderMessage(key, m, chatCtx) {
+    if (!currentUserData || currentUserData.blocked?.includes(m.senderId)) return;
+    if (!m) { const el = document.querySelector(`.msg-wrapper[data-key="${key}"]`); if (el) el.remove(); return; }
+    const isSent = m.senderId === currentUser.uid;
+    if (!isSent && document.hidden) { unreadCount++; document.title = `(${unreadCount}) ${originalTitle}`; }
+    let existingEl = document.querySelector(`.msg-wrapper[data-key="${key}"]`); const isNewMessage = !existingEl;
+    if (isNewMessage) { existingEl = document.createElement('div'); existingEl.className = 'msg-wrapper'; existingEl.dataset.key = key; }
+    let isMentioned = m.mentions?.includes(currentUser.uid) || m.mentions?.includes('all'); existingEl.classList.toggle('mentioned-me', isMentioned);
+    if (isNewMessage && m.timestamp) { const msgDate = new Date(m.timestamp).toLocaleDateString('vi-VN'); if (msgDate !== lastMessageDate) { const sep = document.createElement('div'); sep.className = 'message-date-separator'; sep.textContent = (msgDate === new Date().toLocaleDateString('vi-VN')) ? 'Hôm nay' : msgDate; if (existingEl.parentNode === messagesContainer) messagesContainer.insertBefore(sep, existingEl); else messagesContainer.appendChild(sep); lastMessageDate = msgDate; } }
+    if (isNewMessage) messagesContainer.appendChild(existingEl);
+    existingEl.classList.toggle('sent', isSent); existingEl.classList.toggle('received', !isSent);
+    let avatarHtml = ''; if (!isSent) { let avatarUrl = ''; let senderUid = ''; if (chatCtx.type === 'direct' && currentChatPeerData) { avatarUrl = currentChatPeerData.avatarUrl || `https://placehold.co/32x32/EFEFEF/333?text=${currentChatPeerData.displayName[0]}`; senderUid = currentChatPeerData.uid; } else if (chatCtx.type === 'group') { const member = currentGroupMembers.find(mem => mem.uid === m.senderId); avatarUrl = member?.avatarUrl || `https://placehold.co/32x32/1e293b/fff?text=${m.senderName ? m.senderName[0].toUpperCase() : '?'}`; senderUid = m.senderId; } if (avatarUrl) avatarHtml = `<img src="${avatarUrl}" class="msg-avatar" data-uid="${senderUid}">`; }
+    let senderNameHtml = ''; if (!isSent && chatCtx.type === 'group') senderNameHtml = `<div class="msg-sender-name">${escapeHtml(m.senderName) || '...'}</div>`;
+    let msgBubbleHtml = ''; if (m.recalled) msgBubbleHtml = `<div class="msg recalled-message">Tin nhắn đã thu hồi</div>`; else { let content = `<div class="msg ${isSent ? 'sent' : ''}" data-sender-name="${escapeHtml(m.senderName || '')}">`; if (m.replyTo) { const repliedWrapper = document.querySelector(`.msg-wrapper[data-key="${m.replyTo}"]`); if (repliedWrapper) { const repliedEl = repliedWrapper.querySelector('.msg'); if (repliedEl && !repliedEl.classList.contains('recalled-message')) { const origSender = repliedEl.dataset.senderName || '...'; const origText = repliedEl.querySelector('.msg-text')?.textContent || (repliedEl.querySelector('img') ? 'Ảnh' : '...'); content += `<div class="reply-quote"><div class="sender">Trả lời ${escapeHtml(origSender)}</div><div class="text">${escapeHtml(origText)}</div></div>`; } else content += `<div class="reply-quote"><div class="sender">Trả lời tin nhắn đã thu hồi</div></div>`; } } let msgTextHtml = ''; if (m.text) { let escaped = escapeHtml(m.text); if (m.mentions && currentChatType === 'group') { const membersSorted = [...currentGroupMembers].sort((a, b) => b.displayName.length - a.displayName.length); escaped = escaped.replace(/@all/g, '<span class="mention">@all</span>'); membersSorted.forEach(mem => { const escName = escapeHtml(`@${mem.displayName}`); const rgx = new RegExp(`(?<![a-zA-Z0-9])${escName.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}(?![a-zA-Z0-9])`, 'g'); if (m.mentions.includes(mem.uid)) escaped = escaped.replace(rgx, `<span class="mention">@${mem.displayName}</span>`); }); } msgTextHtml = `<div class="msg-text">${escaped}</div>`; } content += msgTextHtml; if (m.imageUrl) content += `<img src="${m.imageUrl}" alt="img"/>`; if (m.timestamp) { const d = new Date(m.timestamp); const hm = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; const edited = m.edited ? `<span class="edited-label">(sửa)</span>` : ''; content += `<div class="msg-meta">${hm}${edited}</div>`; } if (isSent) { let status = 'Đã gửi'; if (chatCtx.type === 'direct') { const peerUid = chatCtx.id.split('_').find(id => id !== currentUser.uid); if (m.readBy?.[peerUid]) status = 'Đã xem'; } else if (m.readBy && Object.keys(m.readBy).length > 1) status = 'Đã xem'; content += `<div class="msg-status">${status}</div>`; } content += `</div>`; msgBubbleHtml = content; }
+    existingEl.innerHTML = `${avatarHtml}<div class="msg-content-wrapper">${senderNameHtml}${msgBubbleHtml}</div>`;
+    const reactions = m.reactions || {}; let reactionsDisplay = existingEl.querySelector('.reactions-display'); const msgContentWrapper = existingEl.querySelector('.msg-content-wrapper');
+    if (Object.keys(reactions).length > 0 && !m.recalled && msgContentWrapper) { if (!reactionsDisplay) { reactionsDisplay = document.createElement('div'); reactionsDisplay.className = 'reactions-display'; msgContentWrapper.appendChild(reactionsDisplay); } let reactionsHTML = ''; for (const emoji in reactions) { let count = (emoji === '❤️') ? Object.values(reactions[emoji]).reduce((s, v) => s + (typeof v === 'number' ? v : 1), 0) : Object.keys(reactions[emoji]).length; if (count > 0) reactionsHTML += `<span>${emoji} ${count}</span>`; } reactionsDisplay.innerHTML = reactionsHTML; reactionsDisplay.onclick = (e) => { e.stopPropagation(); showReactionsDetails(key); }; } else if (reactionsDisplay) reactionsDisplay.remove();
+    const imgInMsg = existingEl.querySelector('.msg img'); if (imgInMsg) imgInMsg.onclick = () => openLightbox(imgInMsg.src); const avatarInMsg = existingEl.querySelector('.msg-avatar'); if (avatarInMsg?.dataset.uid) avatarInMsg.onclick = () => window.open(`profile.html?id=${avatarInMsg.dataset.uid}`, '_blank');
+    if (!isSent && (!m.readBy || !m.readBy[currentUser.uid])) rtdbUpdate(ref(rtdb, `/messages/${chatCtx.id}/${key}/readBy`), { [currentUser.uid]: true });
+    const shouldScroll = messagesContainer.scrollHeight - messagesContainer.scrollTop < messagesContainer.clientHeight + 150 || isSent || isNewMessage; if (shouldScroll) setTimeout(() => { messagesContainer.scrollTop = messagesContainer.scrollHeight; }, 50);
+}
+async function sendMessage() {
+    const text = messageInput.value.trim(); if (!text && !selectedImageFile && !replyingTo) return; if (!currentChatId) return;
+    sendBtn.classList.add('loading'); sendBtn.disabled = true; messageInput.disabled = true;
+    try {
+        let imageUrl = null; if (selectedImageFile) imageUrl = await uploadImage(selectedImageFile);
+        let mentions = []; if (currentChatType === 'group' && text) { const rgx = /@(\S+)/g; let match; while ((match = rgx.exec(text)) !== null) { const uname = match[1]; if (uname === 'all') { if (!mentions.includes('all')) mentions.push('all'); } else { const member = currentGroupMembers.find(m => m.displayName === uname); if (member && !mentions.includes(member.uid)) mentions.push(member.uid); } } }
+        const newMsgRef = push(ref(rtdb, `/messages/${currentChatId}`)); const newMsgKey = newMsgRef.key;
+        const msg = { senderId: currentUser.uid, senderName: currentUserData.displayName || currentUser.email.split('@')[0], text: text || null, imageUrl: imageUrl, timestamp: dbServerTimestamp(), readBy: { [currentUser.uid]: true }, replyTo: replyingTo?.key || null, mentions: mentions.length ? mentions : null };
+        const updates = {}; updates[`/messages/${currentChatId}/${newMsgKey}`] = msg;
+        const notifPayload = { from: msg.senderName, avatar: currentUserData.avatarUrl, preview: msg.text || "Đã gửi một ảnh", chatId: currentChatId, chatType: currentChatType, senderId: currentUser.uid };
+        if (currentChatType === 'direct') { const recipientId = currentChatId.split('_').find(id => id !== currentUser.uid); const recipientDoc = await getDoc(doc(db, 'users', recipientId)); const recipientData = recipientDoc.exists() ? recipientDoc.data() : {}; if (!recipientData.mutedChats?.[currentChatId]) updates[`/notifications/${recipientId}/${newMsgKey}`] = notifPayload; }
+        else if (currentChatType === 'group') { const groupRef = doc(db, 'groups', currentChatId); const groupDoc = await getDoc(groupRef); const memberUids = groupDoc.exists() ? groupDoc.data().member_uids || [] : []; for (const recipientId of memberUids) { if (recipientId === currentUser.uid) continue; const recipientDoc = await getDoc(doc(db, 'users', recipientId)); const recipientData = recipientDoc.exists() ? recipientDoc.data() : {}; if (!recipientData.mutedChats?.[currentChatId]) updates[`/notifications/${recipientId}/${newMsgKey}`] = notifPayload; } }
+        if (Object.keys(updates).length > 1 || updates[`/messages/${currentChatId}/${newMsgKey}`]) await rtdbUpdate(ref(rtdb), updates);
+        messageInput.value = ''; /* chatInputContainer.classList.remove('has-text'); */ cancelImagePreview(); cancelReply(); clearTimeout(typingTimer); set(ref(rtdb, `/typing/${currentChatId}/${currentUser.uid}`), false);
+    } catch (e) { console.error("Lỗi gửi:", e); showToast('Gửi thất bại.', 'error'); }
+    finally { sendBtn.classList.remove('loading'); sendBtn.disabled = false; messageInput.disabled = false; if (currentChatId) messageInput.focus(); }
+}
+function showMessageContextMenu(e) {
+    const wrapper = e.target.closest('.msg-wrapper'); if (!wrapper) return; e.preventDefault(); const msgKey = wrapper.dataset.key; const msgRef = ref(rtdb, `/messages/${currentChatId}/${msgKey}`);
+    get(msgRef).then(snap => { // Dùng get() thay onValue
+        if (!snap.exists()) return; const msg = snap.val(); messageContextMenu.innerHTML = '';
+        if (!msg.recalled) { const btn = document.createElement('button'); btn.className = 'context-menu-btn'; btn.textContent = '↪️ Trả lời'; btn.onclick = () => { replyToMessage(msgKey, msg); messageContextMenu.style.display = 'none'; }; messageContextMenu.appendChild(btn); }
+        if (msg.senderId === currentUser.uid) { if (msg.text && !msg.recalled) { const btn = document.createElement('button'); btn.className = 'context-menu-btn'; btn.textContent = '✏️ Chỉnh sửa'; btn.onclick = () => { startEditMessage(msgKey, msg); messageContextMenu.style.display = 'none'; }; messageContextMenu.appendChild(btn); } const timeDiff = Date.now() - msg.timestamp; if (timeDiff < 3 * 60 * 1000 && !msg.recalled) { const btn = document.createElement('button'); btn.className = 'context-menu-btn danger'; btn.textContent = '🗑️ Thu hồi'; btn.onclick = () => { recallMessage(msgKey); messageContextMenu.style.display = 'none'; }; messageContextMenu.appendChild(btn); } }
+        const btnDel = document.createElement('button'); btnDel.className = 'context-menu-btn danger'; btnDel.textContent = '❌ Xóa ở phía bạn'; btnDel.onclick = () => { deleteMessageForSelf(msgKey); messageContextMenu.style.display = 'none'; }; messageContextMenu.appendChild(btnDel);
+        messageContextMenu.style.display = 'block'; messageContextMenu.style.left = `${e.pageX}px`; messageContextMenu.style.top = `${e.pageY}px`;
+    });
+}
+function recallMessage(key) { const msgRef = ref(rtdb, `/messages/${currentChatId}/${key}`); rtdbUpdate(msgRef, { text: null, imageUrl: null, recalled: true, replyTo: null, reactions: null }); }
+function deleteMessageForSelf(key) { const el = document.querySelector(`.msg-wrapper[data-key="${key}"]`); if (el) el.remove(); }
+function replyToMessage(key, message) { replyingTo = { key, message }; replyPreviewContainer.style.display = 'block'; replyPreviewSender.textContent = `Trả lời ${message.senderId === currentUser.uid ? 'chính mình' : message.senderName || '...'}`; replyPreviewText.textContent = message.text || 'Ảnh'; messageInput.focus(); }
+function cancelReply() { replyingTo = null; replyPreviewContainer.style.display = 'none'; }
+function startEditMessage(key, message) { if (replyingTo) cancelReply(); isEditing = true; editingMessageKey = key; editPreviewText.textContent = message.text; editPreviewContainer.style.display = 'block'; messageInput.value = message.text; messageInput.focus(); sendBtn.innerHTML = 'Lưu'; } // Sửa text nút Gửi
+function cancelEdit() { isEditing = false; editingMessageKey = null; editPreviewContainer.style.display = 'none'; messageInput.value = ''; sendBtn.innerHTML = '<svg class="send-icon"...'; } // Trả lại icon nút Gửi
+async function uploadImage(file){ if(!IMGBB_API_KEY) throw new Error('Thiếu API ImgBB'); const fd=new FormData(); fd.append('image', file); const res=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{method:'POST', body:fd}); const data=await res.json(); if(data.success) return data.data.url; throw new Error(data.error?.message||'Upload fail'); }
+function cancelImagePreview(){ selectedImageFile=null; imageInput.value=''; imagePreviewContainer.style.display='none'; messageInput.placeholder='Nhập tin nhắn...'; chatInputContainer.classList.remove('has-text'); }
+function createReactionPicker(msgKey) { const picker = document.createElement('div'); picker.className = 'reaction-picker'; ['❤️', '👍', '😂', '😮', '😢', '😡', '🚫'].forEach(emoji => { const btn = document.createElement('span'); btn.className = 'reaction-btn'; btn.textContent = emoji; btn.onclick = (e) => { e.stopPropagation(); reactToMessage(msgKey, emoji); }; picker.appendChild(btn); }); return picker; }
+async function reactToMessage(msgKey, emoji) {
+    const checkMsgRef = ref(rtdb, `/messages/${currentChatId}/${msgKey}`); const msgSnapshot = await get(checkMsgRef); if (!msgSnapshot.exists() || msgSnapshot.val().recalled) return;
+    const pathBase = `/messages/${currentChatId}/${msgKey}/reactions`; if (emoji === '🚫') { const rRef = ref(rtdb, pathBase); get(rRef).then(snap => { if (snap.exists()) { const reactions = snap.val(); for (const e in reactions) remove(ref(rtdb, `${pathBase}/${e}/${currentUser.uid}`)); } }); return; }
+    const path = `${pathBase}/${emoji}/${currentUser.uid}`; const reactionRef = ref(rtdb, path); const currentReaction = await get(reactionRef);
+    if (emoji === '❤️') { const count = currentReaction.val() || 0; set(reactionRef, count + 1); }
+    else { if (currentReaction.exists()) remove(reactionRef); else set(reactionRef, true); }
+}
+async function showReactionsDetails(msgKey) {
+    if (!reactionsModal || !reactionsList) return; // Kiểm tra DOM elements
+    const msgRef = ref(rtdb, `/messages/${currentChatId}/${msgKey}`); const snap = await get(msgRef); if (!snap.exists()) return; const msg = snap.val(); const reactions = msg.reactions || {};
+    reactionsList.innerHTML = 'Đang tải...'; reactionsModal.style.display = 'flex';
+    let allReactors = []; for (const [emoji, reactors] of Object.entries(reactions)) { for (const [uid, value] of Object.entries(reactors)) { const count = (emoji === '❤️' && typeof value === 'number') ? value : 1; allReactors.push({ uid, emoji, count }); } }
+    if (allReactors.length === 0) { reactionsList.innerHTML = 'Chưa có ai bày tỏ cảm xúc.'; return; }
+    let html = ''; for (const reactor of allReactors) { const userDoc = await getDoc(doc(db, 'users', reactor.uid)); if (userDoc.exists()) { const userData = userDoc.data(); const countDisplay = reactor.count > 1 ? ` ${reactor.count}` : ''; html += `<div class="reaction-user-item"><div class="reaction-user-info"><img class="reaction-user-avatar" src="${userData.avatarUrl || `https://placehold.co/36x36?text=${(userData.displayName || '?')[0]}`}"><span class="reaction-user-name">${userData.displayName || userData.email}</span></div><span class="reaction-emoji">${reactor.emoji}${countDisplay}</span></div>`; } }
+    reactionsList.innerHTML = html;
+}
+function openLightbox(imageUrl) { if (lightboxImg && imageLightbox) { lightboxImg.src = imageUrl; imageLightbox.style.display = 'flex'; }}
+function showToast(message, type = 'info') { if (toastMessage && toast) { toastMessage.textContent = message; toast.style.display = 'block'; /* Có thể thêm class type để đổi màu */ }}
+function escapeHtml(s) { if (typeof s !== 'string') return ''; return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
+function createVerifiedTickHTML(isVerified) { return isVerified ? '<span class="verified-tick"></span>' : ''; }
+function handleMentionInput() {
+    if (!mentionSuggestions || !messageInput) return; // Check DOM
+    let isMentioning = false; let mentionQuery = '';
+    messageInput.addEventListener('input', (e) => {
+        const text = messageInput.value; const cursorPos = messageInput.selectionStart; let lastAtPos = -1;
+        for (let i = cursorPos - 1; i >= 0; i--) { if (text[i] === '@') { if (i === 0 || /\s/.test(text[i - 1])) { lastAtPos = i; break; } } if (/\s/.test(text[i])) break; }
+        if (lastAtPos !== -1 && currentChatType === 'group') { isMentioning = true; mentionQuery = text.substring(lastAtPos + 1, cursorPos).toLowerCase(); showSuggestions(mentionQuery); }
+        else { isMentioning = false; mentionSuggestions.style.display = 'none'; }
+    });
+    function showSuggestions(query) {
+        mentionSuggestions.innerHTML = ''; let suggestions = [];
+        if ('all'.includes(query)) suggestions.push({ type: 'all' });
+        if (currentGroupMembers.length > 0) { const filtered = currentGroupMembers.filter(m => m.uid !== currentUser.uid && m.displayName.toLowerCase().includes(query)); suggestions = suggestions.concat(filtered.map(m => ({ ...m, type: 'user' }))); }
+        if (suggestions.length === 0) { mentionSuggestions.style.display = 'none'; return; }
+        suggestions.forEach(item => { const div = document.createElement('div'); div.className = 'suggestion-item'; if (item.type === 'all') { div.innerHTML = `<span class="all">@all</span>`; div.onclick = () => insertMention('@all', 'all'); } else { const avatar = item.avatarUrl || `https://placehold.co/28x28?text=${item.displayName[0]}`; div.innerHTML = `<img src="${avatar}" alt=""><span class="name">${item.displayName}</span>`; div.onclick = () => insertMention(item.displayName, item.uid); } mentionSuggestions.appendChild(div); });
+        mentionSuggestions.style.display = 'block';
+    }
+    function insertMention(name, uidOrAll) {
+        const text = messageInput.value; const cursorPos = messageInput.selectionStart; let lastAtPos = -1;
+        for (let i = cursorPos - 1; i >= 0; i--) { if (text[i] === '@') { if (i === 0 || /\s/.test(text[i - 1])) { lastAtPos = i; break; } } if (/\s/.test(text[i])) break; }
+        if (lastAtPos !== -1) { const before = text.substring(0, lastAtPos); const after = text.substring(cursorPos); const mentionText = (uidOrAll === 'all') ? '@all' : `@${name}`; messageInput.value = before + mentionText + ' ' + after; messageInput.focus(); const newPos = before.length + mentionText.length + 1; messageInput.setSelectionRange(newPos, newPos); }
+        mentionSuggestions.style.display = 'none'; isMentioning = false; messageInput.dispatchEvent(new Event('input'));
+    }
+}
+</script>
+</body>
+</html>

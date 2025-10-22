@@ -18,51 +18,46 @@
     --shadow: 0 10px 30px rgba(0,0,0,0.25);
 }
 .light {
-    --accent-1: #007aff; --accent-2: #0056b3; /* Giữ nguyên màu nhấn */
-    --bg-dark: #E0F2FE; --bg-light: #F9FAFB; /* Nền sáng (dùng màu trắng hơi ngả xanh) */
-    /* Card nền trắng tinh nhưng hơi trong */
+    --accent-1: #007aff; --accent-2: #0056b3;
+    --bg-dark: #E0F2FE; --bg-light: #F9FAFB;
     --bg-card: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.85));
-    --glass-border: rgba(0, 0, 0, 0.08); /* Border đậm hơn chút */
+    --glass-border: rgba(0, 0, 0, 0.08);
     --glass: rgba(0, 0, 0, 0.03);
-    --text-primary: #111827; --text-secondary: #374151; /* Chữ đậm hơn (Gần đen/xám đậm) */
-    --input-bg: rgba(255, 255, 255, 0.6); /* Input trắng đục hơn */
-    --skeleton-bg: rgba(0, 0, 0, 0.07); /* Skeleton tối hơn */
-    --toast-bg: rgba(255, 255, 255, 0.95); /* Toast trắng đục */
+    --text-primary: #111827; --text-secondary: #374151;
+    --input-bg: rgba(255, 255, 255, 0.6);
+    --skeleton-bg: rgba(0, 0, 0, 0.07);
+    --toast-bg: rgba(255, 255, 255, 0.95);
     --shadow: 0 8px 25px rgba(0,0,0,0.08);
 }
-
-/* Đảm bảo body.light dùng gradient xanh */
 body.light {
-    background: linear-gradient(135deg, #E0F2FE, #bae6fd); /* Gradient xanh mây trời */
+    background: linear-gradient(135deg, #E0F2FE, #bae6fd);
 }
-
-/* Điều chỉnh thêm cho các nút/input theme sáng */
 .light input, .light textarea {
     background: var(--input-bg);
     border-color: var(--glass-border);
     color: var(--text-primary);
 }
 .light .btn-ghost {
-    background: rgba(0, 0, 0, 0.06); /* Nút ghost tối hơn */
+    background: rgba(0, 0, 0, 0.06);
     color: var(--text-secondary);
     border-color: rgba(0,0,0,0.1);
 }
-.light .btn-ghost:hover {
-    background: rgba(0, 0, 0, 0.1);
+.light .btn-ghost:hover { background: rgba(0, 0, 0, 0.1); }
+.light #sendMessageBtn {
+    background: rgba(0,0,0,0.04);
+    border: 1px solid rgba(0,0,0,0.08);
+    color: var(--text-secondary);
 }
-.light #sendMessageBtn { /* Nút nhắn tin màu nhạt hơn */
-     background: rgba(0,0,0,0.04);
-     border: 1px solid rgba(0,0,0,0.08);
-     color: var(--text-secondary);
+.light #sendMessageBtn:hover { background: rgba(0,0,0,0.08); }
+.light .friends-btn {
+    background: rgba(0, 122, 255, 0.1) !important;
+    color: var(--accent-2) !important;
+    border: 1px solid rgba(0, 122, 255, 0.2);
 }
-.light #sendMessageBtn:hover {
-     background: rgba(0,0,0,0.08);
-}
-.light .friends-btn { /* Nút Bạn bè */
-     background: rgba(0, 122, 255, 0.1) !important; /* Xanh nhạt hơn */
-     color: var(--accent-2) !important;
-     border: 1px solid rgba(0, 122, 255, 0.2);
-}
+.light .avatar { border-color: var(--bg-light); }
+.light .skeleton.avatar-skel { border-color: var(--bg-light); background-color: var(--bg-light); }
+.light #editSection hr { background: var(--glass-border); }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { min-height: 100vh; }
 body {
@@ -70,11 +65,8 @@ body {
     background: linear-gradient(135deg, var(--bg-dark, #0f172a), var(--bg-light, #1e293b));
     color: var(--text-primary);
     display: flex; align-items: center; justify-content: center;
-    padding: 20px 0;
+    padding: 20px 0; /* Giữ padding top/bottom */
     transition: background 0.3s ease, color 0.3s ease;
-}
-body.light {
-    background: linear-gradient(135deg, #E0F2FE, #bae6fd);
 }
 .card {
     width: min(90vw, 450px);
@@ -87,8 +79,10 @@ body.light {
     border-radius: 26px;
     text-align: center;
     box-shadow: var(--shadow);
+    /* Thêm transition để thay đổi kích thước mượt hơn (tùy chọn) */
+    transition: width 0.3s ease;
 }
-.card::before {
+.card::before { /* Border gradient effect */
     content: ''; position: absolute; top: 0; left: 0;
     width: 100%; height: 100%; border-radius: 26px; padding: 1px;
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
@@ -99,6 +93,8 @@ body.light {
 .cover-photo-container { height: 180px; overflow: hidden; position: relative; }
 .cover-photo { width: 100%; height: 100%; object-fit: cover; display: block; filter: blur(1px) brightness(0.8); }
 .cover-photo.editable:hover { filter: blur(1px) brightness(0.6); cursor: pointer; }
+
+/* Skeleton Loading */
 .skeleton-container { padding-top: 80px; padding-bottom: 30px; text-align: center; display: block; }
 .skeleton { background: var(--skeleton-bg); border-radius: 8px; position: relative; overflow: hidden; }
 .skeleton.avatar-skel { width: 120px; height: 120px; border-radius: 50%; margin: -60px auto 0; position: relative; z-index: 2; border: 4px solid var(--bg-light); background-color: var(--bg-light); }
@@ -111,42 +107,115 @@ body.light {
 .card.loaded .profile-content { display: block; }
 .card.loaded #profile-actions.active { display: flex; }
 .card.loaded #editSection.active { display: block; }
+
+/* Profile Content */
 .profile-content { position: relative; padding: 0 35px 30px; margin-top: -60px; text-align: center; }
 .avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 5px solid var(--bg-light); box-shadow: 0 5px 20px rgba(0,0,0,0.3); margin: 0 auto; display: block; position: relative; z-index: 2; transition: transform 0.3s ease; }
 .avatar:hover { transform: scale(1.05); }
 .avatar.editable:hover { box-shadow: 0 5px 20px rgba(96, 165, 250, 0.5); cursor: pointer; }
-.light .avatar { border-color: var(--bg-light); }
 #displayName { font-size: 26px; font-weight: 700; margin: 15px 0 5px; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text-primary); }
 #email { font-size: 14px; color: var(--text-secondary); margin: 0 0 10px; font-weight: 400; }
 #bio { margin-top: 0; opacity: 0.9; line-height: 1.6; color: var(--text-primary); }
+
+/* Profile Actions (Add Friend, Message) */
 #profile-actions { padding: 0 35px 35px; margin-top: 0; display: none; gap: 10px; }
 #profile-actions button { width: 100%; margin-top: 0; padding: 12px 10px; font-size: 14px; }
+
+/* General Button Styles */
 button { width: 100%; margin-top: 25px; padding: 14px 18px; border: none; border-radius: 10px; background: linear-gradient(135deg, var(--accent-1), var(--accent-2)); color: #fff; font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.3s; }
 button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3); filter: brightness(1.1); }
 button:disabled { opacity: 0.6; cursor: not-allowed; }
 .btn-ghost { background: var(--glass-border); color: var(--text-primary); font-weight: 500;}
 .btn-ghost:hover { background: rgba(255, 255, 255, 0.2); transform: none; box-shadow: none; }
-.light .btn-ghost { background: rgba(0, 0, 0, 0.08); color: var(--text-secondary); border: 1px solid rgba(0,0,0,0.1);}
-.light .btn-ghost:hover { background: rgba(0, 0, 0, 0.12); }
 #sendMessageBtn { background: var(--glass-border); }
 #sendMessageBtn:hover { background: rgba(255, 255, 255, 0.2); transform: none; box-shadow: none; }
-.light #sendMessageBtn { background: rgba(0,0,0,0.05); }
-.light #sendMessageBtn:hover { background: rgba(0,0,0,0.1); }
 #addFriendBtn { background: linear-gradient(135deg, var(--accent-1), var(--accent-2)); }
 .friends-btn { background: rgba(148, 163, 184, 0.2) !important; cursor: default !important; color: var(--text-secondary) !important; }
 .friends-btn:hover { transform: none !important; box-shadow: none !important; filter: none !important; }
+
+/* Edit Section */
 #editSection { padding: 0 35px 35px; text-align: left; display: none; }
 #editSection hr { border: none; height: 1px; background: var(--glass-border); margin: 25px 0; }
 label { display: block; text-align: left; margin: 18px 0 8px; font-size: 14px; font-weight: 500; color: var(--text-secondary); }
 input, textarea { box-sizing: border-box; width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--glass-border); background: var(--input-bg); color: var(--text-primary); outline: none; font-size: 15px; font-family: 'Poppins', sans-serif; transition: border-color 0.3s, box-shadow 0.3s; }
-.light input, .light textarea { background: var(--input-bg); border-color: var(--glass-border); }
 input:focus, textarea:focus { border-color: var(--accent-1); box-shadow: 0 0 15px rgba(96, 165, 250, 0.2); }
 textarea { resize: vertical; min-height: 80px; }
 #avatarInput, #coverInput { display: none; }
 .verified-tick { display: inline-block; width: 1.1em; height: 1.1em; margin-left: 5px; vertical-align: -0.2em; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2360a5fa'%3E%3Cpath fill-rule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.06 0l4-5.5z' clip-rule='evenodd' /%3E%3C/svg%3E"); background-size: contain; background-repeat: no-repeat; background-position: center; }
+
+/* Toast Notification */
 #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--toast-bg); color: var(--text-primary); padding: 16px 25px; border-radius: 12px; z-index: 10000; backdrop-filter: blur(10px); border: 1px solid var(--glass-border); box-shadow: var(--shadow); display: none; font-weight: 500; animation: slideIn .3s ease, slideOut .3s ease 2.7s forwards; }
 #toast.success { border-left: 4px solid #22c55e; color: #22c55e; } #toast.error { border-left: 4px solid #ef4444; color: #ef4444; } #toast.info { border-left: 4px solid var(--accent-1); color: var(--accent-1); }
 @keyframes slideIn { from { top: -100px; opacity: 0; } to { top: 20px; opacity: 1; } } @keyframes slideOut { from { top: 20px; opacity: 1; } to { top: -100px; opacity: 0; } }
+
+/* === CSS TỐI ƯU CHO MOBILE (Thêm vào cuối) === */
+@media (max-width: 768px) {
+    body {
+        padding: 0; /* Bỏ padding body */
+        align-items: flex-start; /* Card căn lên trên */
+    }
+    .card {
+        width: 100%; /* Card full width */
+        min-height: 100vh; /* Card full height */
+        border-radius: 0; /* Bỏ bo góc */
+        border: none; /* Bỏ viền */
+        box-shadow: none; /* Bỏ bóng đổ */
+    }
+    .card::before {
+        display: none; /* Bỏ border gradient */
+    }
+    .cover-photo-container {
+        height: 140px; /* Ảnh bìa thấp hơn */
+    }
+    .avatar {
+        width: 100px; /* Avatar nhỏ hơn */
+        height: 100px;
+        border-width: 4px;
+    }
+    .profile-content {
+        margin-top: -50px; /* Điều chỉnh vị trí avatar */
+        padding: 0 20px 25px; /* Padding nhỏ hơn */
+    }
+    #displayName {
+        font-size: 22px; /* Tên nhỏ hơn */
+        margin-top: 12px;
+    }
+    #email {
+        font-size: 13px;
+    }
+    #bio {
+        font-size: 15px; /* Bio to hơn chút cho dễ đọc */
+    }
+    #profile-actions {
+        padding: 0 20px 25px;
+        flex-direction: column; /* Nút xếp dọc */
+        gap: 12px;
+    }
+    #profile-actions button {
+        padding: 13px 10px; /* Nút cao hơn */
+        font-size: 15px;
+    }
+    #editSection {
+        padding: 0 20px 25px;
+    }
+    label {
+        margin-top: 15px;
+        font-size: 13px;
+    }
+    input, textarea {
+        padding: 11px;
+        font-size: 14px;
+    }
+    button { /* Nút Lưu */
+        margin-top: 20px;
+        padding: 13px 18px;
+        font-size: 15px;
+    }
+    #toast { /* Toast gần hơn trên mobile */
+        width: min(90vw, 400px);
+        font-size: 14px;
+    }
+}
 </style>
 </head>
 <body class="">
@@ -169,8 +238,8 @@ textarea { resize: vertical; min-height: 80px; }
         <p id="bio"></p>
     </div>
     <div id="profile-actions">
-        <button id="addFriendBtn">➕ Thêm bạn</button>
-        <button id="sendMessageBtn">💬 Nhắn tin</button>
+        <button id="addFriendBtn">Thêm bạn</button>
+        <button id="sendMessageBtn">Nhắn tin</button>
     </div>
     <div id="editSection">
         <hr/>
@@ -220,7 +289,7 @@ const profileActions = document.getElementById("profile-actions");
 const addFriendBtn = document.getElementById("addFriendBtn");
 const sendMessageBtn = document.getElementById("sendMessageBtn");
 
-let toastTimer; let currentUserData = {};
+let toastTimer; let currentUserData = {}; let viewingUserData = {}; // Thêm biến lưu data người đang xem
 
 function showToast(message, type = 'info') { clearTimeout(toastTimer); toast.textContent = message; toast.className = ''; toast.classList.add(type); toast.style.display = 'block'; toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 3000); }
 function createVerifiedTickHTML(isVerified) { return isVerified ? '<span class="verified-tick"></span>' : ''; }
@@ -231,7 +300,7 @@ async function checkFriendRequest(fromUid, toUid) { const q = query(collection(d
 onAuthStateChanged(auth, async (currentUser)=>{
     if(!currentUser) return (window.location.href="login.html");
 
-    const uid = targetId || currentUser.uid;
+    const uid = targetId || currentUser.uid; // ID của profile đang xem
     const isViewingOwnProfile = uid === currentUser.uid;
 
     try {
@@ -239,25 +308,36 @@ onAuthStateChanged(auth, async (currentUser)=>{
         const targetSnap = await getDoc(targetDocRef);
 
         if(!targetSnap.exists()) throw new Error("User not found");
-        const targetData = targetSnap.data();
-        if (targetData.isDeactivated === true) throw new Error("Account deactivated");
+        viewingUserData = targetSnap.data(); // Lưu data người đang xem
+        if (viewingUserData.isDeactivated === true) throw new Error("Account deactivated");
 
-        currentUserData = isViewingOwnProfile ? targetData : (await getDoc(doc(db, "users", currentUser.uid))).data();
+        // Lấy data người dùng hiện tại (nếu đang xem profile người khác)
+        if (!isViewingOwnProfile) {
+            const currentUserSnap = await getDoc(doc(db, "users", currentUser.uid));
+            if (currentUserSnap.exists()) currentUserData = currentUserSnap.data();
+            else throw new Error("Current user data not found"); // Lỗi nếu không lấy được data người dùng hiện tại
+        } else {
+            currentUserData = viewingUserData; // Nếu xem profile của mình thì data như nhau
+        }
 
-        coverPhoto.src = targetData.coverUrl || 'https://placehold.co/450x200/1e293b/94a3b8?text=Cover';
-        const initial = targetData.displayName ? targetData.displayName[0].toUpperCase() : (targetData.email ? targetData.email[0].toUpperCase() : 'Q');
-        avatar.src = targetData.avatarUrl || `https://placehold.co/120x120?text=${initial}`;
-        const verifiedTick = createVerifiedTickHTML(targetData.isVerified);
-        displayName.innerHTML = `${escapeHtml(targetData.displayName || "Người dùng Qola")} ${verifiedTick}`;
-        email.textContent = targetData.email || '...';
-        bio.textContent = targetData.bio || "Chưa có giới thiệu.";
+        // --- Hiển thị thông tin ---
+        coverPhoto.src = viewingUserData.coverUrl || 'https://placehold.co/450x200/1e293b/94a3b8?text=Cover';
+        const initial = viewingUserData.displayName ? viewingUserData.displayName[0].toUpperCase() : (viewingUserData.email ? viewingUserData.email[0].toUpperCase() : 'Q');
+        avatar.src = viewingUserData.avatarUrl || `https://placehold.co/120x120?text=${initial}`;
+        const verifiedTick = createVerifiedTickHTML(viewingUserData.isVerified);
+        displayName.innerHTML = `${escapeHtml(viewingUserData.displayName || "Người dùng Qola")} ${verifiedTick}`;
+        email.textContent = viewingUserData.email || '...';
+        bio.textContent = viewingUserData.bio || "Chưa có giới thiệu.";
+        document.title = `${viewingUserData.displayName || 'Hồ sơ'} - Qola`; // Cập nhật title
 
+        // --- Xử lý giao diện Edit hoặc Actions ---
         if(isViewingOwnProfile){
             profileActions.style.display = "none";
+            profileActions.classList.remove("active");
             editSection.classList.add("active");
 
-            nameInput.value = targetData.displayName || "";
-            bioInput.value = targetData.bio || "";
+            nameInput.value = viewingUserData.displayName || "";
+            bioInput.value = viewingUserData.bio || "";
 
             coverPhoto.classList.add("editable");
             avatar.classList.add("editable");
@@ -266,17 +346,12 @@ onAuthStateChanged(auth, async (currentUser)=>{
 
             coverPhoto.onclick = () => coverInput.click();
             avatar.onclick = () => avatarInput.click();
-
-            coverInput.onchange = () => {
-                if(coverInput.files[0]) showToast(`Đã chọn ảnh bìa: ${coverInput.files[0].name.substring(0, 20)}...`, 'info');
-            };
-            avatarInput.onchange = () => {
-                if(avatarInput.files[0]) showToast(`Đã chọn avatar: ${avatarInput.files[0].name.substring(0, 20)}...`, 'info');
-            };
-
+            coverInput.onchange = () => { if(coverInput.files[0]) showToast(`Đã chọn ảnh bìa: ${coverInput.files[0].name.substring(0, 20)}...`, 'info'); };
+            avatarInput.onchange = () => { if(avatarInput.files[0]) showToast(`Đã chọn avatar: ${avatarInput.files[0].name.substring(0, 20)}...`, 'info'); };
             saveBtn.onclick = saveProfileChanges;
         } else {
             editSection.style.display = "none";
+            editSection.classList.remove("active");
             profileActions.classList.add("active");
 
             coverPhoto.classList.remove("editable");
@@ -286,16 +361,24 @@ onAuthStateChanged(auth, async (currentUser)=>{
 
             const isFriend = currentUserData.friends?.includes(uid);
             const hasSentRequest = await checkFriendRequest(currentUser.uid, uid);
+            const hasReceivedRequest = await checkFriendRequest(uid, currentUser.uid); // Kiểm tra xem mình có nhận được lời mời từ họ không
+
+            addFriendBtn.disabled = false; // Reset trạng thái disable
+            addFriendBtn.classList.remove("friends-btn"); // Reset style
+
             if (isFriend) {
-                addFriendBtn.textContent = "✔️ Bạn bè"; addFriendBtn.classList.add("friends-btn"); addFriendBtn.disabled = true;
+                addFriendBtn.textContent = "Bạn bè"; addFriendBtn.classList.add("friends-btn"); addFriendBtn.disabled = true;
             } else if (hasSentRequest) {
-                addFriendBtn.textContent = "⏳ Đã gửi lời mời"; addFriendBtn.disabled = true;
+                addFriendBtn.textContent = "Đã gửi lời mời"; addFriendBtn.disabled = true;
+            } else if (hasReceivedRequest) {
+                 addFriendBtn.textContent = "Chấp nhận lời mời"; // Đổi text nút nếu có lời mời chờ
+                 addFriendBtn.onclick = async () => { /* Logic chấp nhận lời mời ở đây */ showToast("Chức năng chấp nhận đang phát triển!", "info"); };
             } else {
-                addFriendBtn.textContent = "➕ Thêm bạn bè"; addFriendBtn.disabled = false; addFriendBtn.classList.remove("friends-btn");
+                addFriendBtn.textContent = "➕ Thêm bạn bè";
                 addFriendBtn.onclick = async () => {
                     addFriendBtn.disabled = true; addFriendBtn.textContent = "Đang gửi...";
-                    try { await addDoc(collection(db, "friend_requests"), { from_uid: currentUser.uid, from_email: currentUser.email, to_uid: uid, status: 'pending', timestamp: serverTimestamp() }); addFriendBtn.textContent = "⏳ Đã gửi lời mời"; }
-                    catch (err) { showToast("Lỗi khi gửi lời mời.", "error"); addFriendBtn.disabled = false; addFriendBtn.textContent = "➕ Thêm bạn bè"; }
+                    try { await addDoc(collection(db, "friend_requests"), { from_uid: currentUser.uid, from_email: currentUser.email, to_uid: uid, status: 'pending', timestamp: serverTimestamp() }); addFriendBtn.textContent = "⏳ Đã gửi lời mời"; showToast("Đã gửi lời mời!", "success"); } // Thêm toast
+                    catch (err) { showToast("Lỗi gửi lời mời.", "error"); addFriendBtn.disabled = false; addFriendBtn.textContent = "➕ Thêm bạn bè"; }
                 };
             }
             sendMessageBtn.onclick = () => { window.location.href = `index.html?chat=${uid}`; };
@@ -303,7 +386,7 @@ onAuthStateChanged(auth, async (currentUser)=>{
     } catch (error) {
         console.error("Error loading profile:", error);
         displayName.textContent = "Lỗi";
-        bio.textContent = error.message === "User not found" ? "Không tìm thấy người dùng." : (error.message === "Account deactivated" ? "Tài khoản này đã ngừng hoạt động." : "Có lỗi xảy ra khi tải hồ sơ.");
+        bio.textContent = error.message === "User not found" ? "Không tìm thấy người dùng." : (error.message === "Account deactivated" ? "Tài khoản ngừng hoạt động." : "Lỗi tải hồ sơ.");
         profileActions.style.display = "none";
         editSection.style.display = "none";
         coverPhoto.style.display = 'none';
@@ -327,20 +410,25 @@ async function saveProfileChanges() {
         const userRef = doc(db, "users", user.uid);
         await updateDoc(userRef, updates);
         showToast("Đã lưu thay đổi!", "success");
+
+        // Cập nhật UI ngay lập tức
         if (newAvatarUrl) avatar.src = newAvatarUrl;
         if (newCoverUrl) coverPhoto.src = newCoverUrl;
-        displayName.innerHTML = `${escapeHtml(updates.displayName || "Người dùng Qola")} ${createVerifiedTickHTML(currentUserData.isVerified)}`;
+        displayName.innerHTML = `${escapeHtml(updates.displayName || "Người dùng Qola")} ${createVerifiedTickHTML(viewingUserData.isVerified)}`; // Dùng viewingUserData để check tick
         bio.textContent = updates.bio || "Chưa có giới thiệu.";
-        // Cập nhật lại currentUserData cục bộ nếu cần
-        if (newAvatarUrl) currentUserData.avatarUrl = newAvatarUrl;
-        if (newCoverUrl) currentUserData.coverUrl = newCoverUrl;
-        currentUserData.displayName = updates.displayName;
-        currentUserData.bio = updates.bio;
+
+        // Cập nhật lại viewingUserData nếu đang xem profile của mình
+        if (user.uid === (targetId || user.uid)) {
+            if (newAvatarUrl) viewingUserData.avatarUrl = newAvatarUrl;
+            if (newCoverUrl) viewingUserData.coverUrl = newCoverUrl;
+            viewingUserData.displayName = updates.displayName;
+            viewingUserData.bio = updates.bio;
+        }
+
     } catch (error) { showToast(`Lỗi khi lưu: ${error.message}`, "error"); }
     finally {
         saveBtn.disabled = false; saveBtn.textContent = "Lưu thay đổi";
-        avatarInput.value = '';
-        coverInput.value = '';
+        avatarInput.value = ''; coverInput.value = ''; // Reset input file
     }
 }
 </script>

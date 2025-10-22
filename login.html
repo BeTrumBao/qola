@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Đăng nhập - Qola Messenger</title>
+<title>Đăng nhập/Đăng ký - Qola Messenger</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
@@ -24,22 +24,18 @@ html,body{height:100%;font-family:'Poppins',sans-serif;background:var(--bg-page)
 
 .container{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  background: linear-gradient(-45deg, #0f172a, #1e293b, #2563eb, #60a5fa);
-  background-size: 400% 400%;
-  animation: gradientAnimation 15s ease infinite;
+  /* Nền tĩnh */
+  background: linear-gradient(-45deg, #0f172a, #1e293b);
+  /* Bỏ background-size và animation */
 }
-.container::before {
+/* Bỏ keyframes animation */
+
+.container::before { /* Giữ lại hiệu ứng mờ nếu muốn */
     content: '';
     position: absolute;
     inset: 0;
     background: rgba(15, 23, 42, 0.7);
     backdrop-filter: blur(8px);
-}
-
-@keyframes gradientAnimation {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
 }
 
 .card{
@@ -81,9 +77,13 @@ button.submit{
   position: relative;
   box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
 }
-button.submit:hover{
+button.submit:hover:not(:disabled){ /* Thêm :not(:disabled) */
     transform:scale(1.03);
     filter: brightness(1.1);
+}
+button.submit:disabled { /* Style khi loading */
+    cursor: wait;
+    filter: brightness(0.8);
 }
 button.submit.loading .btn-text { visibility: hidden; }
 button.submit.loading::after {
@@ -101,6 +101,7 @@ button.submit.loading::after {
 
 .smalltext{font-size:13px;margin-top:12px;color:var(--text-2);}
 a{color:var(--accent-1);text-decoration:none;font-weight: 500; cursor: pointer;}
+a:hover { text-decoration: underline; } /* Thêm hover effect */
 .terms-text { font-size: 11px; color: var(--text-2); opacity: 0.7; margin-top: 25px; }
 
 .fadeout{animation:fadeout .8s forwards;}
@@ -109,8 +110,11 @@ a{color:var(--accent-1);text-decoration:none;font-weight: 500; cursor: pointer;}
 #toast {
     position: fixed;
     top: 20px;
-    right: 20px;
-    width: 360px;
+    /* right: 20px; */ /* Chuyển sang căn giữa */
+    left: 50%;
+    transform: translateX(calc(-50% + 60px)); /* Điều chỉnh để không bị lệch quá */
+    width: auto; /* Tự động theo nội dung */
+    max-width: 400px; /* Giới hạn chiều rộng */
     background: rgba(30, 41, 59, 0.85);
     color: white;
     border-radius: 12px;
@@ -119,18 +123,22 @@ a{color:var(--accent-1);text-decoration:none;font-weight: 500; cursor: pointer;}
     border: 1px solid var(--border);
     box-shadow: var(--shadow);
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* Căn icon lên trên nếu text dài */
     padding: 15px;
     gap: 15px;
-    transform: translateX(120%);
-    transition: transform 0.5s ease-in-out;
+    opacity: 0; /* Mặc định ẩn */
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease, top 0.3s ease; /* Thêm transition */
 }
 #toast.show {
-    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+    top: 30px; /* Hiện ra ở vị trí thấp hơn chút */
+    transform: translateX(-50%); /* Căn giữa chuẩn */
 }
-#toast-icon { font-size: 24px; }
-#toast-content { text-align: left; }
-#toast-title { font-size: 16px; font-weight: 600; margin: 0 0 4px; }
+#toast-icon { font-size: 20px; margin-top: 2px; } /* Thu nhỏ icon */
+#toast-content { text-align: left; flex-grow: 1; } /* Cho nội dung chiếm phần còn lại */
+#toast-title { font-size: 15px; font-weight: 600; margin: 0 0 4px; }
 #toast-message { font-size: 14px; color: var(--text-2); line-height: 1.4; }
 #toast-errordetail {
     font-size: 11px;
@@ -140,10 +148,8 @@ a{color:var(--accent-1);text-decoration:none;font-weight: 500; cursor: pointer;}
     font-family: monospace;
     word-break: break-all;
 }
-
 #toast.success #toast-icon::before { content: '✅'; }
 #toast.success { border-left: 4px solid #22c55e; }
-
 #toast.error #toast-icon::before { content: '❌'; }
 #toast.error { border-left: 4px solid #ef4444; }
 </style>
@@ -161,22 +167,31 @@ a{color:var(--accent-1);text-decoration:none;font-weight: 500; cursor: pointer;}
 
 <div class="container">
   <div class="card" id="authCard">
-    <div class="logo">💬 <span>Qola Messenger</span></div>
+    <div class="logo"> <span>Qola</span></div>
     <h2 id="formTitle">Đăng nhập</h2>
 
     <div class="form" id="loginForm">
-      <input type="email" id="loginEmail" placeholder="Email">
+      <input type="text" id="loginIdentifier" placeholder="Email hoặc Username">
       <input type="password" id="loginPassword" placeholder="Mật khẩu">
       <button class="submit" id="loginBtn"><span class="btn-text">Đăng nhập</span></button>
+      <div class="smalltext"><a id="gotoForgotPassword">Quên mật khẩu?</a></div>
       <div class="smalltext">Chưa có tài khoản? <a id="gotoSignup">Đăng ký ngay</a></div>
     </div>
 
     <div class="form" id="signupForm" style="display:none;">
+      <input type="text" id="signupUsername" placeholder="Tên đăng nhập (username)">
       <input type="email" id="signupEmail" placeholder="Email">
       <input type="password" id="signupPassword" placeholder="Mật khẩu">
       <button class="submit" id="signupBtn"><span class="btn-text">Tạo tài khoản</span></button>
       <div class="smalltext">Đã có tài khoản? <a id="gotoLogin">Đăng nhập</a></div>
     </div>
+
+    <div class="form" id="forgotPasswordForm" style="display:none;">
+        <input type="email" id="forgotEmail" placeholder="Nhập Email của bạn">
+        <button class="submit" id="resetPasswordBtn"><span class="btn-text">Gửi link đặt lại mật khẩu</span></button>
+        <div class="smalltext"><a id="backToLogin">Quay lại Đăng nhập</a></div>
+    </div>
+
     <div class="terms-text">
         Bằng cách ấn Đăng nhập/Đăng ký, bạn đã đồng ý với Điều khoản sử dụng của Qola.
     </div>
@@ -185,8 +200,8 @@ a{color:var(--accent-1);text-decoration:none;font-weight: 500; cursor: pointer;}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBuGG9WKYZHb1qbmihpJFjCBsTB_VJ_LvU",
@@ -202,7 +217,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* ===== Toast Notification (Giữ nguyên) ===== */
+/* ===== Toast Notification ===== */
 const toast = document.getElementById('toast');
 const toastTitle = document.getElementById('toast-title');
 const toastMessage = document.getElementById('toast-message');
@@ -212,12 +227,12 @@ let toastTimeout;
 function showToast(message, type = 'info', error = null, duration = 4000) {
     clearTimeout(toastTimeout);
     toast.className = type;
-    if (type === 'error') { toastTitle.textContent = 'Lỗi!'; } 
-    else if (type === 'success') { toastTitle.textContent = 'Thành công!'; } 
+    if (type === 'error') { toastTitle.textContent = 'Lỗi!'; }
+    else if (type === 'success') { toastTitle.textContent = 'Thành công!'; }
     else { toastTitle.textContent = 'Thông báo'; }
     toastMessage.textContent = message;
     if (type === 'error' && error) {
-        toastErrorDetail.textContent = `Chi tiết: ${error.code}`;
+        toastErrorDetail.textContent = `Chi tiết: ${error.code || error.message}`;
         toastErrorDetail.style.display = 'block';
     } else {
         toastErrorDetail.style.display = 'none';
@@ -231,99 +246,140 @@ function showToast(message, type = 'info', error = null, duration = 4000) {
 function getFriendlyErrorMessage(error) {
     switch (error.code) {
         case 'auth/wrong-password':
-        case 'auth/user-not-found': return 'Email hoặc mật khẩu không đúng.';
+        case 'auth/user-not-found': return 'Email/Username hoặc mật khẩu không đúng.';
         case 'auth/invalid-email': return 'Địa chỉ email không hợp lệ.';
         case 'auth/email-already-in-use': return 'Email này đã được sử dụng.';
+        case 'auth/username-already-in-use': return 'Username này đã được sử dụng.';
         case 'auth/weak-password': return 'Mật khẩu phải có ít nhất 6 ký tự.';
-        default: return 'Đã có lỗi xảy ra không xác định.';
+        // Lỗi quên mật khẩu
+        case 'auth/missing-email': return 'Vui lòng nhập địa chỉ email.';
+        default: return error.message || 'Đã có lỗi xảy ra không xác định.';
     }
 }
 
-/* ===== Form Switching (Giữ nguyên) ===== */
+/* ===== Form Switching ===== */
 const formTitle = document.getElementById('formTitle');
 const loginForm = document.getElementById('loginForm');
 const signupForm = document.getElementById('signupForm');
+const forgotPasswordForm = document.getElementById('forgotPasswordForm');
 const gotoSignup = document.getElementById('gotoSignup');
 const gotoLogin = document.getElementById('gotoLogin');
+const gotoForgotPassword = document.getElementById('gotoForgotPassword');
+const backToLogin = document.getElementById('backToLogin');
+
 gotoSignup.onclick = () => switchTab('signup');
 gotoLogin.onclick = () => switchTab('login');
+gotoForgotPassword.onclick = () => switchTab('forgot');
+backToLogin.onclick = () => switchTab('login');
+
 function switchTab(tab){
+    loginForm.style.display = 'none';
+    signupForm.style.display = 'none';
+    forgotPasswordForm.style.display = 'none';
+
     if (tab === 'login') {
         formTitle.textContent = 'Đăng nhập';
         loginForm.style.display = 'flex';
-        signupForm.style.display = 'none';
-    } else {
+    } else if (tab === 'signup') {
         formTitle.textContent = 'Tạo tài khoản';
         signupForm.style.display = 'flex';
-        loginForm.style.display = 'none';
+    } else if (tab === 'forgot') {
+        formTitle.textContent = 'Quên mật khẩu';
+        forgotPasswordForm.style.display = 'flex';
     }
 }
 
-/* ===== Auth Logic (CÓ THAY ĐỔI) ===== */
+/* ===== Auth Logic ===== */
 const loginBtn = document.getElementById('loginBtn');
 const signupBtn = document.getElementById('signupBtn');
+const resetPasswordBtn = document.getElementById('resetPasswordBtn');
 const authCard = document.getElementById('authCard');
 
 loginBtn.onclick = async () => {
-    const email = document.getElementById('loginEmail').value.trim();
+    const identifier = document.getElementById('loginIdentifier').value.trim();
     const pass = document.getElementById('loginPassword').value.trim();
-    if (!email || !pass) return showToast('Vui lòng điền đầy đủ thông tin!', 'error');
-    
-    loginBtn.classList.add('loading');
-    loginBtn.disabled = true;
-    
+    if (!identifier || !pass) return showToast('Vui lòng điền Email/Username và Mật khẩu!', 'error');
+
+    loginBtn.classList.add('loading'); loginBtn.disabled = true;
+
     try {
-        await signInWithEmailAndPassword(auth, email, pass);
-        // onAuthStateChanged sẽ xử lý việc chuyển hướng
-    } catch (e) { 
-        showToast(getFriendlyErrorMessage(e), 'error', e);
-        loginBtn.classList.remove('loading');
-        loginBtn.disabled = false;
-    }
+        let loginEmail = identifier;
+        if (!identifier.includes('@')) {
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("username", "==", identifier.toLowerCase()));
+            const querySnapshot = await getDocs(q);
+            if (querySnapshot.empty) throw { code: 'auth/user-not-found' };
+            loginEmail = querySnapshot.docs[0].data().email;
+            if (!loginEmail) throw { code: 'auth/internal-error', message: 'Lỗi dữ liệu, không tìm thấy email.' };
+        }
+        await signInWithEmailAndPassword(auth, loginEmail, pass);
+    } catch (e) { showToast(getFriendlyErrorMessage(e), 'error', e); }
+
+    loginBtn.classList.remove('loading'); loginBtn.disabled = false;
 };
 
 signupBtn.onclick = async () => {
+    const username = document.getElementById('signupUsername').value.trim().toLowerCase();
     const email = document.getElementById('signupEmail').value.trim();
     const pass = document.getElementById('signupPassword').value.trim();
-    if (!email || !pass) return showToast('Vui lòng điền đầy đủ thông tin!', 'error');
 
-    signupBtn.classList.add('loading');
-    signupBtn.disabled = true;
+    if (!username || !email || !pass) return showToast('Vui lòng điền đủ Username, Email, Mật khẩu!', 'error');
+    if (username.length < 3) return showToast('Username phải ít nhất 3 ký tự!', 'error');
+    if (/\s/.test(username) || !/^[a-z0-9_.]+$/.test(username)) return showToast('Username chỉ chứa chữ thường, số, chấm, gạch dưới!', 'error');
+
+    signupBtn.classList.add('loading'); signupBtn.disabled = true;
 
     try {
+        const usersRef = collection(db, "users");
+        const qUsername = query(usersRef, where("username", "==", username));
+        const usernameSnapshot = await getDocs(qUsername);
+        if (!usernameSnapshot.empty) throw { code: 'auth/username-already-in-use' };
+
         const { user } = await createUserWithEmailAndPassword(auth, email, pass);
         await setDoc(doc(db, 'users', user.uid), {
-            uid: user.uid,
-            email: user.email,
-            displayName: email.split('@')[0],
-            bio: '',
-            avatarUrl: '',
-            friends: [],
-            blocked: [],
-            needsSetup: true // <-- THAY ĐỔI: Thêm cờ needsSetup
+            uid: user.uid, email: user.email, username: username,
+            displayName: username, bio: '',
+            avatarUrl: `https://placehold.co/120x120?text=${username[0].toUpperCase()}`,
+            coverUrl: '', friends: [], blocked: [], needsSetup: true,
+            createdAt: serverTimestamp()
         });
-        // Không cần showToast ở đây nữa, onAuthStateChanged sẽ tự động chuyển hướng
-    } catch (e) { 
-        showToast(getFriendlyErrorMessage(e), 'error', e);
+    } catch (e) { showToast(getFriendlyErrorMessage(e), 'error', e); }
+
+    signupBtn.classList.remove('loading'); signupBtn.disabled = false;
+};
+
+resetPasswordBtn.onclick = async () => {
+    const email = document.getElementById('forgotEmail').value.trim();
+    if (!email) return showToast('Vui lòng nhập Email!', 'error');
+
+    resetPasswordBtn.classList.add('loading'); resetPasswordBtn.disabled = true;
+
+    try {
+        await sendPasswordResetEmail(auth, email);
+        showToast('Đã gửi link đặt lại mật khẩu vào email của bạn! Kiểm tra cả thư mục Spam nhé.', 'success', null, 6000); // Tăng thời gian hiển thị
+        setTimeout(() => switchTab('login'), 3000);
+    } catch (e) {
+        showToast(getFriendlyErrorMessage(e), 'error', e); // Dùng hàm chung
+        console.error("Password Reset Error:", e);
     }
-    
-    signupBtn.classList.remove('loading');
-    signupBtn.disabled = false;
+
+    resetPasswordBtn.classList.remove('loading'); resetPasswordBtn.disabled = false;
 };
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        // THAY ĐỔI: Kiểm tra xem user có cần setup không
+        // THÊM LẠI PHẦN KIỂM TRA needsSetup
         const userDocRef = doc(db, 'users', user.uid);
         const userDocSnap = await getDoc(userDocRef);
-
         let needsSetup = false;
         if (userDocSnap.exists()) {
             needsSetup = userDocSnap.data().needsSetup === true;
         }
+        // KẾT THÚC PHẦN KIỂM TRA
 
         authCard.classList.add('fadeout');
         setTimeout(() => {
+            // DÙNG LẠI LOGIC CŨ
             if (needsSetup) {
                 window.location.href = 'setup.html'; // Chuyển đến trang setup
             } else {
@@ -335,4 +391,3 @@ onAuthStateChanged(auth, async (user) => {
 </script>
 </body>
 </html>
-

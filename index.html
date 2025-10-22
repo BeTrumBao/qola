@@ -742,6 +742,83 @@ opacity: 0.7;
     display: block; /* Hiện spinner */
     animation: spin 1.2s linear infinite; /* Xoay spinner */
 }
+/* --- CSS CHO POPUP THÔNG BÁO --- */
+#announcement-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6); /* Nền mờ */
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999; /* Nằm trên cùng */
+    opacity: 0; /* Mặc định ẩn */
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+#announcement-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+#announcement-popup {
+    background: var(--glass-3, rgba(30, 41, 59, 0.9)); /* Dùng biến glass-3 nếu có */
+    padding: 25px 30px;
+    border-radius: 16px;
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+    box-shadow: var(--shadow, 0 10px 30px rgba(0,0,0,0.3));
+    width: min(90vw, 450px); /* Chiều rộng tối đa */
+    text-align: center;
+    transform: scale(0.9); /* Hiệu ứng scale khi hiện */
+    transition: transform 0.3s ease;
+}
+#announcement-overlay.show #announcement-popup {
+    transform: scale(1);
+}
+
+#announcement-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+}
+
+#announcement-image {
+    max-width: 100%;
+    max-height: 200px; /* Giới hạn chiều cao ảnh */
+    border-radius: 8px;
+    margin-bottom: 15px;
+    object-fit: contain; /* Hiển thị toàn bộ ảnh */
+}
+
+#announcement-text {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 20px;
+    white-space: pre-wrap; /* Giữ xuống dòng */
+}
+
+#close-announcement-btn {
+    /* Style lại nút cho phù hợp */
+    display: inline-block; /* Không full width */
+    width: auto;
+    padding: 10px 25px;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    margin-top: 0; /* Bỏ margin top mặc định */
+}
+/* Style cho theme sáng (nếu cần) */
+.light #announcement-popup {
+   background: var(--glass-3, rgba(255, 255, 255, 0.95));
+   border-color: var(--glass-border, rgba(0, 0, 0, 0.1));
+}
+.light #announcement-title { color: var(--text-primary); }
+.light #announcement-text { color: var(--text-secondary); }
 #block-user-btn, #unblock-user-btn { background: linear-gradient(135deg, #ef4444, #b91c1c); }
 #unblock-user-btn { background: linear-gradient(135deg, #22c55e, #16a34a); }
 #block-user-btn:hover, #unblock-user-btn:hover { filter: brightness(1.1); }
@@ -933,6 +1010,155 @@ opacity: 0.7;
     margin-top: 20px !important;
     box-sizing: border-box !important;
 }
+/* === KHỐI FIX MOBILE MỚI (DÙNG DISPLAY:NONE) === */
+
+/* 1. Ẩn nút back trên PC (mặc định) */
+#mobile-back-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+#mobile-back-btn:hover {
+    background: var(--glass);
+}
+
+/* 2. Bắt đầu Media Query (Màn hình nhỏ) */
+
+/* Dán vào cuối <style> và XÓA HẾT @media cũ */
+
+/* === KHỐI FIX CUỐI CÙNG (Dán vào cuối <style>) === */
+/* (TỚ XIN CẬU HÃY XÓA HẾT CÁC KHỐI @media CŨ TRƯỚC) */
+
+@media (max-width: 768px) {
+
+    /* 1. FIX NAV ĐÁY BỊ VỠ */
+    .app-nav {
+        /* Có thể tăng độ mờ cho đẹp hơn */
+        background: rgba(30, 41, 59, 0.85); /* Tăng độ đậm nền */
+        backdrop-filter: blur(18px); /* Tăng độ mờ */
+        border-top: 1px solid rgba(255, 255, 255, 0.08); /* Viền mờ hơn */
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.2); /* Thêm bóng đổ nhẹ */
+    }
+
+    /* Style cho nút bấm */
+    .app-nav .nav-button {
+        color: var(--text-2); /* Màu icon nhạt hơn */
+        border-radius: 12px; /* Bo góc nhẹ */
+        transition: background-color 0.2s ease, color 0.2s ease; /* Hiệu ứng hover */
+    }
+    .app-nav .nav-button:hover {
+         background-color: var(--glass); /* Nền mờ khi hover */
+         color: var(--text); /* Icon sáng hơn khi hover */
+    }
+
+    /* Style cho nút Active */
+    .app-nav .nav-button.active {
+        background-color: var(--accent-1); /* Dùng màu xanh accent */
+        color: #fff; /* Icon màu trắng */
+    }
+    .app-nav .nav-button.active::before {
+        display: none; /* Bỏ cái gạch đi cho đỡ rối */
+    }
+
+     /* Style cho Avatar */
+     .app-nav .nav-avatar {
+         border: 2px solid transparent; /* Bỏ viền mặc định */
+         transition: border-color 0.2s ease;
+         padding: 4px; /* Thêm chút đệm quanh avatar */
+     }
+     .app-nav .nav-avatar:hover {
+         border-color: var(--glass); /* Hiện viền nhẹ khi hover */
+     }
+      /* (Tùy chọn) Thêm hiệu ứng active cho Avatar nếu muốn */
+     .app-nav .nav-avatar.active {
+         border-color: var(--accent-1);
+     } 
+
+     /* Căn chỉnh lại icon bên trong nút cho chuẩn */
+     .app-nav .nav-button svg {
+        width: 24px; /* Đảm bảo kích thước icon */
+        height: 24px;
+     }
+    
+    /* 2. ĐẨY NỘI DUNG LÊN */
+    .app-main {
+         /* Thêm đệm 60px để không bị nav che */
+        padding-bottom: 60px !important; 
+    }
+
+    /* --- CSS CHO POPUP THÔNG BÁO --- */
+#announcement-overlay {
+    position: fixed;
+    inset: 0;
+    /* SỬA DÒNG NÀY: Tăng độ mờ (vd: từ 0.6 lên 0.85 hoặc 0.9) */
+    background-color: rgba(0, 0, 0, 0.85);
+    /* SỬA DÒNG NÀY: Tăng độ blur (vd: từ 5px lên 10px hoặc 15px) */
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+/* ... các rule khác giữ nguyên ... */
+
+    /* 3. FIX LỖI CLICK KHÔNG CHUYỂN TRANG (Dùng !important) */
+    .chat-view #sidebar,
+    .chat-view #chat-window {
+        width: 100% !important;
+        max-width: none !important;
+        height: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        border-right: none;
+    }
+
+    /* Mặc định: Ẩn chat, Hiện sidebar */
+    body:not(.mobile-chat-active) .chat-view #chat-window {
+        display: none !important; 
+    }
+    body:not(.mobile-chat-active) .chat-view #sidebar {
+        display: flex !important;
+    }
+
+    /* Khi active: Hiện chat, Ẩn sidebar */
+    body.mobile-chat-active .chat-view #chat-window {
+        display: flex !important; 
+    }
+    body.mobile-chat-active .chat-view #sidebar {
+        display: none !important; 
+    }
+
+    /* 4. CÁC TINH CHỈNH CŨ (Vẫn giữ) */
+    #mobile-back-btn { display: flex; }
+    #chat-header { padding-bottom: 8px; gap: 8px; }
+    #chat-header #current-chat-friend-name { 
+        font-size: 16px; 
+        white-space: nowrap; 
+        overflow: hidden; 
+        text-overflow: ellipsis; 
+    }
+    #open-friend-req-btn { display: none; }
+    #chat-info-panel { width: 100%; transform: translateX(100%); }
+    #chat-info-panel.open { transform: translateX(0); }
+
+    /* Thêm dòng này vào cuối cùng */
+    #chat-info-panel {
+        display: none !important; /* Ép ẩn luôn */
+    }
+}
+
+
+/* === KẾT THÚC KHỐI FIX MỚI === */
 </style>
 </head>
 <body>
@@ -947,11 +1173,13 @@ opacity: 0.7;
     <div class="nav-spacer"></div>
     <img id="nav-avatar" class="nav-avatar" src="https://placehold.co/48x48" alt="avatar" title="Cài đặt & Hồ sơ">
     <div class="settings-menu" id="nav-settings-menu">
-        <div class="settings-row clickable" id="go-to-profile">Cá nhân</div>
-        <div class="settings-row clickable" id="show-changelog-btn">Nhật ký thay đổi</div>
-        <div class="settings-row clickable" id="go-to-settings">Cài đặt</div>
-        <div class="settings-row clickable" id="go-login">Đăng xuất</div>
-    </div>
+    <div class="settings-row clickable" id="go-to-profile">Cá nhân</div>
+    <div class="settings-row clickable" id="show-changelog-btn">Nhật ký thay đổi</div>
+    <div class="settings-row clickable" id="open-report-bug-modal">Báo lỗi</div>
+    <div class="settings-row clickable" id="open-about-modal">Thông tin tác giả</div>
+    <div class="settings-row clickable" id="go-to-settings">Cài đặt</div>
+    <div class="settings-row clickable" id="go-login">Đăng xuất</div>
+</div>
 </nav>
 
 <div class="app-layout">
@@ -970,7 +1198,7 @@ opacity: 0.7;
                 <div class="container" id="app" style="display:none;">
                     <div id="sidebar">
                         <div class="sidebar-head">
-                            <div class="sidebar-title">Qola Chat</div>
+                            <div class="sidebar-title">Qola</div>
                             <button id="add-btn" title="Tùy chọn mới">+</button> <div class="settings-menu" id="add-menu" style="left: auto; right: 16px; top: 60px; width: 180px;">
                                 <div class="settings-row clickable" id="create-group-from-menu">Tạo nhóm mới</div>
                                 <div class="settings-row clickable" id="add-friend-from-menu">Thêm bạn bè</div>
@@ -1039,7 +1267,13 @@ opacity: 0.7;
                             <div id="mention-suggestions" class="suggestion-popup">
                         </div>
                     <div class="chat-input">
-                        <label for="image-input" class="image-upload-label">🖼️</label>
+                        <label for="image-input" class="image-upload-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        </label>
                         <input id="image-input" type="file" accept="image/*" style="display:none" />
                         <input id="message-input" placeholder="Nhập tin nhắn..."/>
 
@@ -1097,10 +1331,10 @@ opacity: 0.7;
                     </svg>
                     <span id="mute-btn-text-friend">Tắt thông báo</span>
                 </button>
-                <button id="block-user-btn">🚫 Chặn người này</button>
-                <button id="unblock-user-btn" style="display: none;">🔓 Bỏ chặn người này</button>
-                <button id="remove-friend-btn">❌ Xóa bạn bè</button>
-                <button id="report-user-btn" style="background: #a16207;">⚠️ Báo cáo người này</button>
+                <button id="block-user-btn">Chặn người này</button>
+                <button id="unblock-user-btn" style="display: none;">Bỏ chặn người này</button>
+                <button id="remove-friend-btn">Xóa bạn bè</button>
+                <button id="report-user-btn" style="background: #a16207;">Báo cáo người này</button>
             </div>
             </div>
             <div id="group-info-content" style="display:none;">
@@ -1124,8 +1358,8 @@ opacity: 0.7;
                      </svg>
                     <span id="mute-btn-text-group">Tắt thông báo</span>
                 </button>
-                <button id="disband-group-btn" class="danger-btn" style="display: none;">🗑️ Giải tán nhóm</button>
-                <button id="leave-group-btn">🚪 Rời nhóm</button>
+                <button id="disband-group-btn" class="danger-btn" style="display: none;">Giải tán nhóm</button>
+                <button id="leave-group-btn">Rời nhóm</button>
             </div>
              </div>
         </div>
@@ -1229,7 +1463,7 @@ opacity: 0.7;
         </div>
     </div>
 </div>
-<div id="changelog-modal" class="modal-overlay" style="display:none; z-index: 9999;"> <div class="modal-content" style="width: min(90vw, 650px); text-align: left;"> <h2 style="text-align: center; margin-bottom: 25px;">Nhật Ký Thay Đổi (Changelog)</h2>
+<div id="changelog-modal" class="modal-overlay" style="display:none; z-index: 9999;"> <div class="modal-content" style="width: min(90vw, 650px); text-align: left;"> <h2 style="text-align: center; margin-bottom: 25px;">Nhật Ký Thay Đổi</h2>
 
         <div id="changelog-content" style="max-height: 60vh; overflow-y: auto; padding-right: 15px; margin-bottom: 25px;">
             </div>
@@ -1239,9 +1473,58 @@ opacity: 0.7;
     </div>
 </div>
 <input type="file" id="group-avatar-upload-input" accept="image/*" style="display:none;">
+<div id="announcement-overlay" style="display: none;">
+    <div id="announcement-popup">
+        <h2 id="announcement-title">Thông báo</h2>
+        <img id="announcement-image" src="" alt="Thông báo" style="display: none;">
+        <p id="announcement-text"></p>
+        <button id="close-announcement-btn">Đã hiểu</button>
+    </div>
+</div>
+
+<div id="report-bug-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+        <h2>Báo lỗi</h2>
+        <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 20px;">
+            Cảm ơn bạn đã giúp cải thiện Qola! Vui lòng mô tả lỗi bạn gặp phải.
+        </p>
+        <div class="form">
+            <label class="form-label" for="bug-description">Mô tả lỗi:</label>
+            <textarea id="bug-description" rows="4" placeholder="..."></textarea>
+
+            <label class="form-label" for="bug-steps">Các bước tái hiện ra lỗi : </label>
+            <textarea id="bug-steps" rows="3" placeholder="..."></textarea>
+
+            </div>
+        <div class="modal-actions">
+            <button id="cancel-report-bug-btn" class="btn-ghost">Hủy</button>
+            <button id="submit-bug-report-btn" class="btn">Gửi báo cáo</button>
+        </div>
+    </div>
+</div>
+
+<div id="about-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="text-align: center;"> <h2>Thông tin tác giả</h2>
+
+        <img src="https://i.ibb.co/xtQ6WDy8/z7088478191410-b16d303436bd2300dd9a3700a9db92ea-1.jpg" alt="Tác giả" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin: 10px auto; border: 2px solid var(--glass-border);">
+
+        <p style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">
+             Được phát triển bởi <span style="color: var(--accent-1);">QiQi</span>
+        </p>
+        <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 15px;">
+            Ver.1.0 </p>
+        <p style="font-size: 14px; line-height: 1.6;">
+            Qola Messenger - Đéo bt để câu j. <br>
+            Liên hệ: <a href="mailto:betrumbaodeptraivippro@gmail.com" style="color: var(--accent-1);">betrumbaodeptraivippro@gmail.com</a>
+            </p>
+
+        <div class="modal-actions" style="justify-content: center;"> <button id="close-about-modal-btn" class="btn-ghost">Đóng</button>
+        </div>
+    </div>
+</div>
 
 <script type="module">
-/***** Qola Messenger — index.app.js v9 (New Features) *****/
+import { getRemoteConfig, fetchAndActivate, getBoolean, getValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-remote-config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import {
@@ -1270,6 +1553,17 @@ const auth = getAuth(app);
 const db   = getFirestore(app);
 const rtdb = getDatabase(app);
 
+const remoteConfig = getRemoteConfig(app);
+// Cài đặt để fetch nhanh khi dev (có thể xóa khi deploy)
+remoteConfig.settings.minimumFetchIntervalMillis = 3600000; // 1 giờ, hoặc 0 để test
+// Đặt giá trị mặc định (phòng khi fetch lỗi)
+remoteConfig.defaultConfig = {
+  "is_maintenance_mode": false,
+  "show_announcement": false, // Thêm luôn cho bước 2
+  "announcement_message": "text_message", // Thêm luôn
+  "announcement_image_url": "image_url" // Thêm luôn
+};
+
 function initTheme() {
     const saved = localStorage.getItem('theme') || 'dark';
     document.body.classList.toggle('light', saved === 'light');
@@ -1284,7 +1578,17 @@ const toastCloseBtn = document.getElementById('toast-close-btn');
 const messageContextMenu = document.getElementById('message-context-menu');
 const replyPreviewContainer = document.getElementById('reply-preview-container');
 const replyPreviewSender = document.getElementById('reply-preview-sender');
+// Thêm vào cùng chỗ khai báo DOM khác
+const openAboutModalBtn = document.getElementById('open-about-modal');
+const aboutModal = document.getElementById('about-modal');
+const closeAboutModalBtn = document.getElementById('close-about-modal-btn');
 const replyPreviewText = document.getElementById('reply-preview-text');
+const openReportBugModalBtn = document.getElementById('open-report-bug-modal');
+const reportBugModal = document.getElementById('report-bug-modal');
+const cancelReportBugBtn = document.getElementById('cancel-report-bug-btn');
+const submitBugReportBtn = document.getElementById('submit-bug-report-btn');
+const bugDescription = document.getElementById('bug-description');
+const bugSteps = document.getElementById('bug-steps');
 const cancelReplyBtn = document.getElementById('cancel-reply-btn');
 const reportUserModal = document.getElementById('report-user-modal');
 const reportingUserName = document.getElementById('reporting-user-name');
@@ -1365,6 +1669,13 @@ const profileBio = document.getElementById('profile-bio');
 const profileAvatarUrl = document.getElementById('profile-avatar-url');
 const saveProfileEditBtn = document.getElementById('save-profile-edit-btn');
 const cancelProfileEditBtn = document.getElementById('cancel-profile-edit-btn');
+// Thêm vào cùng chỗ khai báo DOM elements khác
+const announcementOverlay = document.getElementById('announcement-overlay');
+const announcementPopup = document.getElementById('announcement-popup');
+const announcementTitle = document.getElementById('announcement-title');
+const announcementImage = document.getElementById('announcement-image');
+const announcementText = document.getElementById('announcement-text');
+const closeAnnouncementBtn = document.getElementById('close-announcement-btn');
 let currentUser = null;
 let lastMessageDate = null;
 let currentUserData = {};
@@ -1386,38 +1697,12 @@ const originalTitle = document.title;
 // Thêm mục mới nhất lên ĐẦU MẢNG
 const changelogData = [
     {
-        version: "1.2.0",
+        version: "1.0",
         date: "18/10/2025",
         description: [ // Dùng mảng để dễ xuống dòng
-            "Thêm tính năng Tắt/Bật thông báo cho từng cuộc trò chuyện.",
-            "Thêm tính năng giải tán nhóm cho Admin.",
-            "Nâng cấp giao diện sửa thông tin nhóm (có upload ảnh).",
-            "Thêm hiệu ứng loading Skeleton cho Tường nhà.",
-            "Thêm theme sáng nền xanh dương cho App và Profile."
+            "Qola đã chính thức ra mắt !",
+            "Bạn có thể chat với bạn bè và tham gia các nhóm chat !. "
         ],
-        imageUrl: "https://via.placeholder.com/400x200/60a5fa/ffffff?text=New+Features!" // Thay bằng link ảnh thật
-    },
-    {
-        version: "1.1.0",
-        date: "17/10/2025",
-        description: [
-            "Ra mắt tính năng Tường nhà (Wall) phiên bản Beta.",
-            "Cho phép Admin/Mod đổi tên và kick thành viên nhóm.",
-            "Thêm tính năng tìm kiếm bạn bè/nhóm.",
-             "Sửa lỗi không hiển thị Wall do HTML.",
-             "Sửa lỗi lag khi mở panel thông tin nhóm."
-        ],
-        // imageUrl: "link_anh_minh_hoa_1.1.0.jpg" // Có thể có hoặc không
-    },
-     {
-        version: "1.0.0",
-        date: "15/10/2025",
-        description: [
-            "Phiên bản ra mắt đầu tiên của Qola Chat.",
-            "Hỗ trợ chat riêng, chat nhóm cơ bản.",
-            "Đăng nhập/Đăng ký bằng Firebase Auth.",
-        ],
-        imageUrl: "https://via.placeholder.com/400x150/2563eb/ffffff?text=Qola+Chat+v1.0"
     }
 ];
 // === KẾT THÚC DỮ LIỆU ===
@@ -1437,6 +1722,52 @@ function initializeAppLogic(user, userData) {
      document.getElementById('message-input').disabled = false;
      document.getElementById('message-input').placeholder = "Nhập tin nhắn...";
      document.getElementById('sidebar').style.pointerEvents = 'auto';
+}
+
+async function submitBugReport() {
+    const description = bugDescription.value.trim();
+    const steps = bugSteps.value.trim();
+    // const screenshotFile = bugScreenshot.files[0];
+
+    if (!description) {
+        showToast("Vui lòng mô tả lỗi bạn gặp phải.", "error");
+        return;
+    }
+
+    submitBugReportBtn.disabled = true;
+    submitBugReportBtn.textContent = "Đang gửi...";
+
+    try {
+        // let screenshotUrl = null;
+        // if (screenshotFile) {
+        //     showToast("Đang tải ảnh chụp màn hình...", "info");
+        //     screenshotUrl = await uploadImage(screenshotFile); // Cần có hàm uploadImage
+        // }
+
+        await addDoc(collection(db, "bug_reports"), {
+            userId: currentUser?.uid || "unknown",
+            email: currentUser?.email || "unknown",
+            description: description,
+            stepsToReproduce: steps || null,
+            // screenshotUrl: screenshotUrl,
+            timestamp: serverTimestamp(),
+            userAgent: navigator.userAgent,
+            appVersion: "1.0" // Cập nhật version app của cậu
+        });
+
+        showToast("Đã gửi báo cáo lỗi! Cảm ơn bạn.", "success");
+        reportBugModal.style.display = 'none';
+        bugDescription.value = '';
+        bugSteps.value = '';
+        // bugScreenshot.value = '';
+
+    } catch (error) {
+        console.error("Lỗi gửi báo cáo lỗi:", error);
+        showToast("Gửi báo cáo thất bại: " + error.message, "error");
+    } finally {
+        submitBugReportBtn.disabled = false;
+        submitBugReportBtn.textContent = "Gửi báo cáo";
+    }
 }
 
 // --- Core App Logic ---
@@ -1460,6 +1791,31 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     const userData = userDocSnap.data();
+// --- FETCH REMOTE CONFIG ---
+    try {
+        await fetchAndActivate(remoteConfig);
+        console.log("Remote Config fetched and activated!");
+
+        // KIỂM TRA BẢO TRÌ NGAY LẬP TỨC
+        const isInMaintenance = getBoolean(remoteConfig, "is_maintenance_mode");
+        if (isInMaintenance) {
+            // Hiện thông báo bảo trì LỚN (sẽ làm ở bước 2)
+            showMaintenancePopup(); // Gọi hàm sẽ tạo ở dưới
+            // Vô hiệu hóa chat (ví dụ)
+            if (messageInput) messageInput.disabled = true;
+            if (sendBtn) sendBtn.disabled = true;
+            // Có thể return ở đây để dừng không load chat/friend list
+            // return;
+        } else {
+             // Xử lý thông báo popup (sẽ làm ở bước 2)
+             handleAnnouncementPopup();
+        }
+
+    } catch (err) {
+        console.error("Lỗi fetch Remote Config:", err);
+        // Có thể hiện thông báo lỗi nhẹ nhàng nếu cần
+    }
+    // --- KẾT THÚC FETCH --
 
     // 3. Kiểm tra bị "xóa mềm" (như cũ)
     if (userData.isDeactivated === true) {
@@ -1555,6 +1911,51 @@ onAuthStateChanged(auth, async (user) => {
         initializeAppLogic(user, userData);
     }
 });
+
+function handleAnnouncementPopup() {
+    const show = getBoolean(remoteConfig, "show_announcement");
+    if (show && announcementOverlay) {
+        const title = getValue(remoteConfig, "announcement_title").asString();
+        const message = getValue(remoteConfig, "announcement_message").asString();
+        const imageUrl = getValue(remoteConfig, "announcement_image_url").asString();
+
+        if (announcementTitle) announcementTitle.textContent = title || "Thông báo";
+        if (announcementText) announcementText.textContent = message;
+
+        if (imageUrl && announcementImage) {
+            announcementImage.src = imageUrl;
+            announcementImage.style.display = 'block';
+        } else if (announcementImage) {
+            announcementImage.style.display = 'none';
+        }
+
+        announcementOverlay.classList.add('show'); // Hiện popup với hiệu ứng
+    }
+}
+// Gọi hàm này trong onAuthStateChanged sau khi fetch config thành công và không phải maintenance mode
+
+function showMaintenancePopup() {
+    // Dùng lại popup thông báo để hiện tin bảo trì
+    if (announcementOverlay) {
+         // Lấy thông báo bảo trì từ Remote Config hoặc hardcode
+         // Ví dụ: Lấy từ config key "maintenance_message"
+         const maintenanceMsg = getValue(remoteConfig, "maintenance_message")?.asString() || "Ứng dụng đang được bảo trì. Vui lòng quay lại sau.";
+         const maintenanceTitle = "Thông báo bảo trì";
+
+         if (announcementTitle) announcementTitle.textContent = maintenanceTitle;
+         if (announcementText) announcementText.textContent = maintenanceMsg;
+         if (announcementImage) announcementImage.style.display = 'none'; // Ẩn ảnh
+
+         // Không cho đóng popup bảo trì (hoặc cho đóng tùy ý)
+         if (closeAnnouncementBtn) closeAnnouncementBtn.style.display = 'none'; // Ẩn nút đóng
+
+         announcementOverlay.classList.add('show');
+    } else {
+         // Fallback nếu không có popup: dùng alert
+         alert("Ứng dụng đang bảo trì. Vui lòng quay lại sau.");
+    }
+}
+// Gọi hàm này trong onAuthStateChanged nếu is_maintenance_mode là true
 
 // === LOGIC CHO CHANGELOG MODAL ===
 
@@ -1829,6 +2230,65 @@ function attachEventListeners() {
     const messageContextMenu = document.getElementById('message-context-menu');
     let wallLoaded = false;
 
+    // --- SỰ KIỆN CHO NÚT BACK TRÊN MOBILE ---
+    const mobileBackBtn = document.getElementById('mobile-back-btn');
+    if (mobileBackBtn) {
+        mobileBackBtn.onclick = () => {
+            document.body.classList.remove('mobile-chat-active'); // Xóa class để quay lại
+            // Tùy chọn: Đóng cả info panel nếu nó đang mở
+            chatInfoPanel.classList.remove('open');
+        };
+    }
+    // Bên trong hàm attachEventListeners()
+
+if (openAboutModalBtn) {
+    openAboutModalBtn.onclick = () => {
+        if (aboutModal) aboutModal.style.display = 'flex';
+        const navSettingsMenu = document.getElementById('nav-settings-menu');
+         if(navSettingsMenu) navSettingsMenu.style.display = 'none';
+    };
+}
+if (closeAboutModalBtn) {
+    closeAboutModalBtn.onclick = () => {
+        if (aboutModal) aboutModal.style.display = 'none';
+    };
+}
+// Đóng modal khi bấm ra ngoài
+if (aboutModal) {
+     aboutModal.onclick = (e) => {
+          if (e.target === aboutModal) {
+               aboutModal.style.display = 'none';
+          }
+     };
+}
+
+    if (openReportBugModalBtn) {
+    openReportBugModalBtn.onclick = () => {
+        if (reportBugModal) reportBugModal.style.display = 'flex';
+         const navSettingsMenu = document.getElementById('nav-settings-menu');
+         if(navSettingsMenu) navSettingsMenu.style.display = 'none';
+    };
+}
+if (cancelReportBugBtn) {
+    cancelReportBugBtn.onclick = () => {
+        if (reportBugModal) reportBugModal.style.display = 'none';
+        if(bugDescription) bugDescription.value = '';
+        if(bugSteps) bugSteps.value = '';
+    };
+}
+if (submitBugReportBtn) {
+    submitBugReportBtn.onclick = submitBugReport;
+}
+if (reportBugModal) {
+     reportBugModal.onclick = (e) => {
+          if (e.target === reportBugModal) {
+               reportBugModal.style.display = 'none';
+                if(bugDescription) bugDescription.value = '';
+                if(bugSteps) bugSteps.value = '';
+          }
+     };
+}
+
     // Bên trong hàm attachEventListeners()...
 navButtons.forEach(button => {
     button.onclick = (e) => {
@@ -1892,6 +2352,21 @@ navButtons.forEach(button => {
         if(navSettingsMenu) navSettingsMenu.style.display = 'none';
     }; // Kết thúc onclick
 }); // Kết thúc forEach
+// Trong attachEventListeners()
+if (closeAnnouncementBtn && announcementOverlay) {
+    closeAnnouncementBtn.onclick = () => {
+        announcementOverlay.classList.remove('show');
+    };
+    // Tùy chọn: Đóng khi bấm ra ngoài popup
+    announcementOverlay.onclick = (e) => {
+        if (e.target === announcementOverlay) {
+             // Chỉ đóng nếu không phải popup bảo trì (nút đóng bị ẩn)
+             if (closeAnnouncementBtn && closeAnnouncementBtn.style.display !== 'none') {
+                  announcementOverlay.classList.remove('show');
+             }
+        }
+    };
+}
 
     navAvatar.onclick = (e) => {
         e.stopPropagation();
@@ -2111,7 +2586,14 @@ function loadFriendsAndGroups(){
             </div>
           </div>
           <div class="status" id="st-${uid}"></div>`;
-        li.onclick = () => startDirectChat(u);
+        li.onclick = (event) => {
+            // event.preventDefault(); // Tạm thời bỏ dòng này nếu có
+            if (window.innerWidth <= 768) {
+                window.location.assign(`chat.html?chat=${u.uid}`); // Dùng assign()
+            } else {
+                startDirectChat(u); // Gọi hàm cũ cho PC
+            }
+        };
         friendList.appendChild(li);
         onValue(ref(rtdb,`/status/${uid}`),(s)=>{
           const el=document.getElementById(`st-${uid}`); if(!el) return;
@@ -2147,16 +2629,24 @@ function loadFriendsAndGroups(){
         const g=d.data();
         const groupId = d.id;
         const li=document.createElement('li');
+        const avatarSrc = g.avatarUrl || `https://placehold.co/40x40/0af/fff?text=${g.groupName ? g.groupName[0].toUpperCase() : 'G'}`; // Thêm fallback nếu groupName rỗng
         li.className='item clickable';
         li.innerHTML=`
             <div class="item-left">
-                <img class="result-avatar" src="https://placehold.co/40x40/0af/fff?text=${g.groupName[0]}">
+                <img class="result-avatar" src="${avatarSrc}">
                 <div style="min-width: 0;">
-                    <div class="item-name">👥 ${g.groupName}</div>
+                    <div class="item-name">${g.groupName}</div>
                     <div class="item-last-msg" id="last-msg-${groupId}"></div>
                 </div>
             </div>`;
-        li.onclick=()=> startGroupChat(groupId, g.groupName);
+        li.onclick = (event) => {
+            // event.preventDefault(); // Tạm thời bỏ dòng này nếu có
+            if (window.innerWidth <= 768) {
+                window.location.assign(`chat.html?chat_group=${groupId}`); // Dùng assign()
+            } else {
+                startGroupChat(groupId, g.groupName); // Gọi hàm cũ cho PC
+            }
+        };
         groupList.appendChild(li);
         const lastMsgQuery = rtdbQuery(ref(rtdb, `/messages/${groupId}`), orderByChild('timestamp'), limitToLast(1));
         onValue(lastMsgQuery, (snap) => {
@@ -2179,9 +2669,15 @@ function loadFriendsAndGroups(){
       });
     });
 }
+
 async function startDirectChat(friend) {
     if (!friend || !friend.uid) return;
 
+    // --- LOGIC MỚI ---
+    if (window.innerWidth <= 768) {
+        window.location.href = `chat.html?chat=${friend.uid}`;
+        return; 
+    }
     const friendDoc = await getDoc(doc(db, 'users', friend.uid));
     if (!friendDoc.exists()) {
         return showToast("Không tìm thấy người dùng này.", "error");
@@ -2191,45 +2687,51 @@ async function startDirectChat(friend) {
     currentChatPeerData = friendData;
 
     let isChatActive = true;
-    let inactiveReason = ""; // Biến lưu lý do
+    let inactiveReason = ""; 
 
-    // --- LOGIC MỚI BẮT ĐẦU TỪ ĐÂY ---
     if (currentUserData.blocked?.includes(friend.uid)) {
-        // Trường hợp 1: MÌNH chặn HỌ
         inactiveReason = "Bạn đã chặn người này. Hãy bỏ chặn để tiếp tục nhắn tin.";
         isChatActive = false;
     } else if (friendData?.blocked?.includes(currentUser.uid)) {
-        // Trường hợp 2: HỌ chặn MÌNH
         inactiveReason = "Bạn không thể gửi tin nhắn cho người này.";
         isChatActive = false;
     } else if (friendData.isDeactivated === true) {
-        // Trường hợp 3: Tài khoản của họ bị khóa
         inactiveReason = "Không thể gửi tin nhắn cho người này.";
         isChatActive = false;
     } else {
-        // Mọi thứ bình thường
         isChatActive = true;
     }
-    // --- KẾT THÚC LOGIC MỚI ---
-
+    
     const uids = [currentUser.uid, friend.uid].sort();
     const chatId = uids.join('_');
     currentFriendUid = friend.uid;
 
-    // Cập nhật lại text cho ô thông báo
-    inactiveChatIndicator.textContent = inactiveReason;
     openChat({ id: chatId, name: friendData.displayName || friendData.email, type: 'direct', isActive: isChatActive });
 
     history.replaceState(null, '', `?chat=${friend.uid}`);
 }
+
+// GHI ĐÈ LUÔN HÀM NÀY (bắt đầu khoảng dòng 1503)
 function startGroupChat(groupId, groupName){
+    
+    // --- LOGIC MỚI ---
+    if (window.innerWidth <= 768) {
+        // Nếu là mobile, CHUYỂN TRANG
+        window.location.href = `chat.html?chat_group=${groupId}`;
+        return; // Dừng hàm ở đây
+    }
+    // --- KẾT THÚC LOGIC MỚI ---
+
+    // Nếu là PC, chạy code cũ
     if (!sessionStorage.getItem('groupBetaWarningShown')) {
         showToast('Tính năng Nhóm đang trong giai đoạn thử nghiệm (Beta)...');
         sessionStorage.setItem('groupBetaWarningShown', 'true');
     }
     currentFriendUid = null;
     currentChatPeerData = null;
+
     openChat({id:groupId, name:groupName, type:'group', isActive: true});
+    
     history.replaceState(null, '', `?chat_group=${groupId}`);
 }
 // === HÀM openChat (HOÀN CHỈNH - ĐÃ XÓA LOGIC MUTE) ===
@@ -2520,6 +3022,11 @@ function listenForNotifications_Optimized() {
     });
 }
 async function sendMessage() {
+    const isInMaintenance = getBoolean(remoteConfig, "is_maintenance_mode");
+    if (isInMaintenance) {
+        showToast("Ứng dụng đang bảo trì, không thể gửi tin nhắn.", "error");
+        return; // Không cho gửi
+    }
     const text = messageInput.value.trim();
     if (!text && !selectedImageFile && !replyingTo) return;
     if (!currentChatId) return;
@@ -3164,7 +3671,7 @@ async function showFriendInfo(friendUid) {
                      openInfoBtn.style.display = 'none'; // Ẩn nút info
                      document.getElementById('toggle-mute-btn-friend').style.display = 'none'; // Ẩn nút mute
                  }
-                 // loadFriendsAndGroups(); // Không cần load lại, onSnapshot tự cập nhật sidebar
+                 loadFriendsAndGroups(); // Không cần load lại, onSnapshot tự cập nhật sidebar
             } catch(error) { console.error("Lỗi khi xóa bạn:", error); showToast("Có lỗi xảy ra khi xóa bạn."); }
         }
     };
@@ -3385,7 +3892,7 @@ async function showGroupInfo(groupId) {
                  // Logic tạo nút Kick/Promote/Demote
                  if (myRole === 'admin' && uid !== currentUser.uid) {
                      actionButtons += `<button data-action="kick" data-uid="${uid}">Kick</button>`;
-                     switch (memberRole) { case 'member': actionButtons += `<button data-action="promote-mod" data-uid="${uid}">Phong Phó</button>`; break; case 'moderator': actionButtons += `<button data-action="demote-member" data-uid="${uid}">Giáng</button>`; break; }
+                     switch (memberRole) { case 'member': actionButtons += `<button data-action="promote-mod" data-uid="${uid}">Bổ Nhiệm Phó Nhóm</button>`; break; case 'moderator': actionButtons += `<button data-action="demote-member" data-uid="${uid}"?</button>`; break; }
                  } else if (myRole === 'moderator' && memberRole === 'member') { actionButtons += `<button data-action="kick" data-uid="${uid}">Kick</button>`; }
                  const li = document.createElement('li'); li.className = 'member-item';
                  li.innerHTML = `<div class="member-info"><span class="member-name">${userData.displayName || userData.email}</span><span class="member-role ${roleClass[memberRole]}">${roleLabels[memberRole]}</span></div><div class="member-actions">${actionButtons}</div>`;
