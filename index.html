@@ -1012,6 +1012,8 @@ opacity: 0.7;
 }
 /* === KHỐI FIX MOBILE MỚI (DÙNG DISPLAY:NONE) === */
 
+
+
 /* 1. Ẩn nút back trên PC (mặc định) */
 #mobile-back-btn {
     display: none;
@@ -1155,7 +1157,291 @@ opacity: 0.7;
     #chat-info-panel {
         display: none !important; /* Ép ẩn luôn */
     }
+
+    /* === FIX MENU SETTINGS TRÊN MOBILE (Trong @media) === */
+@media (max-width: 768px) {
+    #nav-settings-menu {
+        position: fixed; /* Giữ menu cố định khi cuộn */
+        bottom: 70px; /* Cách đáy 70px (60px nav + 10px hở) */
+        left: auto; /* Bỏ căn lề trái */
+        right: 15px; /* Căn lề phải 15px */
+        width: 200px; /* Chiều rộng menu */
+        z-index: 1010 !important; /* Đảm bảo nằm trên cùng */
+        background: var(--glass-3); /* Nền mờ (giữ style cũ) */
+        backdrop-filter: blur(18px); /* Độ mờ (giữ style cũ) */
+        border: 1px solid var(--glass-border); /* Viền (giữ style cũ) */
+        border-radius: 12px; /* Bo góc (giữ style cũ) */
+        padding: 10px; /* Padding (giữ style cũ) */
+        box-shadow: var(--shadow); /* Bóng đổ (giữ style cũ) */
+        display: none; /* Mặc định ẩn, JS sẽ đổi thành 'block' */
+    }
 }
+
+/* --- Style gốc của menu (cho PC và làm nền tảng) --- */
+#nav-settings-menu {
+    position: absolute; /* Hoặc fixed tùy thiết kế PC */
+    bottom: 75px; /* Vị trí mặc định trên PC */
+    left: 80px; /* Vị trí mặc định trên PC */
+    width: 220px; /* Chiều rộng mặc định */
+    display: none;
+    background: var(--glass-3);
+    backdrop-filter: blur(18px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: var(--shadow);
+    z-index: 101; /* z-index cho PC */
+}
+
+/* Style cho các dòng bên trong menu (giữ nguyên) */
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 10px;
+    cursor: pointer; /* Thêm cursor pointer nếu thiếu */
+}
+.settings-row:hover {
+    background: var(--glass);
+}
+.light #nav-settings-menu .settings-row {
+    color: var(--text-primary);
+}
+}
+
+/* === TOÀN BỘ CSS CHO MOBILE (max-width: 768px) === */
+@media (max-width: 768px) {
+
+    /* --- Body & Layout Chính --- */
+    body {
+        padding: 0; /* Full màn hình */
+        align-items: stretch; /* Container full height */
+    }
+    .app-main {
+         /* Thêm đệm 60px để không bị nav đáy che */
+        padding-bottom: 60px !important;
+    }
+    /* Ẩn thanh nav dọc gốc */
+    /* .app-nav { display: none; } */ /* Không cần ẩn hoàn toàn, chỉ sửa style */
+
+
+    /* --- Nav Đáy --- */
+    .app-nav {
+        display: flex !important; /* Bắt buộc */
+        flex-direction: row !important; /* Nằm ngang */
+        align-items: center; /* Căn giữa chiều dọc */
+        width: 100%;
+        height: 60px;
+        position: fixed; /* Ghim cứng ở đáy */
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        padding: 0 15px; /* Tăng padding ngang chút */
+        background: var(--glass-3);
+        backdrop-filter: blur(18px);
+        border-top: 1px solid var(--glass-border);
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Avatar bên trái nav đáy */
+    .app-nav .nav-avatar {
+        display: block; /* Đổi thành block */
+        width: 40px !important; /* Kích thước cố định */
+        height: 40px !important;
+        margin: 0;
+        padding: 0;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid transparent;
+        transition: border-color 0.2s ease;
+        flex-shrink: 0; /* Ngăn co lại */
+        cursor: pointer; /* Thêm con trỏ */
+    }
+    .app-nav .nav-avatar img { /* Ảnh bên trong avatar */
+         display: block;
+         width: 100%;
+         height: 100%;
+         object-fit: cover;
+         border-radius: 50%;
+    }
+    .app-nav .nav-avatar:hover {
+        border-color: var(--glass);
+    }
+
+    /* Các nút Chat, Wall (chiếm phần còn lại) */
+    .app-nav .nav-button {
+        flex: 1; /* Chia đều không gian còn lại */
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-secondary);
+        border-radius: 12px;
+        transition: background-color 0.2s ease, color 0.2s ease;
+        background-color: transparent; /* Đảm bảo nền trong suốt ban đầu */
+        border: none; /* Bỏ border mặc định */
+        cursor: pointer;
+    }
+    .app-nav .nav-button:hover {
+         background-color: var(--glass);
+         color: var(--text);
+    }
+    .app-nav .nav-button.active {
+        background-color: var(--accent-1);
+        color: #fff;
+    }
+    .app-nav .nav-button.active::before { /* Bỏ gạch chân */
+        display: none;
+    }
+    .app-nav .nav-button svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    /* Bỏ spacer */
+    .app-nav .nav-spacer { display: none !important; }
+
+    /* --- Menu Settings Popup (Phía trên Avatar trái) --- */
+    #nav-settings-menu {
+        position: fixed !important;
+        bottom: 70px !important; /* Cách đáy 70px */
+        left: 15px !important; /* Căn trái 15px */
+        right: auto !important; /* Bỏ căn phải */
+        width: 200px !important; /* Giới hạn chiều rộng */
+        z-index: 1010 !important; /* Nằm trên cùng */
+        display: none; /* JS sẽ đổi thành block */
+        /* Style nền, viền giữ nguyên */
+        background: var(--glass-3);
+        backdrop-filter: blur(18px);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 10px;
+        box-shadow: var(--shadow);
+        top: auto !important; /* Đảm bảo không bị top ghi đè */
+    }
+
+    /* --- Layout Sidebar / Chat Window (Cho index.html) --- */
+    /* Container chính của view chat */
+     .chat-view .container#app {
+        width: 100% !important; /* Luôn là 100% */
+        height: 100%;
+        display: flex !important; /* Bắt buộc flex */
+        /* Bỏ transition và transform nếu không dùng kiểu trượt */
+        /* transition: none; */
+        /* transform: none; */
+     }
+
+    /* Sidebar và Chat Window chiếm full width */
+    .chat-view #sidebar,
+    .chat-view #chat-window {
+        width: 100% !important;
+        max-width: none !important;
+        height: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        border-right: none;
+        flex-shrink: 0; /* Quan trọng */
+    }
+
+     /* --- Placeholder Chat --- */
+     #chat-placeholder {
+         flex-grow: 1;
+         display: flex; /* Mặc định hiện */
+         flex-direction: column;
+         align-items: center;
+         justify-content: center;
+         text-align: center;
+         color: var(--text-secondary);
+         font-size: 16px;
+         padding: 20px;
+     }
+
+    /* --- Logic Ẩn/Hiện Sidebar & Chat Window --- */
+    /* Mặc định trên mobile: Chỉ hiện Sidebar */
+    body:not(.mobile-chat-active) .chat-view #chat-window {
+        display: none !important;
+    }
+     body:not(.mobile-chat-active) .chat-view #chat-placeholder {
+        display: none !important; /* Ẩn placeholder khi ở sidebar */
+    }
+    body:not(.mobile-chat-active) .chat-view #sidebar {
+        display: flex !important; /* Hiện sidebar */
+    }
+
+    /* Khi bấm vào chat (có class mobile-chat-active): Chỉ hiện Chat Window */
+    body.mobile-chat-active .chat-view #sidebar {
+        display: none !important; /* Ẩn sidebar */
+    }
+    body.mobile-chat-active .chat-view #chat-window {
+        display: flex !important; /* Hiện chat window */
+    }
+     /* Ẩn placeholder khi chat window hiện */
+     body.mobile-chat-active .chat-view #chat-placeholder {
+        display: none !important;
+    }
+
+    /* --- Nút Back trong Chat Header (Mobile) --- */
+    /* Nút này chỉ có ý nghĩa nếu cậu dùng logic ẩn/hiện trên index.html */
+    /* Nếu cậu dùng 2 file riêng thì không cần nút này ở index.html */
+    #mobile-back-btn {
+        display: flex; /* Hiện nút back */
+        background: transparent; border: none; color: var(--text); cursor: pointer;
+        padding: 6px; border-radius: 10px; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    #mobile-back-btn:hover { background: var(--glass); }
+
+
+    /* --- Tinh chỉnh Header Chat Window (Mobile) --- */
+    #chat-header {
+        padding-bottom: 8px;
+        gap: 8px;
+        /* visibility: visible !important; */ /* Đảm bảo header hiện khi chat active */
+    }
+    #chat-header #current-chat-friend-name {
+        font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    /* Hiện các nút Info trên header chat */
+     #chat-header #open-info-btn,
+     #chat-header #group-info-btn {
+        display: block !important; /* Bỏ display:none nếu có */
+        padding: 8px; /* Giữ padding nhỏ */
+     }
+
+
+    /* --- Tinh chỉnh Input Chat (Mobile) --- */
+    .chat-input { gap: 8px; align-items: flex-end; }
+    #message-input { padding: 10px 12px; margin: 0; flex: 1; transition: none; }
+    .image-upload-label { padding: 10px 14px; }
+    #send-btn {
+        display: none; width: 44px; height: 44px; padding: 0; margin: 0;
+        border-radius: 50%; flex-shrink: 0; align-items: center; justify-content: center;
+    }
+    .chat-input.has-text #send-btn { display: flex !important; }
+    .chat-input.has-text #send-btn:not(.loading) .send-icon { display: block !important; margin: auto; }
+    .chat-input.has-text #send-btn:not(.loading) .spinner-icon { display: none !important; }
+    #send-btn.loading .send-icon { display: none !important; }
+    #send-btn.loading .spinner-icon { display: block !important; margin: auto; animation: spin 1.2s linear infinite; }
+
+
+    /* --- Ẩn Panel Info Bên Phải (Mobile) --- */
+    #chat-info-panel {
+        display: none !important; /* Ẩn hoàn toàn */
+    }
+    /* Ẩn nút friend request nếu chiếm chỗ */
+    #open-friend-req-btn { display: none; }
+
+    /* --- Tối ưu Modals (Mobile) --- */
+    .modal-content { width: min(90vw, 420px); /* Hẹp hơn */ padding: 20px 25px; }
+    .modal-content h2 { font-size: 20px; }
+    .modal-actions button { font-size: 15px; padding: 10px 18px; }
+
+} /* Kết thúc @media */
+
+
+
 
 
 /* === KẾT THÚC KHỐI FIX MỚI === */
@@ -1164,6 +1450,7 @@ opacity: 0.7;
 <body>
 
 <nav class="app-nav">
+    <img id="nav-avatar" class="nav-avatar" src="https://placehold.co/48x48" alt="avatar" title="Cài đặt & Hồ sơ">
     <button class="nav-button active" data-view="chat" title="Trò chuyện">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
     </button>
@@ -1171,7 +1458,7 @@ opacity: 0.7;
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
     </button>
     <div class="nav-spacer"></div>
-    <img id="nav-avatar" class="nav-avatar" src="https://placehold.co/48x48" alt="avatar" title="Cài đặt & Hồ sơ">
+    
     <div class="settings-menu" id="nav-settings-menu">
     <div class="settings-row clickable" id="go-to-profile">Cá nhân</div>
     <div class="settings-row clickable" id="show-changelog-btn">Nhật ký thay đổi</div>
