@@ -200,7 +200,7 @@ a:hover { text-decoration: underline; } /* Thêm hover effect */
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -318,35 +318,111 @@ loginBtn.onclick = async () => {
     loginBtn.classList.remove('loading'); loginBtn.disabled = false;
 };
 
+// --- HÀM ĐĂNG KÝ (Sử dụng Vercel Function) ---
+// --- HÀM ĐĂNG KÝ HOÀN CHỈNH (Sử dụng Vercel Function + Tự Đăng Nhập) ---
+// --- HÀM ĐĂNG KÝ HOÀN CHỈNH (Đã sửa lỗi password is not defined) ---
 signupBtn.onclick = async () => {
-    const username = document.getElementById('signupUsername').value.trim().toLowerCase();
-    const email = document.getElementById('signupEmail').value.trim();
-    const pass = document.getElementById('signupPassword').value.trim();
+    // 1. Lấy dữ liệu từ input
+    const usernameInput = document.getElementById('signupUsername');
+    const emailInput = document.getElementById('signupEmail');
+    const passwordInput = document.getElementById('signupPassword');
 
-    if (!username || !email || !pass) return showToast('Vui lòng điền đủ Username, Email, Mật khẩu!', 'error');
-    if (username.length < 3) return showToast('Username phải ít nhất 3 ký tự!', 'error');
-    if (/\s/.test(username) || !/^[a-z0-9_.]+$/.test(username)) return showToast('Username chỉ chứa chữ thường, số, chấm, gạch dưới!', 'error');
+    const username = usernameInput.value.trim().toLowerCase();
+    const email = emailInput.value.trim();
+    const pass = passwordInput.value.trim(); // Biến này tên là 'pass'
 
-    signupBtn.classList.add('loading'); signupBtn.disabled = true;
+    // 2. Kiểm tra input cơ bản phía client
+    if (!username || !email || !pass) {
+        showToast('Vui lòng điền đủ Username, Email, Mật khẩu!', 'error');
+        return;
+    }
+    if (username.length < 3) {
+        showToast('Username phải có ít nhất 3 ký tự!', 'error');
+        return;
+    }
+    if (/\s/.test(username) || !/^[a-z0-9_.]+$/.test(username)) {
+        showToast('Username chỉ chứa chữ thường không dấu, số, chấm, gạch dưới!', 'error');
+        return;
+    }
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+         showToast('Địa chỉ email không hợp lệ.', 'error');
+         return;
+    }
+     if (pass.length < 6) {
+         showToast('Mật khẩu phải có ít nhất 6 ký tự.', 'error');
+         return;
+     }
+
+    // 3. Bật trạng thái loading
+    signupBtn.classList.add('loading');
+    signupBtn.disabled = true;
 
     try {
-        const usersRef = collection(db, "users");
-        const qUsername = query(usersRef, where("username", "==", username));
-        const usernameSnapshot = await getDocs(qUsername);
-        if (!usernameSnapshot.empty) throw { code: 'auth/username-already-in-use' };
+        // 4. Gọi Vercel Function để thực hiện đăng ký phía server
+        const registerFunctionUrl = 'https://qola-functions.vercel.app/api/register'; // Đảm bảo URL đúng
 
-        const { user } = await createUserWithEmailAndPassword(auth, email, pass);
-        await setDoc(doc(db, 'users', user.uid), {
-            uid: user.uid, email: user.email, username: username,
-            displayName: username, bio: '',
-            avatarUrl: `https://placehold.co/120x120?text=${username[0].toUpperCase()}`,
-            coverUrl: '', friends: [], blocked: [], needsSetup: true,
-            createdAt: serverTimestamp()
+        console.log('Calling Vercel function to register...');
+        const response = await fetch(registerFunctionUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ // Gửi data trong body
+                username: username, // Có thể gửi username gốc nếu cần
+                email: email,
+                password: pass // <<< SỬA Ở ĐÂY: Dùng biến 'pass'
+            }),
         });
-    } catch (e) { showToast(getFriendlyErrorMessage(e), 'error', e); }
 
-    signupBtn.classList.remove('loading'); signupBtn.disabled = false;
+        // 5. Xử lý kết quả từ Vercel Function
+        let result;
+        try {
+             result = await response.json();
+        } catch (jsonError) {
+             console.error("Failed to parse JSON response:", response.status, response.statusText);
+             throw new Error(`Lỗi ${response.status}: Không thể xử lý phản hồi.`);
+        }
+
+        if (!response.ok) {
+            console.error("Vercel function returned error:", response.status, result);
+            throw new Error(result.error || `Lỗi ${response.status} khi đăng ký.`);
+        }
+
+        // 6. Nếu Vercel Function thành công -> Tự động đăng nhập client
+        console.log("Registration via function successful. Attempting client-side sign in...");
+        try {
+            await signInWithEmailAndPassword(auth, email, pass);
+            console.log("Client-side sign in successful after registration.");
+            // onAuthStateChanged sẽ chuyển trang
+        } catch (signInError) {
+            console.error("Error signing in automatically after registration:", signInError);
+            showToast("Đăng ký thành công nhưng đăng nhập tự động thất bại. Vui lòng thử đăng nhập lại.", 'error');
+            switchTab('login');
+        }
+
+    } catch (error) {
+        // --- XỬ LÝ LỖI VÀ HIỂN THỊ THÔNG BÁO THÂN THIỆN ---
+        console.error("Registration failed overall:", error);
+        let friendlyMessage = "Đăng ký thất bại. Vui lòng thử lại."; // Mặc định
+        const errorMessage = error.message || "";
+        if (errorMessage.includes('IP address registration limit reached')) { friendlyMessage = "Địa chỉ IP này đã đạt giới hạn tạo tài khoản (tối đa 3)."; }
+        else if (errorMessage.includes('Email already in use')) { friendlyMessage = "Địa chỉ email này đã được sử dụng."; }
+        else if (errorMessage.includes('Username already in use')) { friendlyMessage = "Tên đăng nhập (username) này đã được sử dụng."; }
+        else if (errorMessage.includes('Password must be at least 6 characters')) { friendlyMessage = "Mật khẩu phải có ít nhất 6 ký tự."; }
+        else if (errorMessage.includes('Could not verify email') || errorMessage.includes('Error verifying email')) { friendlyMessage = "Không thể xác thực email. Vui lòng thử lại sau."; }
+        else if (errorMessage.includes('Could not create user account') || errorMessage.includes('Failed to create Auth user')) { friendlyMessage = "Không thể tạo tài khoản người dùng. Vui lòng thử lại."; }
+        else if (errorMessage.includes('Failed to fetch')) { friendlyMessage = "Không thể kết nối đến máy chủ đăng ký. Vui lòng kiểm tra mạng và thử lại."; }
+        else if (errorMessage.startsWith('Lỗi 4') || errorMessage.startsWith('Lỗi 5')) { friendlyMessage = errorMessage; }
+        showToast(friendlyMessage, 'error');
+        // --- KẾT THÚC XỬ LÝ LỖI ---
+    } finally {
+        // 7. Luôn bỏ trạng thái loading
+        signupBtn.classList.remove('loading');
+        signupBtn.disabled = false;
+    }
 };
+
+
 
 resetPasswordBtn.onclick = async () => {
     const email = document.getElementById('forgotEmail').value.trim();
