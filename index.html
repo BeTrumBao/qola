@@ -507,6 +507,351 @@ hr.changelog-divider { border: none; height: 1px; background-color: var(--glass-
 .light .message-link:hover {
      color: #0056b3;
 }
+/* --- CSS CHO THÔNG TIN APP DƯỚI NAV --- */
+#app-info {
+    padding: 10px 8px; /* Khoảng cách xung quanh text */
+    font-size: 10px; /* Cỡ chữ nhỏ */
+    color: var(--text-secondary); /* Màu chữ phụ */
+    text-align: center; /* Căn giữa chữ */
+    line-height: 1.4; /* Giãn dòng */
+    word-break: break-all; /* Tự xuống dòng nếu UID quá dài */
+    margin-bottom: 5px; /* Khoảng cách nhỏ với avatar */
+}
+
+/* Đẩy Avatar lên một chút */
+.app-nav .nav-avatar {
+    margin-bottom: 5px; /* Thay vì 10px mặc định */
+}
+
+/* Đẩy menu settings lên tương ứng (nếu cần) */
+#nav-settings-menu {
+     bottom: 65px; /* Tăng bottom lên một chút (thay vì 75px) */
+     /* Kiểm tra lại vị trí trên mobile nếu cần */
+}
+
+/* Responsive cho mobile (đẩy menu lên cao hơn nữa) */
+@media (max-width: 768px) {
+    #app-info {
+        display: none; /* Ẩn thông tin này trên mobile cho gọn */
+    }
+    .app-nav .nav-avatar {
+        margin-bottom: 0; /* Reset margin bottom avatar trên nav đáy */
+        margin-right: 10px; /* Thêm margin phải để cách nút */
+    }
+    #nav-settings-menu {
+        bottom: 70px !important; /* Vị trí gốc cho mobile */
+        left: 15px !important; /* Vị trí gốc cho mobile */
+    }
+}
+
+/* --- CSS CHO THÔNG TIN APP DƯỚI NAV --- */
+#app-info {
+    padding: 10px 8px;
+    font-size: 10px;
+    color: var(--text-secondary);
+    text-align: center;
+    line-height: 1.4;
+    /* word-break: break-all; */ /* <<< BỎ HOẶC COMMENT DÒNG NÀY */
+    overflow-wrap: break-word; /* <<< THÊM DÒNG NÀY */
+    margin-bottom: 5px;
+}
+
+#user-uid-display {
+    cursor: pointer; /* <<< THÊM CURSOR POINTER */
+    /* Optional: Add hover effect */
+    transition: color 0.2s;
+}
+
+#user-uid-display:hover {
+    color: var(--text-primary); /* Sáng lên khi hover */
+}
+
+/* ... (CSS còn lại giữ nguyên) ... */
+
+/* --- CSS CHO THÔNG TIN APP DƯỚI NAV --- */
+#app-info {
+    padding: 10px 8px;
+    font-size: 10px;
+    color: var(--text-secondary);
+    /* text-align: center; */ /* <<< BỎ HOẶC SỬA THÀNH LEFT */
+    text-align: left;       /* <<< CĂN TRÁI */
+    line-height: 1.4;
+    /* Bỏ word-break và overflow-wrap */
+    /* word-break: break-all; */
+    /* overflow-wrap: break-word; */
+    margin-bottom: 5px;
+    overflow: hidden; /* <<< THÊM DÒNG NÀY ĐỂ TRÁNH TRÀN */
+}
+
+#user-uid-display {
+    cursor: pointer;
+    transition: color 0.2s;
+    /* === THÊM CÁC DÒNG NÀY === */
+    white-space: nowrap;   /* Ngăn xuống dòng */
+    overflow: hidden;      /* Ẩn phần bị tràn */
+    text-overflow: ellipsis; /* Hiện dấu "..." */
+    display: inline-block; /* Cần thiết cho text-overflow */
+    max-width: 100%;       /* Đảm bảo không tràn khỏi #app-info */
+    vertical-align: bottom; /* Căn chỉnh với chữ UID: */
+    /* === KẾT THÚC THÊM === */
+}
+
+#user-uid-display:hover {
+    color: var(--text-primary);
+}
+
+/* ... (CSS còn lại giữ nguyên) ... */
+/* Tìm đoạn CSS này */
+#open-friend-req-btn {
+    position: absolute;
+    /* bottom: 15px; */ /* <<< XÓA HOẶC SỬA DÒNG NÀY */
+    bottom: 55px;     /* <<< THAY BẰNG GIÁ TRỊ CAO HƠN */
+    left: 16px;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    /* ... (các style khác giữ nguyên) ... */
+}
+
+/* --- CSS CHO THÔNG TIN APP (GHIM GÓC DƯỚI TRÁI) --- */
+#app-info {
+    position: fixed;        /* <<< GHIM CỐ ĐỊNH */
+    bottom: 10px;           /* <<< CÁCH ĐÁY 10PX */
+    left: 10px;             /* <<< CÁCH TRÁI 10PX */
+    z-index: 1001;          /* <<< Nằm trên các view nhưng dưới modal */
+
+    /* Style khung nền (giữ nguyên hoặc sửa) */
+    background-color: rgba(0, 0, 0, 0.5); /* Nền tối hơn chút */
+    border-radius: 8px;       /* Bo góc ít hơn */
+    padding: 4px 10px;        /* Padding nhỏ hơn */
+
+    /* Style chữ bên trong */
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    text-align: left;
+
+    /* Cho phép dài ra và có "..." */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px; /* <<< Giới hạn chiều dài tối đa nếu muốn */
+}
+
+#app-info span { /* Style chung cho các span con */
+    color: var(--text);
+    font-weight: 500;
+    vertical-align: middle;
+}
+
+#user-uid-display {
+    cursor: pointer;
+    transition: color 0.2s;
+    /* Không cần style overflow ở đây nữa */
+}
+
+#user-uid-display:hover {
+    color: var(--accent-1);
+}
+
+/* --- ĐIỀU CHỈNH LẠI NAV (NẾU CẦN) --- */
+/* Bỏ margin-bottom của #app-info cũ khỏi avatar */
+.app-nav .nav-avatar {
+     margin-bottom: 40px; /* Trả về margin gốc */
+}
+/* Trả lại vị trí gốc cho menu settings */
+#nav-settings-menu {
+     bottom: 60px;
+     /* CSS mobile cho menu settings vẫn giữ nguyên */
+}
+
+/* Bỏ ẩn #app-info trên mobile nếu muốn hiện */
+/* @media (max-width: 768px) { #app-info { display: none; } } */
+
+/* --- CSS CHO THÔNG TIN APP (SỬA LẠI WIDTH) --- */
+#app-info {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    z-index: 1001;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    /* padding: 6px 12px; */ /* Padding cũ */
+    padding: 4px 10px;        /* <<< GIẢM PADDING */
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.4; /* Giảm line-height chút */
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* max-width: 300px; */ /* Width cũ */
+    max-width: 400px;         /* <<< TĂNG MAX-WIDTH LÊN */
+}
+
+/* --- CSS CHO LIGHTBOX XEM ẢNH (Nâng cấp) --- */
+.lightbox-overlay {
+    position: fixed;
+    inset: 0; /* top: 0; left: 0; right: 0; bottom: 0; */
+    background-color: rgba(0, 0, 0, 0.85); /* Nền đen mờ hơn */
+    backdrop-filter: blur(8px); /* Hiệu ứng mờ nền */
+    display: none; /* Dùng flex khi hiện */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Nằm trên cùng */
+    animation: fadeIn 0.3s ease; /* Giữ animation cũ */
+    user-select: none; /* Chặn bôi đen chữ/nút */
+    -webkit-user-select: none;
+}
+/* Thêm class 'show' để JS dễ dàng điều khiển */
+.lightbox-overlay.show {
+    display: flex;
+}
+
+.lightbox-content {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain; /* Hiển thị toàn bộ ảnh */
+    display: block; /* Để margin auto hoạt động */
+    margin: auto; /* Căn giữa tuyệt đối */
+    border-radius: 5px; /* Bo góc nhẹ cho ảnh */
+    box-shadow: 0 5px 25px rgba(0,0,0,0.4);
+}
+
+.lightbox-close-btn {
+    position: absolute;
+    top: 15px; /* Gần góc hơn */
+    right: 20px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 45px; /* To hơn chút */
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    line-height: 1; /* Căn chuẩn hơn */
+    z-index: 10001; /* Nằm trên nút nav */
+}
+.lightbox-close-btn:hover {
+    color: #fff;
+}
+
+/* === CSS CHO NÚT ĐIỀU HƯỚNG MỚI === */
+.lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 40px; /* Cỡ icon mũi tên */
+    font-weight: bold;
+    padding: 10px 18px; /* Kích thước nút */
+    border-radius: 50%; /* Nút tròn */
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    z-index: 10000; /* Nằm trên ảnh */
+    line-height: 1;
+    display: none; /* Mặc định ẩn, JS sẽ hiện */
+}
+.lightbox-nav:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+.lightbox-nav.prev {
+    left: 20px; /* Vị trí nút Previous */
+}
+.lightbox-nav.next {
+    right: 20px; /* Vị trí nút Next */
+}
+/* === KẾT THÚC CSS NÚT ĐIỀU HƯỚNG === */
+
+/* Giữ keyframes fadeIn */
+@keyframes fadeIn { from { opacity:0; } to {opacity:1; } }
+
+/* Responsive cho nút bấm trên mobile */
+@media (max-width: 768px) {
+    .lightbox-close-btn { font-size: 35px; top: 10px; right: 15px; }
+    .lightbox-nav { font-size: 30px; padding: 8px 14px; }
+    .lightbox-nav.prev { left: 10px; }
+    .lightbox-nav.next { right: 10px; }
+}
+
+.lightbox-overlay.show {
+    display: flex;
+    opacity: 1; /* Thêm opacity để chắc chắn */
+    visibility: visible; /* Thêm visibility */
+}
+/* ... (CSS còn lại giữ nguyên) ... */
+
+/* --- CSS CHO LIGHTBOX XEM ẢNH (Kiểm tra lại) --- */
+.lightbox-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: none; /* << MẶC ĐỊNH LÀ NONE */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* << ĐẢM BẢO Z-INDEX CAO */
+    opacity: 0; /* Thêm opacity để làm hiệu ứng */
+    visibility: hidden; /* Thêm visibility */
+    transition: opacity 0.3s ease, visibility 0.3s ease; /* Hiệu ứng mờ dần */
+}
+
+/* KHI CÓ CLASS 'show' SẼ HIỆN RA */
+.lightbox-overlay.show {
+    display: flex; /* <<< QUAN TRỌNG: ĐỔI THÀNH FLEX */
+    opacity: 1;
+    visibility: visible;
+}
+
+.lightbox-content { /* Ảnh bên trong */
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    display: block;
+    margin: auto;
+    border-radius: 5px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.4);
+}
+
+.lightbox-close-btn { /* Nút đóng */
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 45px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    line-height: 1;
+    z-index: 10001; /* Cao hơn nút nav */
+}
+.lightbox-close-btn:hover { color: #fff; }
+
+.lightbox-nav { /* Nút prev/next */
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 40px;
+    font-weight: bold;
+    padding: 10px 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    z-index: 10000;
+    line-height: 1;
+    display: none; /* JS sẽ quản lý */
+}
+.lightbox-nav:hover { background: rgba(255, 255, 255, 0.2); color: #fff; }
+.lightbox-nav.prev { left: 20px; }
+.lightbox-nav.next { right: 20px; }
+
+/* Animation (Giữ nguyên) */
+/* @keyframes fadeIn { from { opacity:0; } to {opacity:1; } } */ /* Có thể bỏ nếu dùng transition */
+
+/* Responsive (Giữ nguyên) */
+@media (max-width: 768px) { /* ... */ }
 
 </style>
 </head>
@@ -534,13 +879,23 @@ hr.changelog-divider { border: none; height: 1px; background-color: var(--glass-
     </div>
 </nav>
 
+<div id="app-info">
+    <span>UID: </span><span id="user-uid-display" title="Click để sao chép UID">Đang tải...</span>
+    <span>&nbsp;Ver: </span><span id="app-version-display">?.?</span>
+    <span>&nbsp;</span><span id="utc-time-display">--:--:-- UTC+0</span>
+</div>
+
 <div class="app-layout">
     <main class="app-main">
 
         <div class="app-view chat-view active" data-view="chat">
             <div id="toast" style="display:none;"><div id="toast-message"></div><button id="toast-close-btn">OK</button></div>
             <div id="message-context-menu" style="display:none;"></div>
-            <div id="image-lightbox" class="lightbox-overlay"><span class="lightbox-close-btn">&times;</span><img class="lightbox-content" id="lightbox-img"></div>
+        <div id="image-lightbox" class="lightbox-overlay"> <span class="lightbox-close-btn" title="Đóng">&times;</span>
+    <button class="lightbox-nav prev" id="lightbox-prev-btn" title="Ảnh trước">‹</button>
+    <img class="lightbox-content" id="lightbox-img" src="" alt="Xem ảnh lớn">
+    <button class="lightbox-nav next" id="lightbox-next-btn" title="Ảnh tiếp theo">›</button>
+</div>
             <div id="friend-request-modal" class="modal-overlay"><div class="modal-content"><h2>Lời Mời Kết Bạn</h2><div id="friend-request-list"></div><button id="close-friend-req-modal" class="cancel-btn">Đóng</button></div></div>
             <div id="create-group-modal" class="modal-overlay"><div class="modal-content"><h2>Tạo nhóm mới</h2><input type="text" id="group-name-input" placeholder="Nhập tên nhóm..."><h4>Mời bạn bè</h4><div id="group-members-checklist"></div><div class="modal-actions"><button id="close-group-modal-btn" class="btn-ghost">Hủy</button><button id="confirm-create-group-btn" class="btn">Tạo Nhóm</button></div></div></div>
             <div id="reactions-modal" class="modal-overlay"><div class="modal-content"><h2>Lượt bày tỏ cảm xúc</h2><div id="reactions-list"></div><button id="close-reactions-modal" class="btn-ghost" style="margin-top: 15px;">Đóng</button></div></div>
@@ -784,6 +1139,8 @@ const changelogContent = document.getElementById('changelog-content');
 const closeChangelogModalBtn = document.getElementById('close-changelog-modal');
 const showChangelogBtn = document.getElementById('show-changelog-btn');
 const announcementOverlay = document.getElementById('announcement-overlay');
+let currentChatImages = []; // Mảng chứa {url, key} của ảnh trong chat hiện tại
+let currentLightboxIndex = -1; // Index của ảnh đang xem trong currentChatImages
 const announcementPopup = document.getElementById('announcement-popup');
 const announcementTitle = document.getElementById('announcement-title');
 const announcementImage = document.getElementById('announcement-image');
@@ -859,6 +1216,7 @@ let wallLoaded = false; // Cờ check xem wall đã load lần nào chưa
 let reportingUser = null; // Lưu thông tin người bị báo cáo
 let selectedEvidence = []; // Lưu tin nhắn bằng chứng khi báo cáo
 const userCache = {}; // Cache thông tin user
+const APP_VERSION = "1.3"; // << THÊM DÒNG NÀY (Sửa số phiên bản nếu cần)
 
 // === DỮ LIỆU CHANGELOG ===
 const changelogData = [
@@ -871,6 +1229,29 @@ const changelogData = [
 function initializeAppLogic(user, userData) {
     if (!appRoot) { console.error("initializeAppLogic: appRoot not found!"); return; }
     appRoot.style.display = 'flex'; // Hiện giao diện chính
+    // --- CẬP NHẬT UID/VERSION VÀ GẮN SỰ KIỆN COPY ---
+    const uidDisplay = document.getElementById('user-uid-display');
+    const versionDisplay = document.getElementById('app-version-display');
+
+    if (uidDisplay) {
+        uidDisplay.textContent = user.uid; // Cập nhật UID
+        // Gắn sự kiện click để copy
+        uidDisplay.onclick = () => {
+            navigator.clipboard.writeText(user.uid)
+                .then(() => {
+                    showToast("✅ Đã sao chép UID!", "success"); // Thông báo thành công
+                })
+                .catch(err => {
+                    console.error('Lỗi sao chép UID:', err);
+                    showToast("❌ Lỗi sao chép UID!", "error"); // Thông báo lỗi
+                });
+        };
+    }
+    if (versionDisplay) {
+        versionDisplay.textContent = APP_VERSION; // Cập nhật Version
+    }
+    startUpdatingUTCTime(); // Bắt đầu cập nhật giờ (đặt ở đây là đủ)
+    // --- KẾT THÚC CẬP NHẬT & GẮN SỰ KIỆN ---
 
     setupPresence(user.uid, userData.hideOnlineStatus); // Thiết lập trạng thái online/offline
     wireProfile(); // Cập nhật avatar trên thanh nav
@@ -1017,10 +1398,37 @@ onAuthStateChanged(auth, async (user) => {
         wireProfile();
 
     } else {
+    
         // --- HỒ SƠ ĐẦY ĐỦ -> KHỞI ĐỘNG APP ---
         initializeAppLogic(user, userData);
     }
 });
+
+// --- HÀM CẬP NHẬT GIỜ UTC+0 ---
+let intervalId = null; // Biến để lưu ID của setInterval
+
+// Hàm cập nhật giờ lên UI
+function updateUTCTimeDisplay() {
+    const utcTimeDisplay = document.getElementById('utc-time-display');
+    if (!utcTimeDisplay) {
+        console.warn("UTC time display element not found.");
+        if (intervalId) clearInterval(intervalId); // Dừng nếu element biến mất
+        return;
+    }
+    const now = new Date();
+    // Lấy giờ, phút, giây UTC
+    const hours = String(now.getUTCHours()).padStart(2, '0');
+    const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+    utcTimeDisplay.textContent = `${hours}:${minutes}:${seconds} UTC+0`;
+}
+
+// Hàm bắt đầu cập nhật giờ mỗi giây
+function startUpdatingUTCTime() {
+    if (intervalId) clearInterval(intervalId); // Xóa interval cũ nếu có
+    updateUTCTimeDisplay(); // Cập nhật lần đầu ngay lập tức
+    intervalId = setInterval(updateUTCTimeDisplay, 1000); // Cập nhật mỗi giây
+}
 
 // --- PHẦN 3: CÁC HÀM TIỆN ÍCH ---
 
@@ -2155,6 +2563,9 @@ function openChat(chat) {
     lastMessageDate = null;
     currentChatId = chat.id;
     currentChatType = chat.type;
+
+    currentChatImages = []; // <<< THÊM DÒNG NÀY: Reset danh sách ảnh
+    currentLightboxIndex = -1; // <<< THÊM DÒNG NÀY: Reset index
     // currentGroupMembers đã được cập nhật trong startGroupChat nếu là group
     if(messagesContainer) messagesContainer.innerHTML = ''; // Xóa tin nhắn cũ
     if(typingIndicator) typingIndicator.textContent = ''; // Xóa trạng thái gõ phím
@@ -2251,17 +2662,68 @@ function openChat(chat) {
         console.error("Typing indicator element not found!");
     }
 
-    // 6. Gắn listener mới cho tin nhắn (Giữ nguyên)
+   // --- SỬA LẠI PHẦN GẮN LISTENER MESSAGES ---
     if (messagesContainer) {
         const msgsRef = ref(rtdb, `/messages/${chat.id}`);
-        const initialLoadQuery = rtdbQuery(msgsRef, orderByChild('timestamp'), limitToLast(30));
+        const initialLoadQuery = rtdbQuery(msgsRef, orderByChild('timestamp'), limitToLast(50)); // Tải nhiều hơn để lấy đủ ảnh?
+
         get(initialLoadQuery).then(snap => {
-            messagesContainer.innerHTML = '';
-            if (snap.exists()) { snap.forEach(childSnap => renderMessage(childSnap.key, childSnap.val(), chat)); }
-            else { messagesContainer.innerHTML = '<div style="text-align: center; color: var(--text-2); padding: 20px;">Chưa có tin nhắn nào.</div>'; }
+            messagesContainer.innerHTML = ''; // Xóa trước khi render
+            currentChatImages = []; // Reset lại ảnh trước khi render
+
+            if (snap.exists()) {
+                // Tạo mảng tạm để sort theo key (thời gian) trước khi render
+                const messagesArray = [];
+                snap.forEach(childSnap => {
+                    messagesArray.push({ key: childSnap.key, data: childSnap.val() });
+                });
+                // messagesArray.sort((a, b) => a.data.timestamp - b.data.timestamp); // Sắp xếp lại nếu cần
+
+                messagesArray.forEach(msgObj => {
+                    renderMessage(msgObj.key, msgObj.data, chat); // Render tin nhắn
+                    // Nếu tin nhắn có ảnh, thêm vào danh sách ảnh
+                    if (msgObj.data.imageUrl && !msgObj.data.recalled) {
+                        currentChatImages.push({ url: msgObj.data.imageUrl, key: msgObj.key });
+                    }
+                });
+            } else {
+                 messagesContainer.innerHTML = '<div style="text-align: center; color: var(--text-2); padding: 20px;">Chưa có tin nhắn nào.</div>';
+            }
+            console.log("Current Chat Images:", currentChatImages); // Kiểm tra danh sách ảnh
+
+            // Chỉ lắng nghe tin nhắn MỚI NHẤT sau khi tải xong initial load
             const newMsgsQuery = rtdbQuery(msgsRef, orderByChild('timestamp'), limitToLast(1));
-            const unsubChildAdded = onChildAdded(newMsgsQuery, (snap) => { if (!document.querySelector(`.msg-wrapper[data-key="${snap.key}"]`)) renderMessage(snap.key, snap.val(), chat); });
-            const unsubChildChanged = onChildChanged(msgsRef, (snap) => renderMessage(snap.key, snap.val(), chat));
+            const unsubChildAdded = onChildAdded(newMsgsQuery, (snap) => {
+                 const key = snap.key; const msgData = snap.val();
+                if (!document.querySelector(`.msg-wrapper[data-key="${key}"]`)) {
+                    renderMessage(key, msgData, chat);
+                    // Thêm ảnh mới vào danh sách nếu có
+                    if (msgData.imageUrl && !msgData.recalled) {
+                         currentChatImages.push({ url: msgData.imageUrl, key: key });
+                         console.log("Added new image:", currentChatImages);
+                    }
+                }
+            });
+            // Listener thay đổi (edit, react, recall) - Quan trọng: Cần cập nhật lại currentChatImages nếu ảnh bị recall
+             const unsubChildChanged = onChildChanged(msgsRef, (snap) => {
+                 const key = snap.key; const msgData = snap.val();
+                 renderMessage(key, msgData, chat); // Render lại
+                 // Nếu tin nhắn bị thu hồi VÀ nó là ảnh -> Xóa khỏi currentChatImages
+                 if (msgData.recalled) {
+                      const indexToRemove = currentChatImages.findIndex(img => img.key === key);
+                      if (indexToRemove > -1) {
+                           currentChatImages.splice(indexToRemove, 1);
+                           console.log("Removed recalled image:", currentChatImages);
+                           // Nếu lightbox đang mở ảnh bị thu hồi -> đóng lightbox? (tùy chọn)
+                           if (imageLightbox.classList.contains('show') && currentLightboxIndex === indexToRemove) {
+                                closeLightbox();
+                                showToast("Ảnh bạn đang xem đã bị thu hồi.", "info");
+                           } else if (imageLightbox.classList.contains('show') && currentLightboxIndex > indexToRemove) {
+                                currentLightboxIndex--; // Giảm index nếu ảnh trước đó bị xóa
+                           }
+                      }
+                 }
+             });
             msgsUnsub = () => { off(newMsgsQuery,'child_added', unsubChildAdded); off(msgsRef, 'child_changed', unsubChildChanged); };
             setTimeout(() => { messagesContainer.scrollTop = messagesContainer.scrollHeight; }, 150);
         }).catch(error => { console.error("Error loading initial messages:", error); messagesContainer.innerHTML = '<div style="text-align: center; color: red; padding: 20px;">Lỗi tải tin nhắn!</div>'; });
@@ -2422,8 +2884,10 @@ function renderMessage(key, m, chatCtx) {
         content += msgTextHtml;
 
         // Ảnh
-        if (m.imageUrl) content += `<img src="${m.imageUrl}" alt="Ảnh đã gửi"/>`;
-
+        if (m.imageUrl) {
+         // Thêm data-key vào ảnh để openLightbox có thể tìm index
+         content += `<img src="${m.imageUrl}" alt="Ảnh đã gửi" data-key="${key}" style="cursor: pointer;"/>`;
+    }
         // Timestamp & Edited
         if (m.timestamp) {
             const d = new Date(m.timestamp);
@@ -2501,7 +2965,16 @@ function renderMessage(key, m, chatCtx) {
 
     // 10. GÁN LẠI CÁC SỰ KIỆN KHÁC
     const imageInMessage = existingEl.querySelector('.msg img');
-    if (imageInMessage) imageInMessage.onclick = () => openLightbox(imageInMessage.src);
+    if (imageInMessage) {
+    // Đảm bảo dataset.key tồn tại trên thẻ img
+    if (imageInMessage.dataset.key) {
+         imageInMessage.onclick = () => openLightbox(imageInMessage.src, imageInMessage.dataset.key);
+    } else {
+         console.error("Image in message is missing data-key:", key);
+         // Fallback: Mở ảnh mà không có navigation
+         imageInMessage.onclick = () => openLightbox(imageInMessage.src, null);
+    }
+}
     const avatarInMessage = existingEl.querySelector('.msg-avatar');
     if (avatarInMessage?.dataset.uid) avatarInMessage.onclick = () => window.open(`profile.html?id=${avatarInMessage.dataset.uid}`, '_blank');
     existingEl.onclick = () => { // Xử lý chọn tin nhắn bằng chứng
@@ -2528,118 +3001,83 @@ function renderMessage(key, m, chatCtx) {
     }
 }
 
+/**
+ * Gửi tin nhắn mới hoặc lưu tin nhắn đã chỉnh sửa.
+ * Kiểm tra nội dung vi phạm trước khi gửi. Nếu vi phạm, tăng cảnh báo và không gửi.
+ */
 async function sendMessage() {
     const text = messageInput ? messageInput.value.trim() : '';
-    // Thoát nếu không có gì để gửi/lưu HOẶC đang loading
     if (!currentChatId || (!text && !selectedImageFile && !isEditing) || (sendBtn && sendBtn.classList.contains('loading'))) {
         return;
     }
 
-    // --- Bắt đầu Loading ---
+    // --- KIỂM TRA NỘI DUNG VI PHẠM (CHỈ KHI GỬI MỚI) ---
+    if (!isEditing && text) {
+        const triggerKeywords = ["lôn dũng", "chó dũng", "ái phương", "ái phương đẹp quá", "ái phương đẹp ghê"]; // <<< THAY LIST TỪ KHÓA KÍCH HOẠT
+        const forbiddenPraiseTopics = ["ái phương đẹp quá", "ái phương đẹp ghê"]; // <<< THAY LIST CHỦ ĐỀ CẤM KHEN
+        const lowerCaseText = text.toLowerCase();
+
+        const hasTriggerKeyword = triggerKeywords.some(k => lowerCaseText.includes(k.toLowerCase()));
+        // Kiểm tra "khen" rất cơ bản, có thể sai:
+        const seemsLikeForbiddenPraise = forbiddenPraiseTopics.some(topic => lowerCaseText.includes(topic.toLowerCase()) && (lowerCaseText.includes("đẹp") || lowerCaseText.includes("tuyệt") || lowerCaseText.includes("thích"))); // <<< CẦN CẢI THIỆN
+
+        if (hasTriggerKeyword /* && seemsLikeForbiddenPraise */ ) { // Tạm bỏ check khen cho đỡ phức tạp
+            console.warn("Potential violation detected:", currentUser.uid, text);
+
+            try {
+                const userRef = doc(db, 'users', currentUser.uid);
+                // Lấy warning count mới nhất phòng trường hợp client bị stale
+                const userSnap = await getDoc(userRef);
+                const currentWarnings = userSnap.exists() ? (userSnap.data().warningCount || 0) : 0;
+                const newWarningCount = currentWarnings + 1;
+
+                // Cập nhật warning count lên Firestore
+                await updateDoc(userRef, {
+                    warningCount: newWarningCount
+                });
+
+                // Cập nhật local data
+                currentUserData.warningCount = newWarningCount;
+
+                // Hiển thị cảnh báo
+                showToast(`Cảnh báo ${newWarningCount}/3: Nội dung không phù hợp. Vui lòng tuân thủ quy định.`, "error");
+
+                // Nếu đủ 3 cảnh báo -> Đăng xuất luôn
+                if (newWarningCount >= 3) {
+                     showToast("Bạn đã nhận đủ 3 cảnh báo. Tài khoản sẽ bị tạm khóa.", "error");
+                     // Đợi 1 chút để user đọc toast rồi mới đăng xuất
+                     setTimeout(async () => {
+                          await signOut(auth);
+                          window.location.href = 'login.html';
+                     }, 3000); // 3 giây
+                }
+
+            } catch (warningError) {
+                console.error("Error updating warning count:", warningError);
+                showToast("Lỗi xử lý cảnh báo.", "error");
+                // Có thể vẫn cho gửi nếu xử lý cảnh báo lỗi? Hoặc vẫn chặn? -> Vẫn chặn cho an toàn
+            }
+
+            // KHÔNG GỬI TIN NHẮN NÀY ĐI
+            // Reset input nhưng giữ lại text để user sửa
+            if (sendBtn) { sendBtn.classList.remove('loading'); sendBtn.disabled = false; }
+            if (messageInput) messageInput.disabled = false;
+            handleTextInput(); // Cập nhật lại trạng thái nút gửi
+            return; // Dừng hàm sendMessage
+        }
+    }
+    // --- KẾT THÚC KIỂM TRA VI PHẠM ---
+
+
+    // --- Bắt đầu Loading (nếu không vi phạm) ---
     if (sendBtn) { sendBtn.classList.add('loading'); sendBtn.disabled = true; }
     if (messageInput) messageInput.disabled = true;
 
     try {
-        let imageUrl = null;
-        // Upload ảnh (chỉ khi gửi mới)
-        if (selectedImageFile && !isEditing) {
-            imageUrl = await uploadImage(selectedImageFile);
-        }
-
-        // --- Logic Sửa Tin Nhắn ---
-        if (isEditing && editingMessageKey) {
-            const msgRef = ref(rtdb, `/messages/${currentChatId}/${editingMessageKey}`);
-            // Dữ liệu cần cập nhật khi sửa
-            const updateData = {
-                text: text || null, // Cập nhật text mới (hoặc null nếu xóa hết)
-                edited: true,       // Đánh dấu đã sửa
-                timestamp: dbServerTimestamp() // Cập nhật timestamp server
-                // Không cập nhật sender, imageUrl, replyTo, mentions khi sửa
-            };
-            await rtdbUpdate(msgRef, updateData); // Gửi lệnh cập nhật
-            console.log(`Message ${editingMessageKey} edited.`);
-            cancelEdit(); // Reset trạng thái sửa sau khi thành công
-
-        // --- Logic Gửi Tin Nhắn Mới ---
-        } else {
-            // Xử lý mentions (chỉ khi gửi mới và là group)
-            let mentions = [];
-            if (currentChatType === 'group' && text) {
-                const mentionRegex = /@(\S+)/g; let match;
-                while ((match = mentionRegex.exec(text)) !== null) {
-                    const username = match[1];
-                    if (username === 'all') { if (!mentions.includes('all')) mentions.push('all'); }
-                    else {
-                        // Tìm thành viên khớp tên (ưu tiên cache)
-                        const mentionedMember = currentGroupMembers.find(m => m.displayName === username) || Object.values(userCache).find(u => u.displayName === username);
-                        if (mentionedMember && !mentions.includes(mentionedMember.uid)) mentions.push(mentionedMember.uid);
-                    }
-                }
-            }
-
-            // Tạo payload cho tin nhắn mới (KHÔNG có trường 'edited')
-            const newMsgPayload = {
-                senderId: currentUser.uid,
-                senderName: currentUserData.displayName || currentUser.email.split('@')[0],
-                text: text || null,
-                imageUrl: imageUrl, // Là URL hoặc null
-                timestamp: Date.now(), // Dùng client timestamp ban đầu cho tin mới
-                readBy: { [currentUser.uid]: true },
-                replyTo: replyingTo ? replyingTo.key : null,
-                mentions: mentions.length > 0 ? mentions : null
-            };
-
-            // Tạo key mới và chuẩn bị batch update (tin nhắn + notification)
-            const newMsgRef = push(ref(rtdb, `/messages/${currentChatId}`));
-            const newMsgKey = newMsgRef.key;
-            const updates = {};
-            updates[`/messages/${currentChatId}/${newMsgKey}`] = newMsgPayload;
-
-            // Tạo payload notification
-            const notifPayload = {
-                from: newMsgPayload.senderName, avatar: currentUserData.avatarUrl,
-                preview: newMsgPayload.text || "Đã gửi một ảnh", chatId: currentChatId,
-                chatType: currentChatType, senderId: currentUser.uid,
-            };
-
-            // Xác định người nhận notification và thêm vào batch updates (logic check mute giữ nguyên)
-            if (currentChatType === 'direct') {
-                const recipientId = currentFriendUid;
-                if (recipientId) {
-                    const recipientDoc = await getDoc(doc(db, 'users', recipientId));
-                    const recipientData = recipientDoc.exists() ? recipientDoc.data() : {};
-                    if (!recipientData.mutedChats?.[currentChatId]) {
-                        updates[`/notifications/${recipientId}/${newMsgKey}`] = notifPayload;
-                    }
-                }
-            } else if (currentChatType === 'group') {
-                const groupRef = doc(db, 'groups', currentChatId);
-                const groupDoc = await getDoc(groupRef);
-                const memberUids = groupDoc.exists() ? groupDoc.data().member_uids || [] : [];
-                for (const recipientId of memberUids) {
-                    if (recipientId === currentUser.uid) continue;
-                    const recipientDoc = await getDoc(doc(db, 'users', recipientId));
-                    const recipientData = recipientDoc.exists() ? recipientDoc.data() : {};
-                    if (!recipientData.mutedChats?.[currentChatId]) {
-                        updates[`/notifications/${recipientId}/${newMsgKey}`] = notifPayload;
-                    }
-                }
-            }
-
-            // Gửi batch update lên Firebase
-            if (Object.keys(updates).length > 0) {
-                await rtdbUpdate(ref(rtdb), updates);
-                console.log(`New message ${newMsgKey} sent.`);
-            }
-
-            // Dọn dẹp UI sau khi gửi mới thành công
-            if (messageInput) messageInput.value = '';
-            if (chatInputContainer) chatInputContainer.classList.remove('has-text');
-            cancelImagePreview();
-            cancelReply();
-            clearTimeout(typingTimer); // Dừng timer typing
-            set(ref(rtdb, `/typing/${currentChatId}/${currentUser.uid}`), false); // Set typing là false
-        }
+        // ... (Phần còn lại của sendMessage: upload ảnh, gửi tin, gửi notif... giữ nguyên như code hoàn chỉnh lần trước) ...
+         let imageUrl = null; if (selectedImageFile && !isEditing) imageUrl = await uploadImage(selectedImageFile);
+         if (isEditing && editingMessageKey) { const msgRef = ref(rtdb, `/messages/${currentChatId}/${editingMessageKey}`); const updateData = { text: text || null, edited: true, timestamp: dbServerTimestamp() }; await rtdbUpdate(msgRef, updateData); console.log(`Message ${editingMessageKey} edited.`); cancelEdit(); }
+         else { let mentions = []; if (currentChatType === 'group' && text) { const rgx = /@(\S+)/g; let match; while ((match = rgx.exec(text)) !== null) { const uname = match[1]; if (uname === 'all') { if (!mentions.includes('all')) mentions.push('all'); } else { const member = currentGroupMembers.find(m => m.displayName === uname) || Object.values(userCache).find(u => u.displayName === uname); if (member && !mentions.includes(member.uid)) mentions.push(member.uid); } } } const newMsgPayload = { senderId: currentUser.uid, senderName: currentUserData.displayName || currentUser.email.split('@')[0], text: text || null, imageUrl: imageUrl, timestamp: Date.now(), readBy: { [currentUser.uid]: true }, replyTo: replyingTo ? replyingTo.key : null, mentions: mentions.length > 0 ? mentions : null }; const newMsgRef = push(ref(rtdb, `/messages/${currentChatId}`)); const newMsgKey = newMsgRef.key; const updates = {}; updates[`/messages/${currentChatId}/${newMsgKey}`] = newMsgPayload; const notifPayload = { from: newMsgPayload.senderName, avatar: currentUserData.avatarUrl, preview: newMsgPayload.text || "Đã gửi một ảnh", chatId: currentChatId, chatType: currentChatType, senderId: currentUser.uid }; if (currentChatType === 'direct') { const recipientId = currentFriendUid; if (recipientId) { const recipientDoc = await getDoc(doc(db, 'users', recipientId)); const recipientData = recipientDoc.exists() ? recipientDoc.data() : {}; if (!recipientData.mutedChats?.[currentChatId]) updates[`/notifications/${recipientId}/${newMsgKey}`] = notifPayload; } } else if (currentChatType === 'group') { const groupRef = doc(db, 'groups', currentChatId); const groupDoc = await getDoc(groupRef); const memberUids = groupDoc.exists() ? groupDoc.data().member_uids || [] : []; for (const recipientId of memberUids) { if (recipientId === currentUser.uid) continue; const recipientDoc = await getDoc(doc(db, 'users', recipientId)); const recipientData = recipientDoc.exists() ? recipientDoc.data() : {}; if (!recipientData.mutedChats?.[currentChatId]) updates[`/notifications/${recipientId}/${newMsgKey}`] = notifPayload; } } if (Object.keys(updates).length > 0) await rtdbUpdate(ref(rtdb), updates); console.log(`New message ${newMsgKey} sent.`); if (messageInput) messageInput.value = ''; if (chatInputContainer) chatInputContainer.classList.remove('has-text'); cancelImagePreview(); cancelReply(); clearTimeout(typingTimer); set(ref(rtdb, `/typing/${currentChatId}/${currentUser.uid}`), false); }
 
     } catch (e) {
         console.error("Lỗi khi gửi/sửa tin nhắn:", e);
@@ -2647,15 +3085,8 @@ async function sendMessage() {
     } finally {
         // --- Kết thúc Loading ---
         if (sendBtn) { sendBtn.classList.remove('loading'); sendBtn.disabled = false; }
-        if (messageInput) {
-             messageInput.disabled = false;
-             // Chỉ focus nếu chat còn mở và không phải đang sửa (vì cancelEdit đã xóa input)
-             if (currentChatId && !isEditing) {
-                  // setTimeout(() => messageInput.focus(), 0); // Có thể bỏ focus tự động
-             }
-        }
-        // Gọi lại handleTextInput để cập nhật trạng thái nút gửi phòng trường hợp input còn chữ sau lỗi
-         handleTextInput();
+        if (messageInput) { messageInput.disabled = false; }
+        handleTextInput(); // Cập nhật lại trạng thái nút gửi
     }
 }
 
@@ -2855,10 +3286,118 @@ function deleteMessageForSelf(key) {
     const elementToRemove = document.querySelector(`.msg-wrapper[data-key="${key}"]`);
     if (elementToRemove) {
         elementToRemove.remove(); // Xóa khỏi DOM
-        showToast("Đã xóa tin nhắn ở phía bạn.", "info");
     }
 }
 
+
+// --- PHẦN 11 (tt): BLOCK/UNBLOCK USER ---
+
+/**
+ * Chặn một người dùng khác.
+ * Cập nhật Firestore: thêm UID vào list blocked của mình, xóa bạn bè (cả 2 chiều).
+ * @param {string} friendUid UID của người cần chặn.
+ * @param {string} name Tên hiển thị của người cần chặn (để confirm).
+ */
+async function blockUser(friendUid, name) {
+    if (!currentUser || !friendUid) return;
+    const confirmed = await showConfirmation(`Chặn ${escapeHtml(name)}? Bạn sẽ không nhận được tin nhắn từ họ nữa và họ sẽ bị xóa khỏi danh sách bạn bè (nếu có).`);
+    if (confirmed) {
+        // Lấy nút trong panel info (nếu đang mở)
+        const blockBtnPanel = document.getElementById('block-user-btn');
+        const unblockBtnPanel = document.getElementById('unblock-user-btn');
+        if (blockBtnPanel) blockBtnPanel.disabled = true; // Disable nút ngay
+
+        try {
+            const currentUserRef = doc(db, 'users', currentUser.uid);
+            const targetUserRef = doc(db, 'users', friendUid);
+
+            // Cập nhật document của mình
+            await updateDoc(currentUserRef, {
+                blocked: arrayUnion(friendUid), // Thêm vào danh sách chặn
+                friends: arrayRemove(friendUid), // Xóa khỏi danh sách bạn bè
+                [`nicknames.${friendUid}`]: deleteField() // Xóa nickname nếu có
+            });
+
+            // Cập nhật document của người bị chặn (chỉ xóa bạn bè)
+            await updateDoc(targetUserRef, {
+                friends: arrayRemove(currentUser.uid)
+            });
+
+            // Cập nhật dữ liệu local
+            currentUserData.blocked = [...(currentUserData.blocked || []), friendUid];
+            currentUserData.friends = currentUserData.friends?.filter(id => id !== friendUid);
+            if (currentUserData.nicknames) delete currentUserData.nicknames[friendUid];
+
+            showToast(`Đã chặn ${escapeHtml(name)}.`, 'success');
+            if (chatInfoPanel) chatInfoPanel.classList.remove('open'); // Đóng panel info
+
+            // Cập nhật UI nếu đang chat với người đó
+            const chatIdToCheck = [currentUser.uid, friendUid].sort().join('_');
+            if (currentChatId === chatIdToCheck) {
+                inactiveChatIndicator.textContent = "Bạn đã chặn người này.";
+                inactiveChatIndicator.style.display = 'block';
+                if(chatInputContainer) chatInputContainer.style.display = 'none';
+                if(blockBtnPanel) blockBtnPanel.style.display = 'none';
+                if(unblockBtnPanel) unblockBtnPanel.style.display = 'block'; // Hiện nút bỏ chặn
+                // Cập nhật lại isChatActive để hàm openChat xử lý đúng
+                const chatObj = allChats.find(c => c.id === currentChatId);
+                if(chatObj) chatObj.isActive = false;
+            }
+             // Cập nhật danh sách chat sidebar (onSnapshot sẽ tự xử lý)
+
+        } catch (err) {
+            console.error("Lỗi khi chặn:", err);
+            showToast("Có lỗi xảy ra khi chặn người dùng!", "error");
+            if (blockBtnPanel) blockBtnPanel.disabled = false; // Enable lại nút nếu lỗi
+        }
+    }
+}
+
+/**
+ * Bỏ chặn một người dùng.
+ * Cập nhật Firestore: xóa UID khỏi list blocked của mình.
+ * @param {string} friendUid UID của người cần bỏ chặn.
+ * @param {string} name Tên hiển thị của người cần bỏ chặn (để confirm).
+ */
+async function unblockUser(friendUid, name) {
+    if (!currentUser || !friendUid) return;
+    const confirmed = await showConfirmation(`Bỏ chặn ${escapeHtml(name)}?`);
+    if (confirmed) {
+        const blockBtnPanel = document.getElementById('block-user-btn');
+        const unblockBtnPanel = document.getElementById('unblock-user-btn');
+        if (unblockBtnPanel) unblockBtnPanel.disabled = true; // Disable nút
+
+        try {
+            const currentUserRef = doc(db, 'users', currentUser.uid);
+            await updateDoc(currentUserRef, {
+                blocked: arrayRemove(friendUid) // Xóa khỏi danh sách chặn
+            });
+
+            // Cập nhật dữ liệu local
+            currentUserData.blocked = currentUserData.blocked?.filter(id => id !== friendUid);
+
+            showToast(`Đã bỏ chặn ${escapeHtml(name)}.`, 'success');
+            if (chatInfoPanel) chatInfoPanel.classList.remove('open');
+
+            // Cập nhật UI nếu đang xem info panel hoặc chat window của người đó
+            const chatIdToCheck = [currentUser.uid, friendUid].sort().join('_');
+             if (currentChatId === chatIdToCheck) {
+                 inactiveChatIndicator.style.display = 'none';
+                 if(chatInputContainer) chatInputContainer.style.display = 'flex'; // Mở lại input
+                 if(blockBtnPanel) blockBtnPanel.style.display = 'block'; // Hiện nút chặn
+                 if(unblockBtnPanel) unblockBtnPanel.style.display = 'none'; // Ẩn nút bỏ chặn
+                 // Cập nhật lại isChatActive
+                 const chatObj = allChats.find(c => c.id === currentChatId);
+                 if(chatObj) chatObj.isActive = true; // Kích hoạt lại chat
+            }
+
+        } catch (err) {
+            console.error("Lỗi khi bỏ chặn:", err);
+            showToast("Có lỗi xảy ra khi bỏ chặn!", "error");
+             if (unblockBtnPanel) unblockBtnPanel.disabled = false; // Enable lại nút nếu lỗi
+        }
+    }
+}
 /**
  * Bắt đầu trạng thái trả lời tin nhắn.
  * Hiển thị thanh preview và lưu thông tin tin nhắn gốc.
@@ -3602,12 +4141,85 @@ function handleMentionInput() {
  * Mở ảnh trong lightbox (popup xem ảnh lớn).
  * @param {string} imageUrl URL của ảnh cần hiển thị.
  */
-function openLightbox(imageUrl) {
-    if (lightboxImg && imageLightbox) { // Check elements
+
+function openLightbox(imageUrl, messageKey) {
+    console.log("openLightbox called with:", imageUrl, messageKey);
+    if (!imageLightbox || !lightboxImg) return;
+
+    imageLightbox.style.display = ''; // <<< XÓA STYLE INLINE NẾU CÓ
+
+    const index = messageKey ? currentChatImages.findIndex(img => img.key === messageKey) : -1;
+
+    if (index > -1) {
+        currentLightboxIndex = index;
         lightboxImg.src = imageUrl;
-        imageLightbox.style.display = 'flex'; // Hiện overlay
+        imageLightbox.classList.add('show'); // <<< THÊM CLASS
+        updateLightboxNav();
+    } else {
+        console.warn("Image key not found or null, opening without navigation.");
+        currentLightboxIndex = -1;
+        lightboxImg.src = imageUrl;
+        imageLightbox.classList.add('show'); // <<< THÊM CLASS
+        updateLightboxNav();
     }
 }
+
+// === HÀM ĐÓNG LIGHTBOX ===
+function closeLightbox() {
+    if (!imageLightbox) return;
+    imageLightbox.classList.remove('show'); // Ẩn lightbox
+    currentLightboxIndex = -1; // Reset index
+    // Optional: Xóa src để giải phóng bộ nhớ?
+    // if (lightboxImg) lightboxImg.src = '';
+}
+
+// === HÀM HIỂN THỊ ẢNH THEO INDEX ===
+function showLightboxImage(index) {
+    if (!lightboxImg || !currentChatImages || index < 0 || index >= currentChatImages.length) {
+        return; // Thoát nếu index không hợp lệ
+    }
+    currentLightboxIndex = index; // Cập nhật index
+    lightboxImg.src = currentChatImages[index].url; // Đổi ảnh
+    updateLightboxNav(); // Cập nhật lại nút
+}
+
+// === HÀM CẬP NHẬT HIỂN THỊ NÚT PREV/NEXT ===
+function updateLightboxNav() {
+    const prevBtn = document.getElementById('lightbox-prev-btn');
+    const nextBtn = document.getElementById('lightbox-next-btn');
+    if (!prevBtn || !nextBtn) return;
+
+    // Hiện nút Prev nếu không phải ảnh đầu tiên
+    prevBtn.style.display = (currentLightboxIndex > 0) ? 'block' : 'none';
+
+    // Hiện nút Next nếu không phải ảnh cuối cùng
+    nextBtn.style.display = (currentLightboxIndex > -1 && currentLightboxIndex < currentChatImages.length - 1) ? 'block' : 'none';
+}
+
+// === GẮN SỰ KIỆN CHO CÁC NÚT LIGHTBOX MỚI ===
+const prevBtn = document.getElementById('lightbox-prev-btn');
+const nextBtn = document.getElementById('lightbox-next-btn');
+// Nút đóng đã có trong attachEventListeners hoặc thêm ở đây:
+if (lightboxCloseBtn) lightboxCloseBtn.onclick = closeLightbox;
+// Đóng khi click vào overlay
+if (imageLightbox) imageLightbox.onclick = (e) => { if (e.target === imageLightbox) closeLightbox(); };
+// Nút Prev
+if (prevBtn) prevBtn.onclick = () => showLightboxImage(currentLightboxIndex - 1);
+// Nút Next
+if (nextBtn) nextBtn.onclick = () => showLightboxImage(currentLightboxIndex + 1);
+
+// Optional: Thêm điều hướng bằng bàn phím
+document.addEventListener('keydown', (e) => {
+    if (imageLightbox.classList.contains('show')) { // Chỉ xử lý khi lightbox đang mở
+        if (e.key === 'ArrowLeft') {
+            if (currentLightboxIndex > 0) showLightboxImage(currentLightboxIndex - 1);
+        } else if (e.key === 'ArrowRight') {
+            if (currentLightboxIndex < currentChatImages.length - 1) showLightboxImage(currentLightboxIndex + 1);
+        } else if (e.key === 'Escape') {
+            closeLightbox();
+        }
+    }
+});
 
 /**
  * Lưu thay đổi thông tin hồ sơ từ modal chỉnh sửa.

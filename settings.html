@@ -7,39 +7,15 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-/* --- Variables --- */
+/* --- Variables (Dark Mode Default) --- */
 :root {
-    --accent-1: #60a5fa;
-    --accent-2: #2563eb;
-    --bg-page: #0f172a;
-    --bg-card: #1e293b;
-    --bg-nav: #111827;
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --hover-bg: rgba(255, 255, 255, 0.05);
-    --active-bg: rgba(96, 165, 250, 0.15);
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --input-bg: rgba(0, 0, 0, 0.2);
-    --modal-bg: rgba(22, 25, 35, 0.85);
-    --toast-bg: rgba(22, 25, 35, 0.85);
+    --accent-1: #60a5fa; --accent-2: #2563eb; --bg-page: #0f172a; --bg-card: #1e293b;
+    --bg-nav: #111827; --glass-border: rgba(255, 255, 255, 0.1); --hover-bg: rgba(255, 255, 255, 0.05);
+    --active-bg: rgba(96, 165, 250, 0.15); --text-primary: #f1f5f9; --text-secondary: #94a3b8;
+    --input-bg: rgba(0, 0, 0, 0.2); --modal-bg: rgba(22, 25, 35, 0.85); --toast-bg: rgba(22, 25, 35, 0.85);
     --shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
-.light {
-    --accent-1: #007aff;
-    --accent-2: #0056b3;
-    --bg-page: #f0f2f5;
-    --bg-card: #ffffff;
-    --bg-nav: #f9fafb;
-    --glass-border: rgba(0, 0, 0, 0.1);
-    --hover-bg: rgba(0, 0, 0, 0.04);
-    --active-bg: rgba(0, 122, 255, 0.1);
-    --text-primary: #111827;
-    --text-secondary: #4b5563;
-    --input-bg: rgba(0, 0, 0, 0.05);
-    --modal-bg: rgba(249, 250, 251, 0.95);
-    --toast-bg: rgba(249, 250, 251, 0.95);
-    --shadow: 0 8px 25px rgba(0,0,0,0.08);
-}
+/* No .light theme needed anymore */
 
 /* --- Base Styles --- */
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -54,9 +30,12 @@ body {
     min-height: 100%;
     margin: 0;
     padding: 20px;
-    transition: background-color 0.3s ease;
+    /* transition: background-color 0.3s ease; */ /* No theme transition */
     font-size: 17px;
 }
+button, input, textarea { font-family: inherit; font-size: inherit; }
+svg { vertical-align: middle; }
+
 .settings-container {
     width: min(95vw, 1200px);
     height: min(95vh, 800px);
@@ -77,210 +56,51 @@ body {
     padding: 30px 20px;
     overflow-y: auto;
 }
-.settings-nav h1 {
-    font-size: 24px;
-    padding: 0 10px 20px 10px;
-    margin: 0;
-    border-bottom: 1px solid var(--glass-border);
-    margin-bottom: 20px;
-}
+.settings-nav h1 { font-size: 24px; padding: 0 10px 20px 10px; margin: 0; border-bottom: 1px solid var(--glass-border); margin-bottom: 20px; }
 .nav-list { list-style: none; padding: 0; margin: 0; }
-.nav-item {
-    display: flex;
-    align-items: center;
-    padding: 14px 20px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
-    color: var(--text-secondary);
-    font-weight: 500;
-    font-size: 16px;
-    margin-bottom: 6px;
-}
-.nav-item:hover {
-    background-color: var(--hover-bg);
-    color: var(--text-primary);
-}
-.nav-item.active {
-    background-color: var(--active-bg);
-    color: var(--accent-1);
-    font-weight: 600;
-}
+.nav-item { display: flex; align-items: center; padding: 14px 20px; border-radius: 10px; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease; color: var(--text-secondary); font-weight: 500; font-size: 16px; margin-bottom: 6px; }
+.nav-item:hover { background-color: var(--hover-bg); color: var(--text-primary); }
+.nav-item.active { background-color: var(--active-bg); color: var(--accent-1); font-weight: 600; }
 
 /* --- Right Content Area --- */
-.settings-content {
-    flex: 1;
-    padding: 35px 50px;
-    overflow-y: auto;
-}
-.settings-section { margin-bottom: 40px; }
-.settings-section h2 {
-    font-size: 22px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0 0 30px 0;
-    padding-bottom: 18px;
-    border-bottom: 1px solid var(--glass-border);
-}
-
-.btn-ghost {
-    /* background: var(--glass-border); */ /* Bỏ background cũ */
-    border: 1px solid var(--glass-border); /* Dùng border thay thế */
-    background-color: transparent; /* Nền trong suốt */
-    color: var(--text-secondary); /* Màu chữ nhạt hơn */
-    font-weight: 500;
-}
-.btn-ghost:hover {
-    background-color: var(--hover-bg); /* Thêm nền khi hover */
-    color: var(--text-primary); /* Chữ đậm hơn khi hover */
-    border-color: var(--text-secondary); /* Viền đậm hơn khi hover */
-    transform: none;
-    box-shadow: none;
-}
-/* Style cho theme sáng */
-.light .btn-ghost {
-    background-color: transparent;
-    color: var(--text-secondary);
-    border-color: rgba(0, 0, 0, 0.15); /* Viền đậm hơn chút */
-}
-.light .btn-ghost:hover {
-    background-color: rgba(0, 0, 0, 0.05); /* Nền tối hơn chút */
-    color: var(--text-primary);
-    border-color: rgba(0, 0, 0, 0.2);
-}
-
-.btn {
-    padding: 10px 16px;
-    border: none; /* THÊM DÒNG NÀY */
-    border-radius: 10px;
-    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-    color: #fff;
-    cursor: pointer;
-}
-.danger-btn {
-    background: linear-gradient(135deg, #ef4444, #b91c1c);
-     border: none; /* THÊM DÒNG NÀY */
-}
-
-.modal-actions button {
-    font-size: 16px; /* Giữ font size */
-    padding: 11px 22px; /* Giữ padding */
-    width: auto;
-    margin-top: 0;
-    border-radius: 9px; /* Đồng bộ bo góc */
-    font-weight: 500; /* Đồng bộ độ đậm */
-    /* Các style khác được kế thừa hoặc ghi đè bởi .btn / .btn-ghost */
-}
-
-.settings-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 0;
-    min-height: 60px;
-    border-bottom: 1px solid var(--glass-border);
-}
+.settings-content { flex: 1; padding: 35px 50px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--glass-border) transparent; }
+.settings-content::-webkit-scrollbar { width: 8px; }
+.settings-content::-webkit-scrollbar-track { background: transparent; }
+.settings-content::-webkit-scrollbar-thumb { background-color: var(--glass-border); border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
+.settings-section { margin-bottom: 40px; display: none; }
+.settings-section.active { display: block; }
+.settings-section h2 { font-size: 22px; font-weight: 600; color: var(--text-primary); margin: 0 0 30px 0; padding-bottom: 18px; border-bottom: 1px solid var(--glass-border); }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; min-height: 60px; border-bottom: 1px solid var(--glass-border); }
 .settings-row:last-child { border-bottom: none; }
-.row-left { display: flex; flex-direction: column; gap: 5px; padding-right: 20px; /* Thêm padding để không dính vào nút */}
-.settings-row-label {
-    font-weight: 500;
-    font-size: 17px;
-    color: var(--text-primary);
-}
-.settings-row-description {
-    font-size: 15px;
-    color: var(--text-secondary);
-}
+.row-left { display: flex; flex-direction: column; gap: 5px; padding-right: 20px; }
+.settings-row-label { font-weight: 500; font-size: 17px; color: var(--text-primary); }
+.settings-row-description { font-size: 15px; color: var(--text-secondary); }
 .row-right { flex-shrink: 0; margin-left: 30px; }
 
 /* --- Controls: Switch & Buttons --- */
-/* ĐẢM BẢO CSS CHO SWITCH CÓ ĐẦY ĐỦ */
-.switch {
-    position: relative;
-    width: 44px;
-    height: 24px;
-    background: var(--glass-border);
-    border-radius: 999px;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: background-color 0.2s ease-in-out;
-}
-.switch::after {
-    content: '';
-    position: absolute;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #fff;
-    top: 3px;
-    left: 4px;
-    transition: left 0.2s ease-in-out;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
+.switch { position: relative; width: 44px; height: 24px; background: var(--glass-border); border-radius: 999px; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s ease-in-out; }
+.switch::after { content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: #fff; top: 3px; left: 4px; transition: left 0.2s ease-in-out; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
 .switch.on { background: var(--accent-2); }
 .switch.on::after { left: 22px; }
-
-.settings-content button {
-    padding: 10px 20px;
-    border-radius: 9px;
-    color: var(--text-primary);
-    font-weight: 500;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.2s ease;
-    background: var(--input-bg);
-    border: 1px solid var(--glass-border);
-    margin-top: 0;
-    width: auto;
-}
-.settings-content button:hover:not(:disabled) {
-    background: var(--hover-bg);
-    border-color: var(--text-secondary);
-}
-.settings-content button:disabled { opacity: 0.6; cursor: not-allowed; }
-.settings-content .danger-btn {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.3);
-    color: #fca5a5;
-}
-.settings-content .danger-btn:hover:not(:disabled) {
-    background: rgba(239, 68, 68, 0.2);
-    border-color: rgba(239, 68, 68, 0.5);
-    color: #fda4af;
-}
-.settings-content button:disabled {
-     background: var(--input-bg) !important;
-     color: var(--text-secondary) !important;
-     opacity: 0.5;
-     border-color: var(--glass-border) !important;
-}
+.settings-content button { padding: 10px 20px; border-radius: 9px; color: var(--text-primary); font-weight: 500; font-size: 16px; cursor: pointer; transition: 0.2s ease; background: var(--input-bg); border: 1px solid var(--glass-border); margin-top: 0; width: auto; }
+.settings-content button:hover:not(:disabled) { background: var(--hover-bg); border-color: var(--text-secondary); }
+.settings-content button:disabled { opacity: 0.6; cursor: not-allowed; background: var(--input-bg) !important; color: var(--text-secondary) !important; border-color: var(--glass-border) !important; }
+.settings-content .danger-btn { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #fca5a5; }
+.settings-content .danger-btn:hover:not(:disabled) { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); color: #fda4af; }
+.btn { padding: 10px 16px; border: none; border-radius: 10px; background: linear-gradient(135deg, var(--accent-1), var(--accent-2)); color: #fff; cursor: pointer; }
+.btn:hover { filter: brightness(1.1); }
+.danger-btn { background: linear-gradient(135deg, #ef4444, #b91c1c); border: none; }
+.btn-ghost { border: 1px solid var(--glass-border); background-color: transparent; color: var(--text-secondary); font-weight: 500; }
+.btn-ghost:hover { background-color: var(--hover-bg); color: var(--text-primary); border-color: var(--text-secondary); }
 
 /* --- Modals --- */
-.modal-overlay {
-    position: fixed !important; inset: 0 !important;
-    background: rgba(0,0,0,0.65) !important;
-    backdrop-filter: blur(10px) !important;
-    display: flex !important; justify-content: center !important; align-items: center !important;
-    z-index: 5000 !important;
-    padding: 20px;
-    opacity: 0; visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-.modal-overlay.show { opacity: 1; visibility: visible; }
-.modal-content {
-    background: var(--modal-bg); border: 1px solid var(--glass-border); border-radius: 20px;
-    padding: 30px 35px; color: var(--text-primary); text-align: left;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.3); width: min(90vw, 500px);
-    transform: scale(0.95); transition: transform 0.3s ease;
-}
+.modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.65) !important; backdrop-filter: blur(10px) !important; display: none; justify-content: center !important; align-items: center !important; z-index: 5000 !important; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+.modal-overlay.show { opacity: 1; visibility: visible; display: flex !important; }
+.modal-content { background: var(--modal-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 30px 35px; color: var(--text-primary); text-align: left; box-shadow: 0 15px 40px rgba(0,0,0,0.3); width: min(90vw, 500px); transform: scale(0.95); transition: transform 0.3s ease; }
 .modal-overlay.show .modal-content { transform: scale(1); }
-.modal-content h2 { font-size: 22px; margin-bottom: 20px; text-align: center; } /* Căn giữa title modal */
+.modal-content h2 { font-size: 22px; margin-bottom: 20px; text-align: center; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 30px; }
-.modal-actions button { font-size: 16px; padding: 11px 22px; width: auto; margin-top: 0; }
-.btn-ghost { background: var(--glass-border); color: var(--text-primary); }
-.btn-ghost:hover { background: rgba(255, 255, 255, 0.2); }
-.light .btn-ghost { background: rgba(0, 0, 0, 0.05); color: var(--text-secondary); }
-.light .btn-ghost:hover { background: rgba(0, 0, 0, 0.1); }
+.modal-actions button { font-size: 16px; padding: 11px 22px; width: auto; margin-top: 0; border-radius: 9px; font-weight: 500; }
 .modal-content label { font-size: 15px; display: block; margin: 18px 0 8px; color: var(--text-secondary); }
 .modal-content input, .modal-content textarea { font-size: 16px; padding: 13px; box-sizing: border-box; width: 100%; border-radius: 10px; border: 1px solid var(--glass-border); background: var(--input-bg); color: var(--text-primary); outline: none; transition: border-color 0.3s, box-shadow 0.3s; }
 .modal-content input:focus, .modal-content textarea:focus { border-color: var(--accent-1); box-shadow: 0 0 15px rgba(96, 165, 250, 0.2); }
@@ -288,13 +108,22 @@ body {
 .reason-form { text-align: left; margin: 20px 0; }
 .reason-row { display: flex; align-items: center; padding: 10px; border-radius: 10px; cursor: pointer; transition: background-color 0.2s; }
 .reason-row:hover { background-color: rgba(255,255,255,0.05); }
-.light .reason-row:hover { background-color: rgba(0,0,0,0.03); }
 .reason-row input[type="radio"] { margin-right: 12px; width: 18px; height: 18px; accent-color: var(--accent-2); }
+#blocked-users-list .blocked-user-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--glass-border); }
+#blocked-users-list .blocked-user-item:last-child { border-bottom: none; }
+#blocked-users-list .blocked-user-info { display: flex; align-items: center; gap: 12px; min-width: 0; }
+#blocked-users-list .blocked-user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+#blocked-users-list .blocked-user-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#blocked-users-list .unblock-btn { padding: 6px 14px; font-size: 14px; background: var(--input-bg); border: 1px solid var(--glass-border); color: var(--text-primary); border-radius: 8px; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; flex-shrink: 0; }
+#blocked-users-list .unblock-btn:hover { background: var(--hover-bg); border-color: var(--text-secondary); }
+#blocked-users-list .unblock-btn:disabled { opacity: 0.5; cursor: default; background: var(--input-bg); border-color: var(--glass-border); }
 
 /* --- Toast --- */
-#toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--toast-bg); color: var(--text-primary); padding: 18px 28px; border-radius: 12px; z-index: 10000; backdrop-filter: blur(10px); border: 1px solid var(--glass-border); box-shadow: 0 10px 40px rgba(0,0,0,0.3); display: none; font-weight: 500; animation: slideIn .3s ease, slideOut .3s ease 2.7s forwards; font-size: 15px; }
-#toast.success { border-left: 4px solid #22c55e; color: #22c55e; } #toast.error { border-left: 4px solid #ef4444; color: #ef4444; } #toast.info { border-left: 4px solid var(--accent-1); color: var(--accent-1); }
-@keyframes slideIn { from { top: -100px; opacity: 0; } to { top: 20px; opacity: 1; } } @keyframes slideOut { from { top: 20px; opacity: 1; } to { top: -100px; opacity: 0; } }
+#toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--toast-bg); color: var(--text-primary); padding: 18px 28px; border-radius: 12px; z-index: 10000; backdrop-filter: blur(10px); border: 1px solid var(--glass-border); box-shadow: 0 10px 40px rgba(0,0,0,0.3); display: none; font-weight: 500; animation: slideInAndOut 3s ease forwards; font-size: 15px; border-left: 4px solid transparent; }
+#toast.success { border-left-color: #22c55e; color: #22c55e; }
+#toast.error { border-left-color: #ef4444; color: #ef4444; }
+#toast.info { border-left-color: var(--accent-1); color: var(--accent-1); }
+@keyframes slideInAndOut { 0% { top: -100px; opacity: 0; } 10% { top: 20px; opacity: 1; } 90% { top: 20px; opacity: 1; } 100% { top: -100px; opacity: 0; } }
 
 /* === Responsive cho Mobile === */
 @media (max-width: 900px) {
@@ -305,54 +134,101 @@ body {
     .nav-list { display: flex; overflow-x: auto; padding-bottom: 8px; -ms-overflow-style: none; scrollbar-width: none; }
     .nav-list::-webkit-scrollbar { display: none; }
     .nav-item { padding: 10px 18px; gap: 8px; min-width: fit-content; text-align: center; font-size: 15px; margin-bottom: 0; white-space: nowrap; }
-    .nav-item.active { background-color: var(--active-bg); color: var(--accent-1); }
     .settings-content { padding: 25px; flex: 1; }
     .settings-section h2 { font-size: 19px; margin-bottom: 20px; padding-bottom: 12px; }
-    .settings-row { padding: 14px 0; min-height: 55px; /* Có thể xếp dọc nếu cần */ /* flex-direction: column; align-items: flex-start; gap: 5px; */ }
+    .settings-row { padding: 14px 0; min-height: 55px; /* Adjust row layout on small screens if needed */ /* flex-direction: column; align-items: flex-start; gap: 10px; */ }
+    /* .row-left { padding-right: 0; margin-bottom: 5px; } */
+    /* .row-right { margin-left: 0; } */
     .settings-row-label { font-size: 16px; }
     .settings-row-description { font-size: 14px; }
-    .row-right { margin-left: 15px; }
     .settings-content button { font-size: 15px; padding: 9px 16px;}
-    .modal-content { width: min(90vw, 420px); } /* Modal hẹp hơn trên mobile */
+    .modal-content { width: min(90vw, 420px); }
 }
 </style>
 </head>
-<body class=""> <div id="toast"></div>
-
-<div class="settings-container">
+<body class=""> <div id="toast"></div> <div class="settings-container">
     <nav class="settings-nav">
         <h1>Cài đặt</h1>
         <ul class="nav-list">
-            <li class="nav-item active" data-section="interface">Giao diện</li>
+            <li class="nav-item active" data-section="account">Tài khoản</li>
+            <li class="nav-item" data-section="profile">Hồ sơ</li>
             <li class="nav-item" data-section="notifications">Thông báo</li>
             <li class="nav-item" data-section="privacy">Riêng tư</li>
             <li class="nav-item" data-section="verification">Xác minh</li>
+            <li class="nav-item" data-section="data">Dữ liệu</li>
+            <li class="nav-item" data-section="help">Trợ giúp</li>
         </ul>
     </nav>
 
     <div class="settings-content">
-        <div class="settings-section active" id="interface">
-            <h2>Giao diện</h2>
+        <div class="settings-section active" id="account">
+            <h2>Tài khoản</h2>
             <div class="settings-row">
                 <div class="row-left">
-                     <span class="settings-row-label">Chế độ Sáng/Tối</span>
-                     <span class="settings-row-description">Thay đổi giao diện sáng hoặc tối.</span>
+                    <span class="settings-row-label">Email</span>
+                    <span class="settings-row-description" id="user-email-display">Đang tải...</span>
+                </div>
+            </div>
+            <div class="settings-row">
+                <div class="row-left">
+                    <span class="settings-row-label">User ID (UID)</span>
+                    <span class="settings-row-description" id="user-uid-display" style="word-break: break-all;">Đang tải...</span>
                 </div>
                 <div class="row-right">
-                    <div id="theme-switch" class="switch"></div>
+                    <button id="copy-uid-btn">Sao chép</button>
+                </div>
+            </div>
+            <div class="settings-row">
+                <div class="row-left">
+                    <span class="settings-row-label">Đổi mật khẩu</span>
+                    <span class="settings-row-description">Thay đổi mật khẩu đăng nhập của bạn.</span>
+                </div>
+                <div class="row-right">
+                    <button id="change-password-btn">Đổi</button>
                 </div>
             </div>
         </div>
 
+        <div class="settings-section" id="profile" style="display:none;">
+            <h2>Hồ sơ</h2>
+             <div class="settings-row">
+                <div class="row-left">
+                    <span class="settings-row-label">Chỉnh sửa thông tin</span>
+                    <span class="settings-row-description">Thay đổi tên hiển thị, ảnh đại diện, ảnh bìa và giới thiệu.</span>
+                </div>
+                <div class="row-right">
+                    <button id="edit-profile-btn">Chỉnh sửa</button>
+                </div>
+            </div>
+            </div>
+
         <div class="settings-section" id="notifications" style="display:none;">
             <h2>Thông báo</h2>
             <div class="settings-row">
-                 <div class="row-left">
-                     <span class="settings-row-label">Thông báo trên trình duyệt</span>
-                     <span class="settings-row-description">Nhận thông báo tin nhắn mới.</span>
+                <div class="row-left">
+                    <span class="settings-row-label">Thông báo trên trình duyệt</span>
+                    <span class="settings-row-description">Nhận thông báo khi có tin nhắn mới (khi tab không mở).</span>
                 </div>
                 <div class="row-right">
                     <button id="enable-browser-notifs-btn">Cho phép</button>
+                </div>
+            </div>
+            <div class="settings-row">
+                <div class="row-left">
+                    <span class="settings-row-label">Âm thanh thông báo</span>
+                    <span class="settings-row-description">Phát âm thanh khi có thông báo mới.</span>
+                </div>
+                <div class="row-right">
+                    <div id="sound-notifs-switch" class="switch"></div>
+                </div>
+            </div>
+            <div class="settings-row">
+                <div class="row-left">
+                    <span class="settings-row-label">Xem trước nội dung</span>
+                    <span class="settings-row-description">Hiển thị tên người gửi và nội dung trong thông báo.</span>
+                </div>
+                <div class="row-right">
+                    <div id="preview-notifs-switch" class="switch"></div>
                 </div>
             </div>
         </div>
@@ -368,14 +244,32 @@ body {
                     <div id="hide-status-switch" class="switch"></div>
                 </div>
             </div>
+             <div class="settings-row">
+                <div class="row-left">
+                    <span class="settings-row-label">Thông báo "Đã xem"</span>
+                    <span class="settings-row-description">Cho người khác biết bạn đã đọc tin nhắn của họ.</span>
+                </div>
+                <div class="row-right">
+                    <div id="read-receipts-switch" class="switch"></div>
+                </div>
+            </div>
+            <div class="settings-row">
+                <div class="row-left">
+                    <span class="settings-row-label">Người dùng bị chặn</span>
+                    <span class="settings-row-description">Xem và quản lý danh sách bạn đã chặn.</span>
+                </div>
+                <div class="row-right">
+                    <button id="manage-blocked-users-btn">Quản lý</button>
+                </div>
+            </div>
             <div class="settings-row">
                 <div class="row-left">
                     <span class="settings-row-label">Ngừng hoạt động tài khoản</span>
-                    <span class="settings-row-description">Vô hiệu hóa tài khoản và ẩn thông tin.</span>
+                    <span class="settings-row-description">Vô hiệu hóa tạm thời tài khoản và ẩn thông tin.</span>
                 </div>
                  <div class="row-right">
-                    <button id="delete-account-btn" class="danger-btn">Yêu cầu</button>
-                </div>
+                     <button id="delete-account-btn" class="danger-btn">Yêu cầu</button>
+                 </div>
             </div>
         </div>
 
@@ -383,66 +277,73 @@ body {
             <h2>Xác minh tài khoản (Tick Xanh)</h2>
             <div class="settings-row">
                 <div class="row-left">
-                    <span id="verification-status" class="settings-row-description" style="flex: 1;">Đang tải...</span>
+                     <span id="verification-status" class="settings-row-description" style="flex: 1;">Đang tải...</span>
                 </div>
                 <div class="row-right">
-                    <button id="request-verification-btn">Yêu cầu</button>
+                     <button id="request-verification-btn">Yêu cầu</button>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<div id="delete-confirm-modal" class="modal-overlay" style="display:none;">
-    <div class="modal-content">
-        <div id="password-step">
-            <h2 style="color: #f59e0b;">Xác thực tài khoản</h2>
-            <p style="margin: 15px 0 20px; color: var(--text-secondary); font-size: 15px; text-align: center;">Vui lòng nhập lại mật khẩu.</p>
-            <label for="password-confirm-input">Mật khẩu</label>
-            <input type="password" id="password-confirm-input" placeholder="••••••••" autocomplete="current-password">
-            <div class="modal-actions">
-                <button id="delete-cancel-btn" class="btn-ghost">Hủy</button>
-                <button id="delete-continue-btn" class="btn">Tiếp tục</button>
-            </div>
+        <div class="settings-section" id="data" style="display:none;">
+              <h2>Dữ liệu & Bộ nhớ</h2>
+              <div class="settings-row">
+                  <div class="row-left">
+                      <span class="settings-row-label">Xóa bộ nhớ đệm</span>
+                      <span class="settings-row-description">Xóa dữ liệu tạm đã lưu trên trình duyệt này (cài đặt, cache ảnh...).</span>
+                  </div>
+                  <div class="row-right">
+                      <button id="clear-local-cache-btn">Xóa ngay</button>
+                  </div>
+              </div>
         </div>
-        <div id="reason-step" style="display:none;">
-            <h2 style="color: #ef4444;">Lý do ngừng hoạt động</h2>
-            <p style="margin: 15px 0; color: var(--text-secondary); text-align: center;">Vui lòng cho biết lý do.</p>
-            <div class="reason-form">
-                <label class="reason-row"><input type="radio" name="deleteReason" value="not_like" checked> Không thích ứng dụng</label>
-                <label class="reason-row"><input type="radio" name="deleteReason" value="privacy_concern"> Lo ngại riêng tư</label>
-                <label class="reason-row"><input type="radio" name="deleteReason" value="new_account"> Tạo tài khoản mới</label>
-                <label class="reason-row"><input type="radio" name="deleteReason" value="other"> Lý do khác</label>
-            </div>
-            <div class="modal-actions">
-                <button id="delete-back-btn" class="btn-ghost">Quay lại</button>
-                <button id="delete-ok-btn" class="btn danger-btn">Xác nhận</button>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div id="verification-request-modal" class="modal-overlay" style="display:none;">
-    <div class="modal-content">
-        <h2>Yêu cầu xác minh</h2>
-        <p style="margin: 15px 0 20px; color: var(--text-secondary); font-size: 15px; text-align: center;">
-            Cung cấp thông tin. Yêu cầu sẽ được xem xét.
+         <div class="settings-section" id="help" style="display:none;">
+              <h2>Trợ giúp</h2>
+              <div class="settings-row">
+                  <div class="row-left">
+                      <span class="settings-row-label">Báo lỗi</span>
+                      <span class="settings-row-description">Gặp sự cố? Gửi báo cáo lỗi cho chúng tôi.</span>
+                  </div>
+                  <div class="row-right">
+                      <button id="open-report-bug-btn-help">Báo lỗi</button>
+                  </div>
+              </div>
+              <div class="settings-row">
+                  <div class="row-left">
+                      <span class="settings-row-label">Thông tin ứng dụng</span>
+                      <span class="settings-row-description">Xem thông tin về nhà phát triển và phiên bản.</span>
+                  </div>
+                  <div class="row-right">
+                      <button id="open-about-btn-help">Xem thông tin</button>
+                  </div>
+              </div>
+        </div>
+
+    </div> </div> <div id="delete-confirm-modal" class="modal-overlay"><div class="modal-content"><div id="password-step"><h2 style="color: #f59e0b;">Xác thực tài khoản</h2><p style="margin: 15px 0 20px; color: var(--text-secondary); font-size: 15px; text-align: center;">Vui lòng nhập lại mật khẩu để tiếp tục.</p><label for="password-confirm-input">Mật khẩu</label><input type="password" id="password-confirm-input" placeholder="••••••••" autocomplete="current-password"><div class="modal-actions"><button id="delete-cancel-btn" class="btn-ghost">Hủy</button><button id="delete-continue-btn" class="btn">Tiếp tục</button></div></div><div id="reason-step" style="display:none;"><h2 style="color: #ef4444;">Lý do ngừng hoạt động</h2><p style="margin: 15px 0; color: var(--text-secondary); text-align: center;">Vui lòng cho biết lý do bạn muốn ngừng hoạt động tài khoản.</p><div class="reason-form"><label class="reason-row"><input type="radio" name="deleteReason" value="not_like" checked> Không thích ứng dụng</label><label class="reason-row"><input type="radio" name="deleteReason" value="privacy_concern"> Lo ngại riêng tư</label><label class="reason-row"><input type="radio" name="deleteReason" value="new_account"> Tạo tài khoản mới</label><label class="reason-row"><input type="radio" name="deleteReason" value="other"> Lý do khác</label></div><div class="modal-actions"><button id="delete-back-btn" class="btn-ghost">Quay lại</button><button id="delete-ok-btn" class="btn danger-btn">Xác nhận ngừng hoạt động</button></div></div></div></div>
+<div id="verification-request-modal" class="modal-overlay"><div class="modal-content"><h2>Yêu cầu xác minh</h2><p style="margin: 15px 0 20px; color: var(--text-secondary); font-size: 15px; text-align: center;">Cung cấp thông tin để yêu cầu tick xanh. Yêu cầu sẽ được xem xét.</p><label for="verification-fullname">Họ và Tên đầy đủ:</label><input type="text" id="verification-fullname" placeholder="Nguyễn Văn A"><label for="verification-reason">Lý do yêu cầu xác minh:</label><textarea id="verification-reason" rows="3" placeholder="Ví dụ: Người của công chúng, đại diện thương hiệu,..."></textarea><div class="modal-actions"><button id="cancel-verification-request-btn" class="btn-ghost">Hủy</button><button id="submit-verification-request-btn" class="btn">Gửi yêu cầu</button></div></div></div>
+<div id="change-password-modal" class="modal-overlay"><div class="modal-content"><h2>Đổi mật khẩu</h2><label for="current-password-input">Mật khẩu hiện tại</label><input type="password" id="current-password-input" placeholder="••••••••" autocomplete="current-password"><label for="new-password-input">Mật khẩu mới</label><input type="password" id="new-password-input" placeholder="Ít nhất 6 ký tự" autocomplete="new-password"><label for="confirm-new-password-input">Xác nhận mật khẩu mới</label><input type="password" id="confirm-new-password-input" placeholder="Nhập lại mật khẩu mới" autocomplete="new-password"><div class="modal-actions"><button id="cancel-change-password-btn" class="btn-ghost">Hủy</button><button id="confirm-change-password-btn" class="btn">Xác nhận</button></div></div></div>
+<div id="blocked-users-modal" class="modal-overlay"><div class="modal-content"><h2>Người dùng bị chặn</h2><div id="blocked-users-list" style="max-height: 40vh; overflow-y: auto; margin: 20px 0;"><p style="color: var(--text-secondary); text-align: center;">Đang tải...</p></div><div class="modal-actions" style="justify-content: center;"><button id="close-blocked-users-btn" class="btn-ghost">Đóng</button></div></div></div>
+<div id="report-bug-modal" class="modal-overlay"><div class="modal-content"><h2>Báo lỗi</h2><p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 20px;">Cảm ơn bạn đã giúp cải thiện Qola! Vui lòng mô tả lỗi bạn gặp phải.</p><div class="form"><label class="form-label" for="bug-description">Mô tả lỗi:</label><textarea id="bug-description" rows="4" placeholder="..."></textarea><label class="form-label" for="bug-steps">Các bước tái hiện ra lỗi : </label><textarea id="bug-steps" rows="3" placeholder="..."></textarea></div><div class="modal-actions"><button id="cancel-report-bug-btn" class="btn-ghost">Hủy</button><button id="submit-bug-report-btn" class="btn">Gửi báo cáo</button></div></div></div>
+<div id="about-modal" class="modal-overlay"><div class="modal-content" style="text-align: center;"><h2>Thông tin tác giả</h2><img src="https://i.ibb.co/xtQ6WDy8/z7088478191410-b16d303436bd2300dd9a3700a9db92ea-1.jpg" alt="Tác giả" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin: 10px auto; border: 2px solid var(--glass-border);"><p style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">Được phát triển bởi <span style="color: var(--accent-1);">QiQi</span></p><p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 15px;">Ver.1.3 </p><p style="font-size: 14px; line-height: 1.6;">Qola Messenger - Đéo bt để câu j. <br>Liên hệ: <a href="mailto:betrumbaodeptraivippro@gmail.com" style="color: var(--accent-1);">betrumbaodeptraivippro@gmail.com</a></p><div class="modal-actions" style="justify-content: center;"><button id="close-about-modal-btn" class="btn-ghost">Đóng</button></div></div></div>
+<div id="custom-confirm-modal" class="modal-overlay">
+    <div class="modal-content" style="width: 400px; text-align: center;">
+        <h2 id="confirm-title" style="font-size: 20px;">Xác nhận hành động</h2>
+        <p id="confirm-message" style="margin: 20px 0; color: var(--text-secondary); font-size: 16px; line-height: 1.6;">
+            Nội dung xác nhận sẽ được hiển thị ở đây.
         </p>
-        <label for="verification-fullname">Họ và Tên:</label>
-        <input type="text" id="verification-fullname" placeholder="Nguyễn Văn A" style="margin-bottom: 15px;">
-        <label for="verification-reason">Lý do yêu cầu:</label>
-        <textarea id="verification-reason" rows="3" placeholder="Ví dụ: Người nổi tiếng,..." style="margin-bottom: 20px;"></textarea>
-        <div class="modal-actions">
-            <button id="cancel-verification-request-btn" class="btn-ghost">Hủy</button>
-            <button id="submit-verification-request-btn" class="btn">Gửi yêu cầu</button>
+        <div class="modal-actions" style="justify-content: center;">
+            <button id="confirm-cancel-btn" class="btn-ghost">Hủy</button>
+            <button id="confirm-ok-btn" class="btn">OK</button>
         </div>
     </div>
 </div>
 
 <script type="module">
+// --- TOÀN BỘ JAVASCRIPT ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, reauthenticateWithCredential, EmailAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc,addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, reauthenticateWithCredential, EmailAuthProvider, signOut, updatePassword } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, addDoc, collection, serverTimestamp, arrayUnion, arrayRemove, deleteField, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBuGG9WKYZHb1qbmihpJFjCBsTB_VJ_LvU", authDomain: "qola-web.firebaseapp.com", databaseURL: "https://qola-web-default-rtdb.firebaseio.com", projectId: "qola-web", storageBucket: "qola-web.firebasestorage.app", messagingSenderId: "477682993077", appId: "1:477682993077:web:7dce15eb2c365729173bfc"
@@ -451,11 +352,11 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// DOM Elements
+// --- DOM Elements ---
 const toast = document.getElementById('toast');
-const themeSwitch = document.getElementById('theme-switch');
+// Theme switch removed
 const notifBtn = document.getElementById('enable-browser-notifs-btn');
-const hideStatusSwitch = document.getElementById('hide-status-switch'); // Đảm bảo ID này đúng
+const hideStatusSwitch = document.getElementById('hide-status-switch');
 const deleteAccountBtn = document.getElementById('delete-account-btn');
 const verificationStatus = document.getElementById('verification-status');
 const requestVerificationBtn = document.getElementById('request-verification-btn');
@@ -474,164 +375,206 @@ const deleteBackBtn = document.getElementById('delete-back-btn');
 const deleteOkBtn = document.getElementById('delete-ok-btn');
 const navItems = document.querySelectorAll('.nav-item');
 const settingsSections = document.querySelectorAll('.settings-section');
+const userEmailDisplay = document.getElementById('user-email-display');
+const userUidDisplay = document.getElementById('user-uid-display');
+const copyUidBtn = document.getElementById('copy-uid-btn');
+const changePasswordBtn = document.getElementById('change-password-btn');
+const soundNotifsSwitch = document.getElementById('sound-notifs-switch');
+const previewNotifsSwitch = document.getElementById('preview-notifs-switch');
+const readReceiptsSwitch = document.getElementById('read-receipts-switch');
+const manageBlockedUsersBtn = document.getElementById('manage-blocked-users-btn');
+const changePasswordModal = document.getElementById('change-password-modal');
+const currentPasswordInput = document.getElementById('current-password-input');
+const newPasswordInput = document.getElementById('new-password-input');
+const confirmNewPasswordInput = document.getElementById('confirm-new-password-input');
+const cancelChangePasswordBtn = document.getElementById('cancel-change-password-btn');
+const confirmChangePasswordBtn = document.getElementById('confirm-change-password-btn');
+const blockedUsersModal = document.getElementById('blocked-users-modal');
+const blockedUsersList = document.getElementById('blocked-users-list');
+const closeBlockedUsersBtn = document.getElementById('close-blocked-users-btn');
+const editProfileBtn = document.getElementById('edit-profile-btn');
+const clearLocalCacheBtn = document.getElementById('clear-local-cache-btn');
+const openReportBugBtnHelp = document.getElementById('open-report-bug-btn-help');
+const openAboutBtnHelp = document.getElementById('open-about-btn-help');
+const reportBugModal = document.getElementById('report-bug-modal');
+const cancelReportBugBtn = document.getElementById('cancel-report-bug-btn');
+const submitBugReportBtn = document.getElementById('submit-bug-report-btn');
+const bugDescription = document.getElementById('bug-description');
+const bugSteps = document.getElementById('bug-steps');
+const aboutModal = document.getElementById('about-modal');
+const closeAboutModalBtn = document.getElementById('close-about-modal-btn');
+
+// --- State ---
+let currentUser = null;
+let currentUserData = {};
 
 // --- Navigation Logic ---
-function showSection(sectionId) {
-    settingsSections.forEach(section => {
-        // Luôn dùng style.display để ẩn/hiện
-        section.style.display = (section.id === sectionId) ? 'block' : 'none';
-    });
-    navItems.forEach(item => {
-        item.classList.toggle('active', item.dataset.section === sectionId);
-    });
-    const contentArea = document.querySelector('.settings-content');
-    if (contentArea) contentArea.scrollTop = 0;
-}
-navItems.forEach(item => { item.onclick = () => { showSection(item.dataset.section); }; });
-showSection('interface'); // Mặc định hiện tab Giao diện
+function showSection(sectionId) { if (!settingsSections || !navItems) return; settingsSections.forEach(section => { section.style.display = (section.id === sectionId) ? 'block' : 'none'; }); navItems.forEach(item => { item.classList.toggle('active', item.dataset.section === sectionId); }); const contentArea = document.querySelector('.settings-content'); if (contentArea) contentArea.scrollTop = 0; }
+if (navItems) navItems.forEach(item => { item.onclick = () => { if(item.dataset.section) showSection(item.dataset.section); }; });
+showSection('account'); // Default to Account section
 
 // --- Toast ---
 let toastTimer;
-function showToast(message, type = 'info') {
-    clearTimeout(toastTimer);
-    toast.textContent = message;
-    toast.className = ''; toast.classList.add(type);
-    toast.style.display = 'block';
-    toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 3000);
-}
+function showToast(message, type = 'info') { if (!toast) return; clearTimeout(toastTimer); toast.textContent = message; toast.className = ''; toast.classList.add(type); toast.style.display = 'block'; toast.style.animation = 'none'; void toast.offsetWidth; toast.style.animation = 'slideInAndOut 3s ease forwards'; toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 3000); }
 
-// --- Theme ---
-(function initTheme() {
-    const saved = localStorage.getItem('theme') || 'dark';
-    document.body.classList.toggle('light', saved === 'light');
-    themeSwitch.classList.toggle('on', saved === 'light');
-})();
-themeSwitch.onclick = () => {
-    const isLight = document.body.classList.toggle('light');
-    localStorage.setItem('theme', isLight ? 'light' : 'dark');
-    themeSwitch.classList.toggle('on', isLight);
-};
+// --- Utils ---
+function copyToClipboard(text, successMessage) { navigator.clipboard.writeText(text).then(() => { showToast(successMessage || 'Đã sao chép!', 'success'); }).catch(err => { console.error('Lỗi sao chép:', err); showToast('Lỗi sao chép!', 'error'); }); }
+function escapeHtml(s) { if (typeof s !== 'string') return ''; return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
 
 // --- Notifications ---
-notifBtn.onclick = () => {
-    if (!("Notification" in window)) return showToast("Trình duyệt không hỗ trợ.", "error");
-    if (Notification.permission === 'denied') return showToast("Bạn đã từ chối quyền.", "info");
-    if (Notification.permission !== 'granted') {
-        Notification.requestPermission().then(permission => {
-            if (permission === "granted") { showToast("Đã bật thông báo!", "success"); notifBtn.textContent = "Đã cho phép"; notifBtn.disabled = true; }
-            else { showToast("Bạn không cấp quyền.", "info"); if(permission === 'denied'){ notifBtn.textContent = "Đã từ chối"; notifBtn.disabled = true; } }
-        });
-    }
-};
+if (notifBtn) { notifBtn.onclick = () => { if (!("Notification" in window)) return showToast("Trình duyệt không hỗ trợ.", "error"); if (Notification.permission === 'denied') return showToast("Bạn đã từ chối quyền.", "info"); if (Notification.permission !== 'granted') { Notification.requestPermission().then(permission => { if (permission === "granted") { showToast("Đã bật thông báo!", "success"); notifBtn.textContent = "Đã cho phép"; notifBtn.disabled = true; } else { showToast("Bạn không cấp quyền.", "info"); if(permission === 'denied'){ notifBtn.textContent = "Đã từ chối"; notifBtn.disabled = true; } } }); } }; }
 
 // --- Account Deactivation ---
-function showDeleteConfirmation() {
-    passwordStep.style.display = 'block'; reasonStep.style.display = 'none'; passwordConfirmInput.value = '';
-    deleteContinueBtn.disabled = false; deleteContinueBtn.textContent = "Tiếp tục"; deleteOkBtn.disabled = false; deleteOkBtn.textContent = "Xác nhận"; // Sửa lại text
-    deleteConfirmModal.classList.add('show'); // Hiện modal bằng class
+function showDeleteConfirmation() { if (!passwordStep || !reasonStep || !passwordConfirmInput || !deleteConfirmModal) return; passwordStep.style.display = 'block'; reasonStep.style.display = 'none'; passwordConfirmInput.value = ''; if(deleteContinueBtn) { deleteContinueBtn.disabled = false; deleteContinueBtn.textContent = "Tiếp tục"; } if(deleteOkBtn) { deleteOkBtn.disabled = false; deleteOkBtn.textContent = "Xác nhận ngừng hoạt động"; } deleteConfirmModal.classList.add('show'); }
+if(deleteAccountBtn) deleteAccountBtn.onclick = showDeleteConfirmation;
+if(deleteCancelBtn && deleteConfirmModal) deleteCancelBtn.onclick = () => deleteConfirmModal.classList.remove('show');
+if(deleteBackBtn && passwordStep && reasonStep) deleteBackBtn.onclick = () => { passwordStep.style.display = 'block'; reasonStep.style.display = 'none'; };
+if (deleteContinueBtn && passwordConfirmInput && passwordStep && reasonStep) { deleteContinueBtn.onclick = async () => { const password = passwordConfirmInput.value; const user = auth.currentUser; if (!password || !user) return showToast("Vui lòng nhập mật khẩu.", "error"); deleteContinueBtn.disabled = true; deleteContinueBtn.textContent = "Đang kiểm tra..."; const credential = EmailAuthProvider.credential(user.email, password); try { await reauthenticateWithCredential(user, credential); passwordStep.style.display = 'none'; reasonStep.style.display = 'block'; } catch (error) { showToast("Mật khẩu không đúng.", "error"); } finally { deleteContinueBtn.disabled = false; deleteContinueBtn.textContent = "Tiếp tục"; } }; }
+if (deleteOkBtn && deleteConfirmModal) { deleteOkBtn.onclick = async () => { const user = auth.currentUser; if (!user) return; const reasonElement = document.querySelector('input[name="deleteReason"]:checked'); const reason = reasonElement ? reasonElement.value : 'unknown'; deleteOkBtn.disabled = true; deleteOkBtn.textContent = "Đang xử lý..."; try { const userDocRef = doc(db, 'users', user.uid); await updateDoc(userDocRef, { isDeactivated: true, deactivationReason: reason, displayName: "Người dùng ẩn danh", bio: deleteField(), avatarUrl: "https://placehold.co/120x120/64748b/fff?text=X", friends: [], blocked: deleteField(), nicknames: deleteField() }); await signOut(auth); showToast("Tài khoản đã ngừng hoạt động.", "success"); deleteConfirmModal.classList.remove('show'); setTimeout(() => { window.location.href = "login.html"; }, 1500); } catch (error) { showToast(`Lỗi: ${error.message}.`, "error"); deleteOkBtn.disabled = false; deleteOkBtn.textContent = "Xác nhận ngừng hoạt động"; } }; }
+if(deleteConfirmModal && deleteCancelBtn) deleteConfirmModal.onclick = (e) => { if (e.target === deleteConfirmModal) deleteCancelBtn.onclick(); };
+
+// --- Change Password Modal ---
+if (changePasswordModal && cancelChangePasswordBtn && confirmChangePasswordBtn && currentPasswordInput && newPasswordInput && confirmNewPasswordInput) {
+    cancelChangePasswordBtn.onclick = () => { changePasswordModal.classList.remove('show'); currentPasswordInput.value = ''; newPasswordInput.value = ''; confirmNewPasswordInput.value = ''; };
+    confirmChangePasswordBtn.onclick = async () => { const currentPassword = currentPasswordInput.value; const newPassword = newPasswordInput.value; const confirmNewPassword = confirmNewPasswordInput.value; const user = auth.currentUser; if (!currentPassword || !newPassword || !confirmNewPassword) return showToast("Vui lòng nhập đủ thông tin.", "error"); if (newPassword.length < 6) return showToast("Mật khẩu mới phải ít nhất 6 ký tự.", "error"); if (newPassword !== confirmNewPassword) return showToast("Mật khẩu mới không khớp.", "error"); if (!user) return showToast("Lỗi xác thực.", "error"); confirmChangePasswordBtn.disabled = true; confirmChangePasswordBtn.textContent = "Đang đổi..."; try { const credential = EmailAuthProvider.credential(user.email, currentPassword); await reauthenticateWithCredential(user, credential); await updatePassword(user, newPassword); showToast("Đổi mật khẩu thành công!", "success"); changePasswordModal.classList.remove('show'); currentPasswordInput.value = ''; newPasswordInput.value = ''; confirmNewPasswordInput.value = ''; } catch (error) { console.error("Lỗi đổi mật khẩu:", error); if (error.code === 'auth/wrong-password') showToast("Mật khẩu hiện tại không đúng.", "error"); else if (error.code === 'auth/weak-password') showToast("Mật khẩu mới quá yếu.", "error"); else showToast("Lỗi đổi mật khẩu.", "error"); } finally { confirmChangePasswordBtn.disabled = false; confirmChangePasswordBtn.textContent = "Xác nhận"; } };
+    changePasswordModal.onclick = (e) => { if (e.target === changePasswordModal) cancelChangePasswordBtn.onclick(); };
+} else { console.warn("Missing change password modal elements."); }
+
+// --- Blocked Users Modal ---
+async function loadBlockedUsers() {
+    if (!blockedUsersList || !currentUserData) return; blockedUsersList.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Đang tải...</p>';
+    const blockedUids = currentUserData.blocked || [];
+    if (blockedUids.length === 0) { blockedUsersList.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Bạn chưa chặn người dùng nào.</p>'; return; }
+    blockedUsersList.innerHTML = ''; let foundUsers = 0;
+    for (const uid of blockedUids) {
+        try {
+            const userDoc = await getDoc(doc(db, 'users', uid));
+            if (userDoc.exists()) {
+                foundUsers++; const userData = userDoc.data(); const displayName = userData.displayName || userData.email || 'Người dùng ẩn'; const avatarUrl = userData.avatarUrl || `https://placehold.co/40x40?text=${displayName[0].toUpperCase()}`; const item = document.createElement('div'); item.className = 'blocked-user-item'; item.innerHTML = `<div class="blocked-user-info"><img src="${avatarUrl}" class="blocked-user-avatar" alt="Avatar"><span class="blocked-user-name">${escapeHtml(displayName)}</span></div><button class="unblock-btn" data-uid="${uid}">Bỏ chặn</button>`; const unblockBtn = item.querySelector('.unblock-btn');
+                if(unblockBtn) { unblockBtn.onclick = async (e) => { const targetUid = e.target.dataset.uid; if (!targetUid || !currentUser) return; e.target.disabled = true; e.target.textContent = 'Đang bỏ...'; try { await updateDoc(doc(db, 'users', currentUser.uid), { blocked: arrayRemove(targetUid) }); currentUserData.blocked = currentUserData.blocked?.filter(id => id !== targetUid); showToast("Đã bỏ chặn!", "success"); item.remove(); if (blockedUsersList.children.length === 0) blockedUsersList.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Bạn chưa chặn người dùng nào.</p>'; } catch(err) { console.error("Lỗi bỏ chặn:", err); showToast("Lỗi bỏ chặn!", "error"); e.target.disabled = false; e.target.textContent = 'Bỏ chặn'; } }; }
+                blockedUsersList.appendChild(item);
+            }
+        } catch (err) { console.error("Lỗi lấy thông tin:", uid, err); }
+    }
+     if (foundUsers === 0 && blockedUids.length > 0) blockedUsersList.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Không tìm thấy thông tin.</p>';
 }
-deleteAccountBtn.onclick = showDeleteConfirmation;
-deleteCancelBtn.onclick = () => deleteConfirmModal.classList.remove('show'); // Đóng modal bằng class
-deleteBackBtn.onclick = () => { passwordStep.style.display = 'block'; reasonStep.style.display = 'none'; };
-deleteContinueBtn.onclick = async () => {
-    const password = passwordConfirmInput.value; const user = auth.currentUser;
-    if (!password || !user) return showToast("Vui lòng nhập mật khẩu.", "error");
-    deleteContinueBtn.disabled = true; deleteContinueBtn.textContent = "Đang kiểm tra...";
-    const credential = EmailAuthProvider.credential(user.email, password);
-    try { await reauthenticateWithCredential(user, credential); passwordStep.style.display = 'none'; reasonStep.style.display = 'block'; }
-    catch (error) { showToast("Mật khẩu không đúng.", "error"); }
-    finally { deleteContinueBtn.disabled = false; deleteContinueBtn.textContent = "Tiếp tục"; }
-};
-deleteOkBtn.onclick = async () => {
-    const user = auth.currentUser; if (!user) return;
-    const reasonElement = document.querySelector('input[name="deleteReason"]:checked');
-    const reason = reasonElement ? reasonElement.value : 'unknown';
-    deleteOkBtn.disabled = true; deleteOkBtn.textContent = "Đang xử lý...";
-    try {
-        const userDocRef = doc(db, 'users', user.uid);
-        await updateDoc(userDocRef, { isDeactivated: true, deactivationReason: reason, displayName: "Người dùng ẩn danh", bio: "", avatarUrl: "https://placehold.co/120x120/64748b/fff?text=X", friends: [] }); // Đổi tên + avatar
-        await signOut(auth); showToast("Tài khoản đã ngừng hoạt động.", "success");
-        deleteConfirmModal.classList.remove('show'); // Đóng modal
-        setTimeout(() => { window.location.href = "login.html"; }, 1500);
-    } catch (error) { showToast(`Lỗi: ${error.message}.`, "error"); deleteOkBtn.disabled = false; deleteOkBtn.textContent = "Xác nhận"; } // Sửa lại text
-};
+if (blockedUsersModal && closeBlockedUsersBtn) { closeBlockedUsersBtn.onclick = () => blockedUsersModal.classList.remove('show'); blockedUsersModal.onclick = (e) => { if (e.target === blockedUsersModal) closeBlockedUsersBtn.onclick(); }; }
+else { console.warn("Missing blocked users modal elements."); }
+
+// --- Verification Request Modal Events ---
+if (cancelVerificationRequestBtn && verificationRequestModal) cancelVerificationRequestBtn.onclick = () => verificationRequestModal.classList.remove('show');
+if (submitVerificationRequestBtn && verificationFullNameInput && verificationReasonInput && verificationRequestModal && requestVerificationBtn && verificationStatus) {
+    submitVerificationRequestBtn.onclick = async () => { const fullName = verificationFullNameInput.value.trim(); const reason = verificationReasonInput.value.trim(); if (!fullName) return showToast("Vui lòng nhập Họ và Tên.", "error"); if (!reason) return showToast("Vui lòng nhập lý do.", "error"); if (!auth.currentUser) return; submitVerificationRequestBtn.disabled = true; submitVerificationRequestBtn.textContent = "Đang gửi..."; try { await addDoc(collection(db, "verification_requests"), { userId: auth.currentUser.uid, userEmail: auth.currentUser.email, fullName: fullName, reason: reason, requestTimestamp: serverTimestamp(), status: "pending" }); await updateDoc(doc(db, 'users', auth.currentUser.uid), { verificationStatus: 'pending' }); showToast("Đã gửi yêu cầu!", "success"); verificationRequestModal.classList.remove('show'); requestVerificationBtn.disabled = true; requestVerificationBtn.textContent = "Đã yêu cầu"; verificationStatus.textContent = "Yêu cầu đang chờ xem xét."; } catch (error) { console.error("Lỗi gửi yêu cầu:", error); showToast("Gửi thất bại.", "error"); } finally { submitVerificationRequestBtn.disabled = false; submitVerificationRequestBtn.textContent = "Gửi yêu cầu"; } };
+    verificationRequestModal.onclick = (e) => { if (e.target === verificationRequestModal) cancelVerificationRequestBtn.onclick(); };
+} else { console.warn("Missing verification request modal elements."); }
+
+// --- Report Bug & About Modals ---
+async function submitBugReport() { if (!bugDescription || !bugSteps || !submitBugReportBtn || !reportBugModal) return; const description = bugDescription.value.trim(); const steps = bugSteps.value.trim(); if (!description) return showToast("Vui lòng mô tả lỗi.", "error"); submitBugReportBtn.disabled = true; submitBugReportBtn.textContent = "Đang gửi..."; try { await addDoc(collection(db, "bug_reports"), { userId: currentUser?.uid || "unknown", email: currentUser?.email || "unknown", description: description, stepsToReproduce: steps || null, timestamp: serverTimestamp(), userAgent: navigator.userAgent, appVersion: "1.3" }); showToast("Đã gửi báo cáo lỗi!", "success"); reportBugModal.classList.remove('show'); bugDescription.value = ''; bugSteps.value = ''; } catch (error) { console.error("Lỗi gửi báo cáo lỗi:", error); showToast("Gửi báo cáo thất bại: " + error.message, "error"); } finally { submitBugReportBtn.disabled = false; submitBugReportBtn.textContent = "Gửi báo cáo"; } }
+if (openReportBugBtnHelp && reportBugModal) openReportBugBtnHelp.onclick = () => reportBugModal.classList.add('show');
+if (cancelReportBugBtn && reportBugModal) cancelReportBugBtn.onclick = () => { reportBugModal.classList.remove('show'); if(bugDescription) bugDescription.value = ''; if(bugSteps) bugSteps.value = ''; };
+if (submitBugReportBtn) submitBugReportBtn.onclick = submitBugReport;
+if (reportBugModal) reportBugModal.onclick = (e) => { if (e.target === reportBugModal) { if(cancelReportBugBtn) cancelReportBugBtn.onclick();} };
+if (openAboutBtnHelp && aboutModal) openAboutBtnHelp.onclick = () => aboutModal.classList.add('show');
+if (closeAboutModalBtn && aboutModal) closeAboutModalBtn.onclick = () => aboutModal.classList.remove('show');
+if (aboutModal) aboutModal.onclick = (e) => { if (e.target === aboutModal) { if(closeAboutModalBtn) closeAboutModalBtn.onclick();} };
+
+
+function showConfirmation(message) {
+    return new Promise(resolve => {
+        // Lấy các element của modal confirm (cần có trong HTML)
+        const confirmModal = document.getElementById('custom-confirm-modal'); // ID modal confirm chung
+        const confirmMessage = document.getElementById('confirm-message');
+        const confirmOkBtn = document.getElementById('confirm-ok-btn');
+        const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+
+        // Ưu tiên dùng modal nếu tất cả element tồn tại
+        if (confirmMessage && confirmModal && confirmOkBtn && confirmCancelBtn) {
+            confirmMessage.textContent = message; // Đặt nội dung câu hỏi
+            confirmModal.classList.add('show'); // Hiện modal bằng class
+
+            // Gán sự kiện chỉ chạy 1 lần cho nút OK và Cancel
+            confirmOkBtn.onclick = () => {
+                confirmModal.classList.remove('show'); // Ẩn modal
+                resolve(true); // Trả về true khi bấm OK
+            };
+            confirmCancelBtn.onclick = () => {
+                confirmModal.classList.remove('show'); // Ẩn modal
+                resolve(false); // Trả về false khi bấm Cancel
+            };
+            // Optional: Đóng khi bấm ra ngoài modal overlay
+            confirmModal.onclick = (e) => {
+                 if (e.target === confirmModal) {
+                      confirmModal.classList.remove('show');
+                      resolve(false); // Coi như bấm Cancel
+                 }
+            };
+        } else {
+            // Fallback: Dùng window.confirm của trình duyệt nếu thiếu modal
+            console.warn("Confirmation modal elements not found, using window.confirm.");
+            resolve(window.confirm(message));
+        }
+    });
+}
 
 // --- Main Auth Listener ---
 onAuthStateChanged(auth, async (user) => {
     if (!user) return window.location.href = 'login.html';
     const userDocRef = doc(db, 'users', user.uid);
     const userSnap = await getDoc(userDocRef);
-    if (!userSnap.exists()) { await signOut(auth); window.location.href = "login.html"; return; }
-    const userData = userSnap.data();
+    if (!userSnap.exists() || userSnap.data().isDeactivated === true || userSnap.data().needsSetup === true) { await signOut(auth); window.location.href = "login.html"; return; }
+    currentUser = user; currentUserData = userSnap.data(); // Set global user data
 
-    // Init Hide Status switch - Đảm bảo hideStatusSwitch tồn tại
-    if (hideStatusSwitch) {
-        hideStatusSwitch.classList.toggle('on', userData.hideOnlineStatus === true);
-        hideStatusSwitch.onclick = async () => {
-             const wantsToHide = !hideStatusSwitch.classList.contains('on');
-             try { await updateDoc(userDocRef, { hideOnlineStatus: wantsToHide }); hideStatusSwitch.classList.toggle('on', wantsToHide); showToast(`Đã ${wantsToHide ? 'ẩn' : 'hiện'} trạng thái online.`, "success"); }
-             catch (e) { showToast("Lỗi cập nhật.", "error"); }
-        };
-    } else {
-        console.error("Element #hide-status-switch not found!"); // Báo lỗi nếu không tìm thấy
-    }
+    // --- ACCOUNT SECTION ---
+    if (userEmailDisplay) userEmailDisplay.textContent = user.email || 'Không có';
+    if (userUidDisplay) userUidDisplay.textContent = user.uid;
+    if (copyUidBtn) copyUidBtn.onclick = () => copyToClipboard(user.uid, 'Đã sao chép UID!');
+    if (changePasswordBtn && changePasswordModal) changePasswordBtn.onclick = () => changePasswordModal.classList.add('show');
 
+    // --- PROFILE SECTION ---
+    if(editProfileBtn) editProfileBtn.onclick = () => { window.location.href = `profile.html?id=${user.uid}&edit=true`; };
 
-    // Init Verification Status
-    if (userData.isVerified) {
-        verificationStatus.textContent = "Tài khoản đã được xác minh.";
-        requestVerificationBtn.textContent = "Đã xác minh"; requestVerificationBtn.disabled = true;
-    } else if (userData.verificationStatus === 'pending') {
-        verificationStatus.textContent = "Yêu cầu đang chờ xem xét.";
-        requestVerificationBtn.textContent = "Đã yêu cầu"; requestVerificationBtn.disabled = true;
-    } else {
-        verificationStatus.textContent = "Chưa xác minh.";
-        requestVerificationBtn.textContent = "Yêu cầu xác minh"; requestVerificationBtn.disabled = false;
-        requestVerificationBtn.onclick = () => {
-             if(verificationFullNameInput) verificationFullNameInput.value = userData.displayName || '';
-             if(verificationReasonInput) verificationReasonInput.value = '';
-             verificationRequestModal.classList.add('show'); // Hiện modal bằng class
-        };
-    }
+    // --- NOTIFICATIONS SECTION ---
+    if (notifBtn) { if ("Notification" in window) { if (Notification.permission === 'granted') { notifBtn.textContent = "Đã cho phép"; notifBtn.disabled = true; } else if (Notification.permission === 'denied') { notifBtn.textContent = "Đã từ chối"; notifBtn.disabled = true; } else { notifBtn.textContent = "Cho phép"; notifBtn.disabled = false; } } else { notifBtn.textContent = "Không hỗ trợ"; notifBtn.disabled = true; } }
+    if (soundNotifsSwitch) { soundNotifsSwitch.classList.toggle('on', currentUserData.soundNotifications !== false); soundNotifsSwitch.onclick = async () => { const wantsSound = !soundNotifsSwitch.classList.contains('on'); try { await updateDoc(userDocRef, { soundNotifications: wantsSound }); currentUserData.soundNotifications = wantsSound; soundNotifsSwitch.classList.toggle('on', wantsSound); showToast(`Âm thanh thông báo ${wantsSound ? 'bật' : 'tắt'}.`, "success"); } catch (e) { showToast("Lỗi cập nhật.", "error"); } }; }
+    if (previewNotifsSwitch) { previewNotifsSwitch.classList.toggle('on', currentUserData.previewNotifications !== false); previewNotifsSwitch.onclick = async () => { const wantsPreview = !previewNotifsSwitch.classList.contains('on'); try { await updateDoc(userDocRef, { previewNotifications: wantsPreview }); currentUserData.previewNotifications = wantsPreview; previewNotifsSwitch.classList.toggle('on', wantsPreview); showToast(`Xem trước nội dung ${wantsPreview ? 'bật' : 'tắt'}.`, "success"); } catch (e) { showToast("Lỗi cập nhật.", "error"); } }; }
 
-    // Init Notification Button Status
-    if ("Notification" in window) {
-        if (Notification.permission === 'granted') { notifBtn.textContent = "Đã cho phép"; notifBtn.disabled = true; }
-        else if (Notification.permission === 'denied') { notifBtn.textContent = "Đã từ chối"; notifBtn.disabled = true; }
-        else { notifBtn.textContent = "Cho phép"; notifBtn.disabled = false; }
-    } else { notifBtn.textContent = "Không hỗ trợ"; notifBtn.disabled = true; }
-});
+    // --- PRIVACY SECTION ---
+    if (hideStatusSwitch) { hideStatusSwitch.classList.toggle('on', currentUserData.hideOnlineStatus === true); hideStatusSwitch.onclick = async () => { const wantsToHide = !hideStatusSwitch.classList.contains('on'); try { await updateDoc(userDocRef, { hideOnlineStatus: wantsToHide }); currentUserData.hideOnlineStatus = wantsToHide; hideStatusSwitch.classList.toggle('on', wantsToHide); showToast(`Trạng thái online đã ${wantsToHide ? 'ẩn' : 'hiện'}.`, "success"); } catch (e) { showToast("Lỗi cập nhật.", "error"); } }; }
+    if (readReceiptsSwitch) { readReceiptsSwitch.classList.toggle('on', currentUserData.readReceipts !== false); readReceiptsSwitch.onclick = async () => { const wantsReceipts = !readReceiptsSwitch.classList.contains('on'); try { await updateDoc(userDocRef, { readReceipts: wantsReceipts }); currentUserData.readReceipts = wantsReceipts; readReceiptsSwitch.classList.toggle('on', wantsReceipts); showToast(`"Đã xem" đã ${wantsReceipts ? 'bật' : 'tắt'}.`, "success"); } catch (e) { showToast("Lỗi cập nhật.", "error"); } }; }
+    if (manageBlockedUsersBtn && blockedUsersModal) manageBlockedUsersBtn.onclick = () => { loadBlockedUsers(); blockedUsersModal.classList.add('show'); };
+    // (Deactivate button onclick assigned earlier)
 
-// --- Verification Request Modal Events ---
-cancelVerificationRequestBtn.onclick = () => { verificationRequestModal.classList.remove('show'); }; // Đóng modal bằng class
-submitVerificationRequestBtn.onclick = async () => {
-    const fullName = verificationFullNameInput ? verificationFullNameInput.value.trim() : '';
-    const reason = verificationReasonInput ? verificationReasonInput.value.trim() : '';
-    if (!fullName) return showToast("Vui lòng nhập Họ và Tên.", "error");
-    if (!reason) return showToast("Vui lòng nhập lý do.", "error");
-    if (!auth.currentUser) return;
+    // --- VERIFICATION SECTION ---
+    if (verificationStatus && requestVerificationBtn && verificationRequestModal) { if (currentUserData.isVerified) { verificationStatus.textContent = "Tài khoản đã được xác minh."; requestVerificationBtn.textContent = "Đã xác minh"; requestVerificationBtn.disabled = true; } else if (currentUserData.verificationStatus === 'pending') { verificationStatus.textContent = "Yêu cầu đang chờ xem xét."; requestVerificationBtn.textContent = "Đã yêu cầu"; requestVerificationBtn.disabled = true; } else { verificationStatus.textContent = "Tài khoản chưa được xác minh."; requestVerificationBtn.textContent = "Yêu cầu xác minh"; requestVerificationBtn.disabled = false; requestVerificationBtn.onclick = () => { if(verificationFullNameInput) verificationFullNameInput.value = currentUserData.displayName || ''; if(verificationReasonInput) verificationReasonInput.value = ''; verificationRequestModal.classList.add('show'); }; } }
 
-    submitVerificationRequestBtn.disabled = true; submitVerificationRequestBtn.textContent = "Đang gửi...";
-    try {
-        await addDoc(collection(db, "verification_requests"), { userId: auth.currentUser.uid, userEmail: auth.currentUser.email, fullName: fullName, reason: reason, requestTimestamp: serverTimestamp(), status: "pending" });
-        await updateDoc(doc(db, 'users', auth.currentUser.uid), { verificationStatus: 'pending' });
-        showToast("Đã gửi yêu cầu!", "success"); verificationRequestModal.classList.remove('show'); // Đóng modal
-        requestVerificationBtn.disabled = true; requestVerificationBtn.textContent = "Đã yêu cầu";
-        verificationStatus.textContent = "Yêu cầu đang chờ xem xét.";
-    } catch (error) { console.error("Lỗi gửi yêu cầu:", error); showToast("Gửi thất bại.", "error"); }
-    finally { submitVerificationRequestBtn.disabled = false; submitVerificationRequestBtn.textContent = "Gửi yêu cầu"; }
-};
-
-// Đóng modal khi bấm ra ngoài (Thêm cho cả 2 modal)
-[deleteConfirmModal, verificationRequestModal].forEach(modal => {
-    if (modal) {
-        modal.onclick = (e) => {
-             if (e.target === modal) {
-                  modal.classList.remove('show');
+    // --- DATA SECTION ---
+    if (clearLocalCacheBtn) {
+        clearLocalCacheBtn.onclick = async () => {
+             const confirmed = await showConfirmation("Xóa bộ nhớ đệm cục bộ? Hành động này sẽ xóa các cài đặt đã lưu (như trạng thái switch) và cache khác trên trình duyệt này.");
+             if (confirmed) {
+                  try {
+                      // Xóa các key localStorage bạn dùng
+                      localStorage.removeItem('theme'); // Theme removed, but keep example
+                      localStorage.removeItem('soundNotifications'); // If stored locally
+                      localStorage.removeItem('previewNotifications'); // If stored locally
+                    localStorage.removeItem('readReceipts'); // If stored locally
+                      localStorage.removeItem('avatarCache'); // If used
+                      showToast("Đã xóa bộ nhớ đệm!", "success");
+                      location.reload(); // Reload để áp dụng cài đặt mặc định từ Firestore
+                  } catch (e) { console.error("Lỗi xóa cache:", e); showToast("Lỗi khi xóa bộ nhớ đệm!", "error"); }
              }
-        };
+        }
     }
+
+    // --- HELP SECTION ---
+    // (Đã gán onclick cho nút)
+
 });
+
+
+
+
+// --- INIT THEME (Removed) ---
 
 </script>
 </body>
