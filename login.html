@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Đăng nhập/Đăng ký - Qola Messenger</title>
+<link rel="icon" type="image/png" href="Res/favicon.png">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
@@ -405,7 +406,7 @@ signupBtn.onclick = async () => {
         console.error("Registration failed overall:", error);
         let friendlyMessage = "Đăng ký thất bại. Vui lòng thử lại."; // Mặc định
         const errorMessage = error.message || "";
-        if (errorMessage.includes('IP address registration limit reached')) { friendlyMessage = "Địa chỉ IP này đã đạt giới hạn tạo tài khoản (tối đa 3)."; }
+        if (errorMessage.includes('IP address registration limit reached')) { friendlyMessage = "Bạn không thể tiếp tục tạo tài khoản trên thiết bị / mạng này nữa !."; }
         else if (errorMessage.includes('Email already in use')) { friendlyMessage = "Địa chỉ email này đã được sử dụng."; }
         else if (errorMessage.includes('Username already in use')) { friendlyMessage = "Tên đăng nhập (username) này đã được sử dụng."; }
         else if (errorMessage.includes('Password must be at least 6 characters')) { friendlyMessage = "Mật khẩu phải có ít nhất 6 ký tự."; }

@@ -1,53 +1,69 @@
 @echo off
-REM Tool nhỏ để add, commit, và push lên GitHub nhanh chóng
+title Git Commit Menu
+color 0A
 
-REM Kiểm tra xem có nhập lời nhắn commit không
-if "%~1"=="" (
-    echo Le loi roi: Phai nhap loi nhan commit chu!
-    echo Cach dung: pushgit.bat "Loi nhan cua cau"
-    pause
-    exit /b 1
-)
-
-REM Lấy toàn bộ nội dung sau tên file làm lời nhắn commit
-set commit_message=%*
-
-REM Lấy tên nhánh hiện tại
-echo Dang lay ten nhanh hien tai...
-for /f %%i in ('git rev-parse --abbrev-ref HEAD') do set current_branch=%%i
-
-if "%current_branch%"=="" (
-   echo Le loi roi: Khong tim thay ten nhanh. Cau dang o trong thu muc Git chua?
-   pause
-   exit /b 1
-)
-echo Nhannh hien tai la: %current_branch%
+:menu
+cls
+echo ===================================
+echo      GIT COMMIT TOOL
+echo ===================================
 echo.
+echo 1. Commit va Push (Day len nhanh)
+echo 2. Chi Push (Neu da commit)
+echo 3. Kiem tra Status
+echo 4. Thoat
+echo.
+set /p choice=Chon mot chuc nang (1-4): 
 
-REM Chạy git add .
-echo Dang chay 'git add .' ...
+if "%choice%"=="1" goto commit_push
+if "%choice%"=="2" goto push_only
+if "%choice%"=="3" goto status
+if "%choice%"=="4" goto exit
+
+echo Lua chon khong hop le. Nhan phim bat ky de thu lai.
+pause > nul
+goto menu
+
+:commit_push
+cls
+echo --- 1. Commit va Push ---
+echo.
+set /p message=Nhap commit message cua ban: 
+echo.
+echo [INFO] Dang thuc hien 'git add .'
 git add .
 echo.
-
-REM Chạy git commit
-echo Dang chay 'git commit -m "%commit_message%"' ...
-git commit -m %commit_message%
-if errorlevel 1 (
-    echo Co loi khi commit. Co the khong co gi thay doi de commit?
-    pause
-    exit /b 1
-)
+echo [INFO] Dang thuc hien 'git commit -m "%message%"'
+git commit -m "%message%"
 echo.
-
-REM Chạy git push
-echo Dang chay 'git push origin %current_branch%' ...
-git push origin %current_branch%
-if errorlevel 1 (
-    echo Co loi khi push. Kiem tra lai ket noi hoac cau hinh remote 'origin'.
-    pause
-    exit /b 1
-)
+echo [INFO] Dang thuc hien 'git push'
+git push
 echo.
-
-echo Xong! Da day code len GitHub. ^_^
+echo [SUCCESS] Da hoan thanh!
 pause
+goto menu
+
+:push_only
+cls
+echo --- 2. Chi Push ---
+echo.
+echo [INFO] Dang thuc hien 'git push'
+git push
+echo.
+echo [SUCCESS] Da hoan thanh!
+pause
+goto menu
+
+:status
+cls
+echo --- 3. Kiem tra Status ---
+echo.
+git status
+echo.
+pause
+goto menu
+
+:exit
+cls
+echo Tam biet!
+exit

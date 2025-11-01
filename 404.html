@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Lạc đường rồi!</title>
+    <link rel="icon" type="image/png" href="Res/favicon.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg-page: linear-gradient(135deg,#0f172a,#1e293b);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-1: #60a5fa;
+            --accent-2: #2563eb;
+            --purple-accent: #a855f7; /* Thêm màu tím */
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; overflow: hidden; } /* Ẩn scrollbar nếu không cần */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-page);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .error-container {
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .error-illustration {
+            width: 60%; /* Kích thước SVG */
+            max-width: 250px;
+            height: auto;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        .error-code {
+            font-size: clamp(60px, 20vw, 100px); /* Kích thước chữ co giãn */
+            font-weight: 700;
+            margin-bottom: 0px;
+            line-height: 1;
+            background: linear-gradient(45deg, var(--accent-1), var(--purple-accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: float 3s ease-in-out infinite alternate; /* Hiệu ứng float */
+            text-shadow: 0 5px 25px rgba(96, 165, 250, 0.2);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-10px); }
+        }
+
+        .error-message {
+            font-size: clamp(20px, 5vw, 26px); /* Kích thước co giãn */
+            font-weight: 600;
+            margin-top: 10px; /* Thêm khoảng cách trên */
+            margin-bottom: 15px;
+        }
+
+        .error-description {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
+        .home-button {
+            display: inline-flex; /* Dùng inline-flex để căn icon */
+            align-items: center;
+            gap: 8px; /* Khoảng cách giữa icon và chữ */
+            padding: 13px 30px; /* Tăng padding */
+            border-radius: 12px; /* Bo tròn hơn */
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600; /* Đậm hơn */
+            font-size: 16px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+        .home-button svg { /* Style cho icon */
+            width: 18px;
+            height: 18px;
+        }
+
+        .home-button:hover {
+            transform: translateY(-3px) scale(1.02); /* Hiệu ứng nhích lên khi hover */
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+        }
+
+        /* Responsive */
+         @media (max-width: 600px) {
+            .error-illustration { margin-bottom: 20px; }
+            .error-description { font-size: 15px; }
+            .home-button { padding: 11px 25px; font-size: 15px; }
+         }
+
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <svg class="error-illustration" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+         <defs>
+            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:var(--accent-1);stop-opacity:1" />
+              <stop offset="100%" style="stop-color:var(--purple-accent);stop-opacity:1" />
+            </linearGradient>
+         </defs>
+         <path fill="url(#grad1)" d="M48.2,-64.8C61.4,-54.3,70.3,-39.1,75.4,-23.1C80.5,-7.1,81.8,9.7,75.9,23.8C70,37.9,56.9,49.2,43.2,58.3C29.6,67.4,15.4,74.3,0.3,74.1C-14.7,73.9,-29.5,66.6,-43.5,57.7C-57.5,48.8,-70.8,38.3,-76.3,24.6C-81.8,10.9,-79.5,-6,-72.6,-20.9C-65.7,-35.8,-54.2,-48.7,-41.4,-59.2C-28.7,-69.8,-14.3,-78,0.9,-78.8C16.1,-79.6,32.1,-72.9,48.2,-64.8Z" transform="translate(100 100)" opacity="0.15" />
+         <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="80" font-weight="bold" fill="rgba(255,255,255,0.1)">?</text>
+        </svg>
+
+        <div class="error-code">404</div>
+        <div class="error-message">Oops! Hình như bị lạc rồi</div>
+        <div class="error-description">
+            Đường dẫn bạn tìm kiếm không tồn tại hoặc đã bị thay đổi.
+            Quay lại trang chủ để tìm đúng đường nhé!
+        </div>
+        <a href="/" class="home-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Về Trang Chủ
+        </a>
+    </div>
+</body>
+</html>

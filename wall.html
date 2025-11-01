@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Tường nhà - Qola</title>
+<link rel="icon" type="image/png" href="Res/favicon.png">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 :root{
@@ -292,11 +293,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-(function initWallTheme() {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') document.body.classList.add('light');
-    else document.body.classList.remove('light');
-})();
 
 const toast = document.getElementById('toast');
 const headerAvatar = document.getElementById('header-avatar');
